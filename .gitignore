@@ -1,0 +1,21 @@
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.backup
+**/.terraform.lock.hcl
+**/terraform.tfvars
+**/.terraformrc
+**/terraform.rc
+**/crash.log
+**/override.tf
+**/override.tf.json
+
+# Secrets
+*.pem
+*.key
+*.p12
+*_sa_key.json
+service-account*.json
+
+# OS
+.DS_Store

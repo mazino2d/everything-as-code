@@ -1,0 +1,51 @@
+resource "github_repository" "this" {
+  name                   = var.name
+  description            = var.description
+  visibility             = var.visibility
+  topics                 = var.topics
+  has_issues             = var.has_issues
+  has_wiki               = var.has_wiki
+  has_projects           = var.has_projects
+  has_discussions        = var.has_discussions
+  allow_merge_commit     = var.allow_merge_commit
+  allow_squash_merge     = var.allow_squash_merge
+  allow_rebase_merge     = var.allow_rebase_merge
+  allow_auto_merge       = var.allow_auto_merge
+  is_template            = var.is_template
+  delete_branch_on_merge = var.delete_branch_on_merge
+  archived               = var.archived
+  auto_init              = false
+
+  dynamic "pages" {
+    for_each = var.pages != null ? [var.pages] : []
+    content {
+      build_type = pages.value.build_type
+      cname      = pages.value.cname
+      source {
+        branch = pages.value.branch
+        path   = pages.value.path
+      }
+    }
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "github_branch_default" "this" {
+  count      = var.archived ? 0 : 1
+  repository = github_repository.this.name
+  branch     = var.default_branch
+}
+
+resource "github_branch_protection" "this" {
+  count                           = var.archived ? 0 : 1
+  repository_id                   = github_repository.this.node_id
+  pattern                         = var.default_branch
+  require_conversation_resolution = var.branch_protection.require_conversation_resolution
+
+  required_pull_request_reviews {
+    required_approving_review_count = var.branch_protection.required_approving_review_count
+  }
+}
