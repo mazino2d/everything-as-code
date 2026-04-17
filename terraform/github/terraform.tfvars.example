@@ -1,0 +1,3 @@
+# Copy to terraform.tfvars (gitignored) and fill in values
+github_token = "ghp_xxxxxxxxxxxxxxxxxxxx"
+github_owner = "your-github-username"
