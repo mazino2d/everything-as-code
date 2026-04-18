@@ -7,7 +7,7 @@ module "everything_as_code" {
   name        = "everything-as-code"
   description = "Infrastructure, platform, and tooling managed as code"
   visibility  = "public"
-  topics      = ["terraform", "iac", "gitops", "github", "helm"]
+  topics      = ["terraform", "iac", "gitops", "github"]
 }
 
 module "mazino2d" {
@@ -52,7 +52,10 @@ module "jaffle_shop" {
   description = "dbt learning playground based on the Jaffle Shop demo"
   visibility  = "public"
   topics      = ["dbt", "data-engineering", "analytics"]
-  
+
+  pages = {
+    build_type = "workflow"
+  }
 }
 
 module "sim_split" {
