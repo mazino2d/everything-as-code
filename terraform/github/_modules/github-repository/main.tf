@@ -46,6 +46,7 @@ resource "github_branch_protection" "this" {
   count                           = var.archived ? 0 : 1
   repository_id                   = github_repository.this.node_id
   pattern                         = var.default_branch
+  enforce_admins                  = var.branch_protection.enforce_admins
   require_conversation_resolution = var.branch_protection.require_conversation_resolution
 
   required_pull_request_reviews {
