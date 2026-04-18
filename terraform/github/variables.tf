@@ -5,5 +5,6 @@ variable "github_token" {
 }
 
 variable "github_owner" {
-  type = string
+  type    = string
+  default = null
 }

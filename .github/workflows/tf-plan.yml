@@ -25,4 +25,4 @@ jobs:
         run: terraform init
 
       - name: Plan
-        run: terraform plan -no-color -refresh=false
+        run: terraform plan -no-color
