@@ -7,7 +7,7 @@ module "test_repo" {
   name        = "test_repo"
   description = "test_repo"
   visibility  = "public"
-  topics      = ["test_repo"]
+  topics      = ["test-repo"]
 }
 
 module "everything_as_code" {
