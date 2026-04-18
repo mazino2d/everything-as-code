@@ -64,7 +64,7 @@ variable "is_template" {
 
 variable "pages" {
   type = object({
-    branch     = string
+    branch     = optional(string, null)
     path       = optional(string, "/")
     cname      = optional(string, null)
     build_type = optional(string, "legacy")
