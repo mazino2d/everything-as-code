@@ -92,6 +92,7 @@ variable "branch_protection" {
   type = object({
     required_approving_review_count = optional(number, 0)
     require_conversation_resolution = optional(bool, false)
+    enforce_admins                  = optional(bool, true)
   })
   default = {}
 }
