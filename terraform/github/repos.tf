@@ -2,6 +2,14 @@
 # Active - Public
 # ===================================================================
 
+module "test_repo" {
+  source      = "./_modules/github-repository"
+  name        = "test_repo"
+  description = "test_repo"
+  visibility  = "public"
+  topics      = ["test_repo"]
+}
+
 module "everything_as_code" {
   source      = "./_modules/github-repository"
   name        = "everything-as-code"
