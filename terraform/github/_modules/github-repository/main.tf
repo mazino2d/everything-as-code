@@ -32,7 +32,7 @@ resource "github_repository" "this" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
