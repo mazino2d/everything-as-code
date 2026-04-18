@@ -49,6 +49,14 @@ resource "github_branch_protection" "this" {
   enforce_admins                  = var.branch_protection.enforce_admins
   require_conversation_resolution = var.branch_protection.require_conversation_resolution
 
+  dynamic "required_status_checks" {
+    for_each = var.branch_protection.required_status_checks == null ? [] : [var.branch_protection.required_status_checks]
+    content {
+      strict   = required_status_checks.value.strict
+      contexts = required_status_checks.value.contexts
+    }
+  }
+
   required_pull_request_reviews {
     required_approving_review_count = var.branch_protection.required_approving_review_count
   }
