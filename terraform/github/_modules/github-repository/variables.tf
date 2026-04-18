@@ -93,6 +93,8 @@ variable "branch_protection" {
     required_approving_review_count = optional(number, 0)
     require_conversation_resolution = optional(bool, false)
     enforce_admins                  = optional(bool, true)
+    dismiss_stale_reviews           = optional(bool, true)
+    require_linear_history          = optional(bool, true)
     required_status_checks = optional(object({
       strict   = optional(bool, true)
       contexts = optional(list(string), [])
