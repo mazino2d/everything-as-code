@@ -26,6 +26,3 @@ jobs:
 
       - name: Plan
         run: terraform plan -no-color
-        env:
-          TF_VAR_github_token: ${{ secrets.GH_TOKEN }}
-          TF_VAR_github_owner: ${{ vars.GH_OWNER }}
