@@ -13,7 +13,7 @@ module "everything_as_code" {
 module "mazino2d" {
   source      = "../_modules/github-repository"
   name        = "mazino2d"
-  description = "GitHub profile README"
+  description = "GitHub profile README :D"
   visibility  = "public"
   topics      = ["profile"]
 }
