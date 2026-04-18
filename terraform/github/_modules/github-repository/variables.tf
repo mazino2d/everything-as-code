@@ -54,7 +54,7 @@ variable "allow_rebase_merge" {
 
 variable "allow_auto_merge" {
   type    = bool
-  default = false
+  default = null
 }
 
 variable "is_template" {
