@@ -25,7 +25,7 @@ jobs:
         run: terraform init
 
       - name: Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -lock=false
         env:
           TF_VAR_github_token: ${{ secrets.GH_TOKEN }}
-          TF_VAR_github_owner: ${{ vars.GITHUB_OWNER }}
+          TF_VAR_github_owner: ${{ vars.GH_OWNER }}
