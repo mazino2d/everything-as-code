@@ -28,4 +28,4 @@ jobs:
         run: terraform init
 
       - name: Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -refresh=false
