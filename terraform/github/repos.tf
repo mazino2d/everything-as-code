@@ -7,7 +7,7 @@ module "everything_as_code" {
   name        = "everything-as-code"
   description = "Infrastructure, platform, and tooling managed as code"
   visibility  = "public"
-  topics      = ["terraform", "iac", "gitops", "github"]
+  topics      = ["terraform", "iac", "gitops", "github", "helm"]
 }
 
 module "mazino2d" {
