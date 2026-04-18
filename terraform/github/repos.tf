@@ -3,7 +3,7 @@
 # ===================================================================
 
 module "everything_as_code" {
-  source      = "../_modules/github-repository"
+  source      = "./_modules/github-repository"
   name        = "everything-as-code"
   description = "Infrastructure, platform, and tooling managed as code"
   visibility  = "public"
@@ -11,7 +11,7 @@ module "everything_as_code" {
 }
 
 module "mazino2d" {
-  source      = "../_modules/github-repository"
+  source      = "./_modules/github-repository"
   name        = "mazino2d"
   description = "GitHub profile README :D"
   visibility  = "public"
@@ -19,7 +19,7 @@ module "mazino2d" {
 }
 
 module "mazino2d_github_io" {
-  source       = "../_modules/github-repository"
+  source       = "./_modules/github-repository"
   name         = "mazino2d.github.io"
   description  = "My SPACE!"
   visibility   = "public"
@@ -34,7 +34,7 @@ module "mazino2d_github_io" {
 }
 
 module "caketool" {
-  source      = "../_modules/github-repository"
+  source      = "./_modules/github-repository"
   name        = "caketool"
   description = "Machine learning library"
   visibility  = "public"
@@ -47,7 +47,7 @@ module "caketool" {
 }
 
 module "jaffle_shop" {
-  source      = "../_modules/github-repository"
+  source      = "./_modules/github-repository"
   name        = "jaffle-shop"
   description = "dbt learning playground based on the Jaffle Shop demo"
   visibility  = "public"
@@ -59,7 +59,7 @@ module "jaffle_shop" {
 }
 
 module "sim_split" {
-  source      = "../_modules/github-repository"
+  source      = "./_modules/github-repository"
   name        = "sim-split"
   description = "Bill splitting simulation app"
   visibility  = "public"
@@ -67,7 +67,7 @@ module "sim_split" {
 }
 
 module "staged_recipes" {
-  source      = "../_modules/github-repository"
+  source      = "./_modules/github-repository"
   name        = "staged-recipes"
   description = "Conda recipes staged before publishing to conda-forge"
   visibility  = "public"
@@ -79,7 +79,7 @@ module "staged_recipes" {
 # ===================================================================
 
 module "a3spy" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "a3spy"
   description    = "Funny game (on Telegram)"
   visibility     = "public"
@@ -89,7 +89,7 @@ module "a3spy" {
 }
 
 module "ex_bk" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "ex-bk"
   description    = "ZALO AI code with my ex-bk"
   visibility     = "public"
@@ -99,7 +99,7 @@ module "ex_bk" {
 }
 
 module "bypass_bkel" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "bypass-bkel"
   description    = "Workaround for BKEL e-learning platform restrictions (HCMUT)"
   visibility     = "public"
@@ -109,7 +109,7 @@ module "bypass_bkel" {
 }
 
 module "data_crawler" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "data-crawler"
   description    = "Web scraping and data crawling utilities"
   visibility     = "public"
@@ -119,7 +119,7 @@ module "data_crawler" {
 }
 
 module "socket_chat" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "socket-chat"
   description    = "TCP/UDP socket chat app — Computer Networks assignment (HCMUT)"
   visibility     = "public"
@@ -129,7 +129,7 @@ module "socket_chat" {
 }
 
 module "pp_course" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "pp-course"
   description    = "Parallel Programming course assignments (HCMUT)"
   visibility     = "public"
@@ -139,7 +139,7 @@ module "pp_course" {
 }
 
 module "ai_course" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "ai-course"
   description    = "Artificial Intelligence course assignments (HCMUT)"
   visibility     = "public"
@@ -149,7 +149,7 @@ module "ai_course" {
 }
 
 module "ppl_course" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "ppl-course"
   description    = "Custom language compiler built from scratch — Programming Principles and Language (HCMUT)"
   visibility     = "public"
@@ -159,7 +159,7 @@ module "ppl_course" {
 }
 
 module "dsa_course" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "dsa-course"
   description    = "Data Structures and Algorithms course assignments (HCMUT)"
   visibility     = "public"
@@ -169,7 +169,7 @@ module "dsa_course" {
 }
 
 module "unrolled_linked_list" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "unrolled-linked-list"
   description    = "Unrolled linked list implementation — DSA assignment (HCMUT)"
   visibility     = "public"
@@ -179,7 +179,7 @@ module "unrolled_linked_list" {
 }
 
 module "baseml" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "baseml"
   description    = "Machine Learning course assignments and implementations (HCMUT)"
   visibility     = "public"
@@ -189,7 +189,7 @@ module "baseml" {
 }
 
 module "utxo_selection" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "utxo-selection"
   description    = "Mathematical models for UTXO selection in Bitcoin transactions"
   visibility     = "public"
@@ -199,7 +199,7 @@ module "utxo_selection" {
 }
 
 module "syscall_proc_info" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "syscall-proc-info"
   description    = "Custom Linux kernel 5.0 system call for process info — OS assignment (HCMUT)"
   visibility     = "public"
@@ -209,7 +209,7 @@ module "syscall_proc_info" {
 }
 
 module "os_course" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "os-course"
   description    = "Operating Systems course assignments (HCMUT)"
   visibility     = "public"
@@ -219,7 +219,7 @@ module "os_course" {
 }
 
 module "os_simulation" {
-  source         = "../_modules/github-repository"
+  source         = "./_modules/github-repository"
   name           = "os-simulation"
   description    = "OS process and memory scheduling simulation — OS assignment (HCMUT)"
   visibility     = "public"
