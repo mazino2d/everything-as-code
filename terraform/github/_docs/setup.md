@@ -14,6 +14,7 @@ After creating an HCP Terraform account, create an organization at [app.terrafor
 **Create a GitHub Classic Token:** [github.com/settings/tokens/new](https://github.com/settings/tokens/new)
 
 Required scopes:
+
 - `repo`
 - `delete_repo`
 - `read:org`
@@ -25,7 +26,7 @@ Go to workspace `github` → **Variables** → Add variable:
 | Category    | Key            | Value           | Sensitive |
 |-------------|----------------|-----------------|-----------|
 | Environment | `GITHUB_TOKEN` | token           | ✅        |
-| Terraform   | `github_owner` | GitHub username | ❌        |
+| Environment | `GITHUB_OWNER` | GitHub username | ❌        |
 
 ---
 
@@ -48,5 +49,6 @@ Go to repo → **Settings → Secrets and variables → Secrets** → New reposi
 ## 4. Terraform Cloud Workspace Settings
 
 Go to workspace `github` → **Settings → General**:
+
 - Execution Mode: **Remote**
 - Auto-apply API, UI, & VCS runs: **On**
