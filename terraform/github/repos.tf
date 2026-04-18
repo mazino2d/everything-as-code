@@ -8,6 +8,13 @@ module "everything_as_code" {
   description = "Infrastructure, platform, and tooling managed as code"
   visibility  = "public"
   topics      = ["terraform", "iac", "gitops", "github"]
+
+  branch_protection = {
+    required_status_checks = {
+      strict   = true
+      contexts = ["plan"]
+    }
+  }
 }
 
 module "mazino2d" {
