@@ -1,20 +1,22 @@
 resource "github_repository" "this" {
-  name                   = var.name
-  description            = var.description
-  visibility             = var.visibility
-  topics                 = var.topics
-  has_issues             = var.has_issues
-  has_wiki               = var.has_wiki
-  has_projects           = var.has_projects
-  has_discussions        = var.has_discussions
-  allow_merge_commit     = var.allow_merge_commit
-  allow_squash_merge     = var.allow_squash_merge
-  allow_rebase_merge     = var.allow_rebase_merge
-  allow_auto_merge       = var.allow_auto_merge
-  is_template            = var.is_template
-  delete_branch_on_merge = var.delete_branch_on_merge
-  archived               = var.archived
-  auto_init              = false
+  name                        = var.name
+  description                 = var.description
+  visibility                  = var.visibility
+  topics                      = var.topics
+  has_issues                  = var.has_issues
+  has_wiki                    = var.has_wiki
+  has_projects                = var.has_projects
+  has_discussions             = var.has_discussions
+  allow_merge_commit          = var.allow_merge_commit
+  allow_squash_merge          = var.allow_squash_merge
+  allow_rebase_merge          = var.allow_rebase_merge
+  allow_auto_merge            = var.allow_auto_merge != null ? var.allow_auto_merge : var.branch_protection.required_status_checks != null
+  squash_merge_commit_title   = "PR_TITLE"
+  squash_merge_commit_message = "PR_BODY"
+  is_template                 = var.is_template
+  delete_branch_on_merge      = var.delete_branch_on_merge
+  archived                    = var.archived
+  auto_init                   = false
 
   dynamic "pages" {
     for_each = var.pages != null ? [var.pages] : []
@@ -48,6 +50,7 @@ resource "github_branch_protection" "this" {
   pattern                         = var.default_branch
   enforce_admins                  = var.branch_protection.enforce_admins
   require_conversation_resolution = var.branch_protection.require_conversation_resolution
+  required_linear_history         = var.branch_protection.required_linear_history
 
   dynamic "required_status_checks" {
     for_each = var.branch_protection.required_status_checks == null ? [] : [var.branch_protection.required_status_checks]
@@ -59,5 +62,6 @@ resource "github_branch_protection" "this" {
 
   required_pull_request_reviews {
     required_approving_review_count = var.branch_protection.required_approving_review_count
+    dismiss_stale_reviews           = var.branch_protection.dismiss_stale_reviews
   }
 }
