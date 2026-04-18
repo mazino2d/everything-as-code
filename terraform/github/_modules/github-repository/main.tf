@@ -50,7 +50,7 @@ resource "github_branch_protection" "this" {
   pattern                         = var.default_branch
   enforce_admins                  = var.branch_protection.enforce_admins
   require_conversation_resolution = var.branch_protection.require_conversation_resolution
-  require_linear_history          = var.branch_protection.require_linear_history
+  required_linear_history         = var.branch_protection.required_linear_history
 
   dynamic "required_status_checks" {
     for_each = var.branch_protection.required_status_checks == null ? [] : [var.branch_protection.required_status_checks]
