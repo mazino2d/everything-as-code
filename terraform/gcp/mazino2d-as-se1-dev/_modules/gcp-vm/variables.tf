@@ -30,3 +30,13 @@ variable "tags" {
   type    = list(string)
   default = []
 }
+
+variable "startup_script" {
+  type    = string
+  default = null
+}
+
+variable "extra_ports" {
+  type    = list(string)
+  default = []
+}
