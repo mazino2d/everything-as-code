@@ -14,6 +14,7 @@
 gcloud projects create <project-id> --name="<project-name>"
 gcloud billing projects link <project-id> --billing-account=<billing-account-id>
 gcloud services enable iam.googleapis.com --project=<project-id>
+gcloud services enable cloudresourcemanager.googleapis.com --project=<project-id>
 
 # Create Terraform service account in the project
 gcloud iam service-accounts create terraform \
@@ -55,7 +56,7 @@ Create a new workspace at [app.terraform.io](https://app.terraform.io):
 
 | Type        | Key               | Value                                    | Sensitive |
 |-------------|-------------------|------------------------------------------|-----------|
-| Environment | `GCP_CREDENTIALS` | contents of `/tmp/terraform-sa-key.json` | ✅        |
+| Terraform | `gcp_credentials` | contents of `/tmp/terraform-sa-key.json` | ✅        |
 
 1. **Settings → General**:
    - Execution Mode: **Remote**
