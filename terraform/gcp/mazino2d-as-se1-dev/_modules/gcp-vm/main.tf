@@ -22,6 +22,21 @@ resource "google_compute_firewall" "allow_ssh" {
   target_tags   = ["${var.name}-ssh"]
 }
 
+resource "google_compute_firewall" "extra_ports" {
+  count   = length(var.extra_ports) > 0 ? 1 : 0
+  name    = "${var.name}-allow-extra"
+  network = "default"
+  project = var.project_id
+
+  allow {
+    protocol = "tcp"
+    ports    = var.extra_ports
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["${var.name}-ssh"]
+}
+
 resource "google_compute_instance" "this" {
   name         = var.name
   machine_type = var.machine_type
@@ -48,6 +63,7 @@ resource "google_compute_instance" "this" {
   metadata = {
     ssh-keys               = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
     block-project-ssh-keys = "true"
+    startup-script         = var.startup_script
   }
 
   lifecycle {
