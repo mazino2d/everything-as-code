@@ -3,3 +3,8 @@ variable "gcp_credentials" {
   sensitive = true
   default   = null
 }
+
+variable "ssh_public_key" {
+  type    = string
+  default = null
+}
