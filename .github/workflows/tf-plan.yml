@@ -10,9 +10,14 @@ jobs:
   plan-terraform:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      matrix:
+        stack:
+          - terraform/github
+          - terraform/gcp/mazino2d-as-se1-dev
     defaults:
       run:
-        working-directory: terraform/github
+        working-directory: ${{ matrix.stack }}
     steps:
       - uses: actions/checkout@v4
 
