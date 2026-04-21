@@ -1,0 +1,36 @@
+name: k8s Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "kubernetes/clusters/**"
+      - ".github/workflows/k8s-deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-kubectl@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Replace VM IP in manifests
+        run: |
+          find kubernetes/clusters/ -name "*.yaml" \
+            -exec sed -i "s/REPLACE_WITH_VM_IP/${{ vars.VM_IP }}/g" {} \;
+
+      - name: Deploy apps
+        run: |
+          kubectl create namespace apps --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -k kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
