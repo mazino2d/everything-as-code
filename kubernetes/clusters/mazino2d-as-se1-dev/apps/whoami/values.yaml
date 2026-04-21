@@ -1,0 +1,14 @@
+name: whoami
+image:
+  repository: traefik/whoami
+  tag: latest
+replicaCount: 1
+service:
+  port: 80
+  containerPort: 80
+ingress:
+  enabled: true
+  host: whoami.REPLACE_WITH_VM_IP.nip.io
+env:
+  APP_ENV: dev
+  GREETING: hello from k3s
