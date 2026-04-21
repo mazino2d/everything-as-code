@@ -12,7 +12,7 @@ module "everything_as_code" {
   branch_protection = {
     required_status_checks = {
       strict   = true
-      contexts = ["plan"]
+      contexts = ["check_terraform", "check_k8s"]
     }
   }
 }
