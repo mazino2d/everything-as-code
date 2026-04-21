@@ -29,6 +29,13 @@ jobs:
 
       - uses: azure/setup-helm@v4
 
+      - name: Install kustomize
+        run: |
+          KUSTOMIZE_VERSION=v5.4.3
+          curl -sLO "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          tar xzf "kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          sudo mv kustomize /usr/local/bin/kustomize
+
       - name: Lint Helm charts
         run: |
           for chart in kubernetes/charts/*/; do
@@ -40,7 +47,7 @@ jobs:
         run: |
           find kubernetes/clusters/ -name "*.yaml" \
             -exec sed -i "s/REPLACE_WITH_VM_IP/1.2.3.4/g" {} \;
-          kubectl kustomize kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
+          kustomize build kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
 
   check-k8s:
     runs-on: ubuntu-latest
