@@ -1,0 +1,59 @@
+name: Kubernetes Validate
+
+on:
+  pull_request:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      kubernetes: ${{ steps.filter.outputs.kubernetes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            kubernetes:
+              - "kubernetes/**"
+              - ".github/workflows/k8s-validate.yml"
+
+  validate:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.kubernetes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-kubectl@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Lint Helm charts
+        run: |
+          for chart in kubernetes/charts/*/; do
+            echo "==> Linting $chart"
+            helm lint "$chart"
+          done
+
+      - name: Build Kustomize + Helm (dry-run)
+        run: |
+          find kubernetes/clusters/ -name "*.yaml" \
+            -exec sed -i "s/REPLACE_WITH_VM_IP/1.2.3.4/g" {} \;
+          kubectl kustomize kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
+
+  check-k8s:
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - validate
+    if: always()
+    steps:
+      - name: Verify validate passed
+        run: |
+          kubernetes_changed="${{ needs.detect-changes.outputs.kubernetes }}"
+          validate_result="${{ needs.validate.result }}"
+          if [[ "$kubernetes_changed" == "true" && "$validate_result" != "success" ]]; then
+            echo "validate result: $validate_result"
+            exit 1
+          fi
