@@ -3,8 +3,7 @@ variable "name" {
 }
 
 variable "description" {
-  type    = string
-  default = ""
+  type = string
 }
 
 variable "parent_id" {
