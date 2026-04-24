@@ -2,11 +2,11 @@ data "oci_identity_availability_domains" "this" {
   compartment_id = var.compartment_id
 }
 
-data "oci_core_images" "ubuntu_arm" {
+data "oci_core_images" "this" {
   compartment_id           = var.compartment_id
   operating_system         = "Canonical Ubuntu"
   operating_system_version = "22.04"
-  shape                    = "VM.Standard.A1.Flex"
+  shape                    = var.shape
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
 }
@@ -106,16 +106,19 @@ resource "oci_core_instance" "this" {
   compartment_id      = var.compartment_id
   availability_domain = data.oci_identity_availability_domains.this.availability_domains[0].name
   display_name        = var.name
-  shape               = "VM.Standard.A1.Flex"
+  shape               = var.shape
 
-  shape_config {
-    ocpus         = var.ocpus
-    memory_in_gbs = var.memory_in_gbs
+  dynamic "shape_config" {
+    for_each = var.ocpus != null || var.memory_in_gbs != null ? [1] : []
+    content {
+      ocpus         = var.ocpus
+      memory_in_gbs = var.memory_in_gbs
+    }
   }
 
   source_details {
     source_type             = "image"
-    source_id               = data.oci_core_images.ubuntu_arm.images[0].id
+    source_id               = data.oci_core_images.this.images[0].id
     boot_volume_size_in_gbs = var.boot_volume_size_gb
   }
 
