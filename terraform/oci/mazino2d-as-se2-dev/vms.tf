@@ -1,9 +1,7 @@
-module "vm" {
+module "vm_micro" {
   source         = "./_modules/oci-vm"
-  name           = "vm"
+  name           = "vm-micro"
   compartment_id = module.compartment.compartment_id
-  ocpus          = 4
-  memory_in_gbs  = 24
+  shape          = "VM.Standard.E2.1.Micro"
   ssh_public_key = var.ssh_public_key
-  startup_script = file("${path.module}/_scripts/install_k3s.sh")
 }
