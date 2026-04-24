@@ -64,7 +64,26 @@ Create a new workspace at [app.terraform.io](https://app.terraform.io):
 
 ---
 
-## 5. GitHub Actions
+## 5. K3S Kubeconfig
+
+After k3s is installed on the VM, export the kubeconfig and set it as a GitHub secret:
+
+```bash
+ssh user@<vm-external-ip> "sudo cat /etc/rancher/k3s/k3s.yaml" \
+  | sed 's/127.0.0.1/<vm-external-ip>/g' \
+  | base64 \
+  | gh secret set K3S_KUBECONFIG --repo <owner>/<repo>
+```
+
+Also set the VM IP as a GitHub variable (used to replace placeholders in manifests):
+
+```bash
+gh variable set VM_IP --body "<vm-external-ip>" --repo <owner>/<repo>
+```
+
+---
+
+## 6. GitHub Actions
 
 Add the new project to the matrix in both workflow files:
 

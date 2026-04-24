@@ -12,12 +12,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: k8s-${{ matrix.cluster }}
+    strategy:
+      matrix:
+        cluster:
+          - mazino2d-as-se1-dev
     steps:
       - uses: actions/checkout@v4
 
       - uses: azure/setup-kubectl@v4
 
       - uses: azure/setup-helm@v4
+
+      - uses: imranismail/setup-kustomize@v2
 
       - name: Configure kubeconfig
         run: |
@@ -27,10 +34,10 @@ jobs:
 
       - name: Replace VM IP in manifests
         run: |
-          find kubernetes/clusters/ -name "*.yaml" \
+          find kubernetes/clusters/${{ matrix.cluster }}/ -name "*.yaml" \
             -exec sed -i "s/REPLACE_WITH_VM_IP/${{ vars.VM_IP }}/g" {} \;
 
       - name: Deploy apps
         run: |
           kubectl create namespace apps --dry-run=client -o yaml | kubectl apply -f -
-          kubectl apply -k kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
+          kustomize build --enable-helm kubernetes/clusters/${{ matrix.cluster }}/apps/ | kubectl apply -f -
