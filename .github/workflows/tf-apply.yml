@@ -1,6 +1,8 @@
 name: Terraform Apply
 
 on:
+  schedule:
+    - cron: "*/10 * * * *"
   push:
     branches:
       - main
