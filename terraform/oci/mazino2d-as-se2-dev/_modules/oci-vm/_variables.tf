@@ -6,14 +6,18 @@ variable "compartment_id" {
   type = string
 }
 
+variable "shape" {
+  type = string
+}
+
 variable "ocpus" {
   type    = number
-  default = 4
+  default = null
 }
 
 variable "memory_in_gbs" {
   type    = number
-  default = 24
+  default = null
 }
 
 variable "boot_volume_size_gb" {
