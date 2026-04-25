@@ -18,7 +18,7 @@ variable "machine_type" {
 
 variable "disk_size_gb" {
   type    = number
-  default = 30
+  default = 10
 }
 
 variable "ssh_public_key" {
