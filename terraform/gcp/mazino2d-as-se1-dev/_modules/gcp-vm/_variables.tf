@@ -60,3 +60,4 @@ variable "duckdns_domain" {
   type    = string
   default = null
 }
+

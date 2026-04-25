@@ -6,10 +6,6 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 6.0"
     }
-    duckdns = {
-      source  = "sportradar/duckdns"
-      version = "~> 0.1"
-    }
   }
 
   cloud {
@@ -26,6 +22,3 @@ provider "google" {
   project     = "mazino2d-as-se1-dev"
 }
 
-provider "duckdns" {
-  token = var.duckdns_token
-}

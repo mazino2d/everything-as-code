@@ -8,9 +8,3 @@ variable "ssh_public_key" {
   type    = string
   default = null
 }
-
-variable "duckdns_token" {
-  type      = string
-  sensitive = true
-  default   = null
-}
