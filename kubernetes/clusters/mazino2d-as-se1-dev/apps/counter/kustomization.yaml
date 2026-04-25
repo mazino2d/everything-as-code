@@ -4,6 +4,6 @@ helmGlobals:
   chartHome: ../../../../charts
 helmCharts:
   - name: eac-app
-    releaseName: whoami
+    releaseName: counter
     namespace: apps
     valuesFile: values.yaml
