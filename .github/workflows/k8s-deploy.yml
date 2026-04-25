@@ -32,11 +32,6 @@ jobs:
           echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Replace VM IP in manifests
-        run: |
-          find kubernetes/clusters/${{ matrix.cluster }}/ -name "*.yaml" \
-            -exec sed -i "s/REPLACE_WITH_VM_IP/${{ vars.VM_IP }}/g" {} \;
-
       - name: Deploy apps
         run: |
           kubectl create namespace apps --dry-run=client -o yaml | kubectl apply -f -

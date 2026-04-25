@@ -45,8 +45,6 @@ jobs:
 
       - name: Build Kustomize + Helm (dry-run)
         run: |
-          find kubernetes/clusters/ -name "*.yaml" \
-            -exec sed -i "s/REPLACE_WITH_VM_IP/1.2.3.4/g" {} \;
           kustomize build kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
 
   check-k8s:
