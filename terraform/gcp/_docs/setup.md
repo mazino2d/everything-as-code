@@ -56,7 +56,8 @@ Create a new workspace at [app.terraform.io](https://app.terraform.io):
 
 | Type        | Key               | Value                                    | Sensitive |
 |-------------|-------------------|------------------------------------------|-----------|
-| Terraform | `gcp_credentials` | contents of `/tmp/terraform-sa-key.json` | ✅        |
+| Terraform   | `gcp_credentials` | contents of `/tmp/terraform-sa-key.json` | ✅        |
+| Environment | `DUCKDNS_TOKEN`   | DuckDNS API token                        | ✅        |
 
 1. **Settings → General**:
    - Execution Mode: **Remote**
@@ -66,19 +67,14 @@ Create a new workspace at [app.terraform.io](https://app.terraform.io):
 
 ## 5. K3S Kubeconfig
 
-After k3s is installed on the VM, export the kubeconfig and set it as a GitHub secret:
+After k3s is installed on the VM, export the kubeconfig and set it as a GitHub secret.
+The VM uses an ephemeral IP — use the DuckDNS domain so the kubeconfig stays valid after restarts:
 
 ```bash
-ssh user@<vm-external-ip> "sudo cat /etc/rancher/k3s/k3s.yaml" \
-  | sed 's/127.0.0.1/<vm-external-ip>/g' \
+ssh user@<duckdns-domain>.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
+  | sed 's/127.0.0.1/<duckdns-domain>.duckdns.org/g' \
   | base64 \
   | gh secret set K3S_KUBECONFIG --repo <owner>/<repo>
-```
-
-Also set the VM IP as a GitHub variable (used to replace placeholders in manifests):
-
-```bash
-gh variable set VM_IP --body "<vm-external-ip>" --repo <owner>/<repo>
 ```
 
 ---
