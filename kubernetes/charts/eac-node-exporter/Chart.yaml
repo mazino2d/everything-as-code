@@ -1,0 +1,4 @@
+apiVersion: v2
+name: eac-node-exporter
+version: 0.1.0
+description: Prometheus Node Exporter as a DaemonSet for host-level metrics

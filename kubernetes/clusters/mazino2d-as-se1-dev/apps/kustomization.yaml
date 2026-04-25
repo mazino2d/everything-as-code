@@ -3,6 +3,7 @@ kind: Kustomization
 helmGlobals:
   chartHome: ../../../charts
 resources:
+  - namespace.yaml
   - whoami
 helmCharts:
   - name: eac-redis
