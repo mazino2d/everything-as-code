@@ -21,3 +21,4 @@ provider "google" {
   credentials = var.gcp_credentials
   project     = "mazino2d-as-se1-dev"
 }
+

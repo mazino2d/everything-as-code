@@ -2,6 +2,16 @@ locals {
   region = join("-", slice(split("-", var.zone), 0, 2))
 }
 
+resource "terraform_data" "duckdns" {
+  count            = var.duckdns_domain != null ? 1 : 0
+  triggers_replace = [google_compute_address.this[0].address]
+
+  provisioner "local-exec" {
+    command = "result=$(curl -sf 'https://www.duckdns.org/update?domains=${var.duckdns_domain}&token=$DUCKDNS_TOKEN&ip=${google_compute_address.this[0].address}') && [ \"$result\" = \"OK\" ]"
+  }
+}
+
+
 resource "google_compute_address" "this" {
   count   = var.enable_static_ip ? 1 : 0
   name    = "${var.name}-ip"
