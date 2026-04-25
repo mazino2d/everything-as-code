@@ -7,7 +7,11 @@ resource "terraform_data" "duckdns" {
   triggers_replace = [google_compute_address.this[0].address]
 
   provisioner "local-exec" {
-    command = "result=$(curl -sf 'https://www.duckdns.org/update?domains=${var.duckdns_domain}&token=$DUCKDNS_TOKEN&ip=${google_compute_address.this[0].address}') && [ \"$result\" = \"OK\" ]"
+    command = <<-EOT
+      result=$(curl -sf "https://www.duckdns.org/update?domains=${var.duckdns_domain}&token=$DUCKDNS_TOKEN&ip=${google_compute_address.this[0].address}&verbose=true")
+      echo "$result"
+      echo "$result" | grep -q '^OK'
+    EOT
   }
 }
 
