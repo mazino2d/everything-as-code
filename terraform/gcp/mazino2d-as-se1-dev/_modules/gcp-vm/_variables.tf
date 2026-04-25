@@ -55,3 +55,9 @@ variable "enable_internet" {
   type    = bool
   default = false
 }
+
+variable "duckdns_domain" {
+  type    = string
+  default = null
+}
+
