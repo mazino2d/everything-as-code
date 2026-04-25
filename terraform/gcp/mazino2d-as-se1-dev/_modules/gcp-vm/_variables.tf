@@ -40,3 +40,8 @@ variable "extra_ports" {
   type    = list(string)
   default = []
 }
+
+variable "spot" {
+  type    = bool
+  default = false
+}

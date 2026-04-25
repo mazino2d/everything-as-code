@@ -66,6 +66,14 @@ resource "google_compute_instance" "this" {
     startup-script         = var.startup_script
   }
 
+  scheduling {
+    preemptible                 = var.spot
+    automatic_restart           = var.spot ? false : true
+    on_host_maintenance         = var.spot ? "TERMINATE" : "MIGRATE"
+    provisioning_model          = var.spot ? "SPOT" : "STANDARD"
+    instance_termination_action = var.spot ? "STOP" : null
+  }
+
   lifecycle {
     prevent_destroy = false
   }
