@@ -5,11 +5,10 @@ module "vm" {
   zone             = "asia-southeast1-b"
   machine_type     = "e2-small"
   spot             = true
-  enable_static_ip = true
-  enable_internet  = true
-  extra_ports      = ["6443", "80", "443"]
-  ssh_public_key   = var.ssh_public_key
-  startup_script   = file("${path.module}/_scripts/install_k3s.sh")
+  external_ip_type = "ephemeral"
   duckdns_domain   = "mazino2d-k3s"
+  extra_ports      = ["6443", "80", "443"]
   tags             = ["k8s", "dev"]
+  ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqUrfB0oPmolyXRYtA9kHDWYy5D2GhhaGb9odfQYvAu"
+  startup_script   = file("${path.module}/_scripts/install_k3s.sh")
 }
