@@ -40,3 +40,18 @@ variable "extra_ports" {
   type    = list(string)
   default = []
 }
+
+variable "spot" {
+  type    = bool
+  default = false
+}
+
+variable "enable_static_ip" {
+  type    = bool
+  default = false
+}
+
+variable "enable_internet" {
+  type    = bool
+  default = false
+}
