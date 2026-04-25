@@ -3,7 +3,7 @@ kind: Kustomization
 helmGlobals:
   chartHome: ../../../../charts
 helmCharts:
-  - name: simple-app
+  - name: eac-app
     releaseName: whoami
     namespace: apps
     valuesFile: values.yaml
