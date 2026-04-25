@@ -18,7 +18,6 @@ jobs:
         stack:
           - terraform/github
           - terraform/gcp/mazino2d-as-se1-dev
-          - terraform/oci/mazino2d-as-se2-dev
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
