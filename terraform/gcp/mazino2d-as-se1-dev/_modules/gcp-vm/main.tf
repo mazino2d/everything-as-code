@@ -73,7 +73,7 @@ resource "google_compute_instance" "this" {
     ssh-keys               = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
     block-project-ssh-keys = "true"
     startup-script         = var.startup_script
-    duckdns-token          = try(data.external.duckdns_token[0].result.token, null)
+    duckdns-token          = try(sensitive(data.external.duckdns_token[0].result.token), null)
     duckdns-domain         = var.duckdns_domain
   }
 
