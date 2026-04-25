@@ -7,8 +7,9 @@ module "vm" {
   spot             = true
   enable_static_ip = true
   enable_internet  = true
-  extra_ports       = ["6443", "80", "443"]
+  extra_ports      = ["6443", "80", "443"]
   ssh_public_key   = var.ssh_public_key
-  startup_script    = file("${path.module}/_scripts/install_k3s.sh")
-  duckdns_domain = "mazino2d-k3s"
+  startup_script   = file("${path.module}/_scripts/install_k3s.sh")
+  duckdns_domain   = "mazino2d-k3s"
+  tags             = ["k8s", "dev"]
 }
