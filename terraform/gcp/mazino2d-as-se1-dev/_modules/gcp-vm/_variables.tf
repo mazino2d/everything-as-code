@@ -46,12 +46,16 @@ variable "spot" {
   default = false
 }
 
-variable "enable_static_ip" {
-  type    = bool
-  default = false
+variable "external_ip_type" {
+  type    = string
+  default = "none"
+  validation {
+    condition     = contains(["none", "ephemeral", "static"], var.external_ip_type)
+    error_message = "Must be none, ephemeral, or static."
+  }
 }
 
-variable "enable_internet" {
+variable "deny_egress_internet" {
   type    = bool
   default = false
 }
@@ -60,4 +64,5 @@ variable "duckdns_domain" {
   type    = string
   default = null
 }
+
 

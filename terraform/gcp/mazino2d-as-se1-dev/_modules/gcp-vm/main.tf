@@ -2,22 +2,13 @@ locals {
   region = join("-", slice(split("-", var.zone), 0, 2))
 }
 
-resource "terraform_data" "duckdns" {
-  count            = var.duckdns_domain != null ? 1 : 0
-  triggers_replace = [google_compute_address.this[0].address]
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      result=$(curl -sf "https://www.duckdns.org/update?domains=${var.duckdns_domain}&token=$DUCKDNS_TOKEN&ip=${google_compute_address.this[0].address}&verbose=true")
-      echo "$result"
-      echo "$result" | grep -q '^OK'
-    EOT
-  }
+data "external" "duckdns_token" {
+  count   = var.duckdns_domain != null ? 1 : 0
+  program = ["bash", "-c", "printf '{\"token\":\"%s\"}' \"$DUCKDNS_TOKEN\""]
 }
 
-
 resource "google_compute_address" "this" {
-  count   = var.enable_static_ip ? 1 : 0
+  count   = var.external_ip_type == "static" ? 1 : 0
   name    = "${var.name}-ip"
   region  = local.region
   project = var.project_id
@@ -71,9 +62,9 @@ resource "google_compute_instance" "this" {
     network = "default"
 
     dynamic "access_config" {
-      for_each = var.enable_static_ip ? [1] : []
+      for_each = var.external_ip_type != "none" ? [1] : []
       content {
-        nat_ip = google_compute_address.this[0].address
+        nat_ip = var.external_ip_type == "static" ? google_compute_address.this[0].address : null
       }
     }
   }
@@ -82,6 +73,8 @@ resource "google_compute_instance" "this" {
     ssh-keys               = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
     block-project-ssh-keys = "true"
     startup-script         = var.startup_script
+    duckdns-token          = try(data.external.duckdns_token[0].result.token, null)
+    duckdns-domain         = var.duckdns_domain
   }
 
   scheduling {
@@ -98,7 +91,7 @@ resource "google_compute_instance" "this" {
 }
 
 resource "google_compute_firewall" "deny_egress_internet" {
-  count     = var.enable_internet ? 0 : 1
+  count     = var.deny_egress_internet ? 1 : 0
   name      = "${var.name}-deny-egress-internet"
   network   = "default"
   project   = var.project_id
