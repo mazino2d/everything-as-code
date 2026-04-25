@@ -1,5 +1,20 @@
+terraform {
+  required_providers {
+    duckdns = {
+      source  = "sportradar/duckdns"
+      version = "~> 0.1"
+    }
+  }
+}
+
 locals {
   region = join("-", slice(split("-", var.zone), 0, 2))
+}
+
+resource "duckdns_domain" "this" {
+  count  = var.duckdns_domain != null ? 1 : 0
+  domain = var.duckdns_domain
+  ip     = google_compute_address.this[0].address
 }
 
 resource "google_compute_address" "this" {
