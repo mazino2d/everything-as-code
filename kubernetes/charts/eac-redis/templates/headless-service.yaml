@@ -1,0 +1,16 @@
+{{- $root := . -}}
+{{- range .Values.instances }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}-headless
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{ .name }}
+  ports:
+    - port: {{ .service.port | default 6379 }}
+      targetPort: {{ .service.port | default 6379 }}
+{{- end }}

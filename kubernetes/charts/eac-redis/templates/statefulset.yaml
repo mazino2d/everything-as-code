@@ -1,0 +1,46 @@
+{{- $root := . -}}
+{{- range .Values.instances }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .name }}
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  serviceName: {{ .name }}-headless
+  replicas: {{ .replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: redis:{{ dig "image" "tag" "7-alpine" . }}
+          command: ["/bin/sh", "/scripts/start.sh"]
+          ports:
+            - containerPort: {{ .service.port | default 6379 }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            - name: data
+              mountPath: {{ .storage.mountPath | default "/data" }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ .name }}-startup
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: {{ .storage.size | default "100Mi" }}
+{{- end }}
