@@ -3,6 +3,7 @@ locals {
 }
 
 resource "google_compute_address" "this" {
+  count   = var.enable_static_ip ? 1 : 0
   name    = "${var.name}-ip"
   region  = local.region
   project = var.project_id
@@ -55,8 +56,11 @@ resource "google_compute_instance" "this" {
   network_interface {
     network = "default"
 
-    access_config {
-      nat_ip = google_compute_address.this.address
+    dynamic "access_config" {
+      for_each = var.enable_static_ip ? [1] : []
+      content {
+        nat_ip = google_compute_address.this[0].address
+      }
     }
   }
 
@@ -77,4 +81,20 @@ resource "google_compute_instance" "this" {
   lifecycle {
     prevent_destroy = false
   }
+}
+
+resource "google_compute_firewall" "deny_egress_internet" {
+  count     = var.enable_internet ? 0 : 1
+  name      = "${var.name}-deny-egress-internet"
+  network   = "default"
+  project   = var.project_id
+  direction = "EGRESS"
+  priority  = 1000
+
+  deny {
+    protocol = "all"
+  }
+
+  destination_ranges = ["0.0.0.0/0"]
+  target_tags        = ["${var.name}-ssh"]
 }
