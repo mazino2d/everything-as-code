@@ -1,7 +1,7 @@
 output "ip" {
-  value = google_compute_address.this.address
+  value = var.enable_static_ip ? google_compute_address.this[0].address : null
 }
 
 output "ssh_command" {
-  value = "ssh user@${google_compute_address.this.address}"
+  value = var.enable_static_ip ? "ssh user@${google_compute_address.this[0].address}" : null
 }
