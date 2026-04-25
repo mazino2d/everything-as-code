@@ -1,0 +1,23 @@
+instances:
+  - name: counter
+    replicaCount: 2 # pod-0 = primary (write), pod-1 = replica (read-only sync)
+    image:
+      tag: "7-alpine"
+    storage:
+      size: 100Mi
+      mountPath: /data
+    service:
+      type: NodePort
+      port: 6379
+      nodePort: 30379
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+    redis:
+      maxmemory: "50mb"
+      maxmemoryPolicy: "noeviction"
+      appendonly: "yes"
+      save: "900 1 300 10"

@@ -1,0 +1,26 @@
+instances: []
+# Each entry supports:
+#   name: ""              (required)
+#   replicaCount: 1       # 1 = standalone; 2+ = 1 primary + (N-1) replicas
+#   image:
+#     tag: "7-alpine"
+#   storage:
+#     size: "100Mi"
+#     mountPath: /data
+#   service:
+#     type: ClusterIP     # type cho primary service (ClusterIP | NodePort | LoadBalancer)
+#     port: 6379
+#     nodePort: null      # chỉ dùng khi type: NodePort
+#                         # <name>-ro (ClusterIP) luôn được tạo để read scaling
+#   resources:
+#     requests:
+#       cpu: 10m
+#       memory: 32Mi
+#     limits:
+#       memory: 64Mi
+#   redis:
+#     maxmemory: ""
+#     maxmemoryPolicy: ""   # noeviction | allkeys-lru | volatile-lru | allkeys-random | volatile-random | volatile-ttl
+#     appendonly: ""        # "yes" = AOF durable; "no" = faster (default)
+#     save: ""              # RDB snapshots, e.g. "900 1 300 10"; "" = disable
+#     requirepass: ""       # password cho AUTH command
