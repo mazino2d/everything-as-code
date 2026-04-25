@@ -1,17 +1,14 @@
+{{- if .Values.statefulset.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.name }}
+  name: {{ .Values.name }}-headless
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if .Values.service.type }}
-  type: {{ .Values.service.type }}
-  {{- end }}
+  clusterIP: None
   selector:
     app: {{ .Values.name }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.containerPort }}
-      {{- if .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
+{{- end }}

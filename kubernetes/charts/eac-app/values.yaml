@@ -4,8 +4,10 @@ image:
   repository: ""
   tag: latest
 service:
+  type: ""
   port: 80
   containerPort: 80
+  nodePort: null
 ingress:
   enabled: false
   host: ""
@@ -14,3 +16,11 @@ resources:
   requests:
     cpu: 10m
     memory: 64Mi
+statefulset:
+  enabled: false
+  command: []
+  args: []
+  storage:
+    enabled: false
+    size: 1Mi
+    mountPath: /data

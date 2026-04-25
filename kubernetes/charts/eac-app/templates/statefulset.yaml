@@ -1,0 +1,51 @@
+{{- if .Values.statefulset.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: {{ .Values.name }}-headless
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          {{- if .Values.statefulset.command }}
+          command: {{ .Values.statefulset.command | toJson }}
+          {{- end }}
+          {{- if .Values.statefulset.args }}
+          args: {{ .Values.statefulset.args | toJson }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.service.containerPort }}
+          {{- if .Values.env }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.name }}
+          {{- end }}
+          {{- if .Values.statefulset.storage.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.statefulset.storage.mountPath }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+  {{- if .Values.statefulset.storage.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: {{ .Values.statefulset.storage.size }}
+  {{- end }}
+{{- end }}
