@@ -45,7 +45,12 @@ jobs:
 
       - name: Build Kustomize + Helm (dry-run)
         run: |
-          kustomize build kubernetes/clusters/mazino2d-as-se1-dev/apps/ --enable-helm
+          for cluster in kubernetes/clusters/*/; do
+            for dir in "$cluster"*/; do
+              echo "==> Building $dir"
+              kustomize build --enable-helm "$dir"
+            done
+          done
 
   check-k8s:
     runs-on: ubuntu-latest
