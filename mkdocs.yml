@@ -66,3 +66,19 @@ nav:
       - "18 · Helm": posts/18-kubernetes-helm.md
       - "19 · Kustomize": posts/19-kubernetes-kustomize.md
       - "20 · Lens": posts/20-kubernetes-lens.md
+  - Terraform Series:
+    - "Chapter 1 — The Mental Model":
+      - "21 · State, Plan, Apply": posts/21-terraform-state-plan-apply.md
+      - "22 · The Provider Model": posts/22-terraform-provider-model.md
+      - "23 · HCL Fundamentals": posts/23-terraform-hcl-fundamentals.md
+    - "Chapter 2 — State":
+      - "24 · State": posts/24-terraform-state.md
+      - "25 · Remote State & Backends": posts/25-terraform-remote-state.md
+      - "26 · Drift & Import": posts/26-terraform-drift-import.md
+    - "Chapter 3 — Modules":
+      - "27 · Modules": posts/27-terraform-modules.md
+      - "28 · Module Design": posts/28-terraform-module-design.md
+    - "Chapter 4 — Workflow":
+      - "29 · The Plan/Apply Workflow": posts/29-terraform-workflow.md
+      - "30 · Workspaces vs Directories": posts/30-terraform-workspaces-directories.md
+      - "31 · Managing Secrets": posts/31-terraform-secrets.md
