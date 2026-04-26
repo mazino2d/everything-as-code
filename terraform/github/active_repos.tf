@@ -9,10 +9,14 @@ module "everything_as_code" {
   visibility  = "public"
   topics      = ["terraform", "iac", "gitops", "github"]
 
+  pages = {
+    build_type = "workflow"
+  }
+
   branch_protection = {
     required_status_checks = {
       strict   = true
-      contexts = ["check-terraform", "check-k8s"]
+      contexts = ["check-terraform", "check-k8s", "check-blog"]
     }
   }
 }
