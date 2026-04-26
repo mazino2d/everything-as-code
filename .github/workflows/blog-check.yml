@@ -1,0 +1,53 @@
+name: Blog Check
+
+on:
+  pull_request:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      blog: ${{ steps.filter.outputs.blog }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            blog:
+              - "blog/**"
+              - "mkdocs.yml"
+              - ".github/workflows/blog-check.yml"
+
+  validate:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.blog == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install MkDocs
+        run: pip install mkdocs mkdocs-material
+
+      - name: Build (strict)
+        run: mkdocs build --strict
+
+  check-blog:
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - validate
+    if: always()
+    steps:
+      - name: Verify validate passed
+        run: |
+          blog_changed="${{ needs.detect-changes.outputs.blog }}"
+          validate_result="${{ needs.validate.result }}"
+          if [[ "$blog_changed" == "true" && "$validate_result" != "success" ]]; then
+            echo "validate result: $validate_result"
+            exit 1
+          fi
