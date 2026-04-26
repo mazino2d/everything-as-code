@@ -29,4 +29,11 @@ Posts covering Kubernetes from first principles to production tooling.
 
 ## Terraform: Managing Infrastructure as Code
 
-*Coming soon.*
+11 posts on how Terraform thinks, how state works, and how to structure IaC at scale.
+
+| Chapter | Posts | Topics |
+| ------- | ----- | ------ |
+| [1 · The Mental Model](posts/21-terraform-state-plan-apply.md) | 3 | State/Plan/Apply, Providers, HCL |
+| [2 · State](posts/24-terraform-state.md) | 3 | State, Remote Backends, Drift & Import |
+| [3 · Modules](posts/27-terraform-modules.md) | 2 | Modules, Module Design |
+| [4 · Workflow](posts/29-terraform-workflow.md) | 3 | GitOps Workflow, Environments, Secrets |
