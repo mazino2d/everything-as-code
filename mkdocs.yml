@@ -1,0 +1,68 @@
+site_name: Everything as Code
+site_description: DevOps principles and concepts, demonstrated through real infrastructure
+site_url: https://mazino2d.github.io/everything-as-code/
+repo_url: https://github.com/mazino2d/everything-as-code
+repo_name: mazino2d/everything-as-code
+docs_dir: blog
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.top
+    - navigation.sections
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - attr_list
+
+nav:
+  - Home: index.md
+  - DevOps Principles:
+    - "01 · DevOps Principles": posts/01-devops-principles.md
+  - Kubernetes Series:
+    - "Chapter 1 — Container Fundamentals":
+      - "02 · Docker: Images & Containers": posts/02-docker-image-container.md
+      - "03 · Why Kubernetes": posts/03-why-kubernetes.md
+      - "04 · Lab Setup": posts/04-kubernetes-lab-setup.md
+    - "Chapter 2 — Core Objects":
+      - "05 · Pods": posts/05-kubernetes-pods.md
+      - "06 · Deployments": posts/06-kubernetes-deployment.md
+      - "07 · StatefulSets": posts/07-kubernetes-statefulset.md
+      - "08 · DaemonSets": posts/08-kubernetes-daemonset.md
+      - "09 · Jobs & CronJobs": posts/09-kubernetes-job-cronjob.md
+    - "Chapter 3 — Networking":
+      - "10 · Services": posts/10-kubernetes-service.md
+      - "11 · Ingress": posts/11-kubernetes-ingress.md
+      - "12 · ConfigMaps & Secrets": posts/12-kubernetes-configmap-secret.md
+    - "Chapter 4 — Storage":
+      - "13 · Volumes": posts/13-kubernetes-volumes.md
+      - "14 · PV & PVC": posts/14-kubernetes-pv-pvc.md
+    - "Chapter 5 — Resource Management":
+      - "15 · Resource Limits": posts/15-kubernetes-resource-limits.md
+      - "16 · Labels & Selectors": posts/16-kubernetes-labels-selectors.md
+      - "17 · Affinity & Taints": posts/17-kubernetes-affinity-taints.md
+    - "Chapter 6 — Ecosystem":
+      - "18 · Helm": posts/18-kubernetes-helm.md
+      - "19 · Kustomize": posts/19-kubernetes-kustomize.md
+      - "20 · Lens": posts/20-kubernetes-lens.md
