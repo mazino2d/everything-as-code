@@ -1,5 +1,8 @@
 {{- $root := . -}}
 {{- range .Values.instances }}
+{{- $exporterEnabled := dig "exporter" "enabled" false . }}
+{{- $exporterPort := dig "exporter" "port" 9121 . }}
+{{- $redisPort := .service.port | default 6379 }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -16,13 +19,18 @@ spec:
     metadata:
       labels:
         app: {{ .name }}
+      {{- if $exporterEnabled }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ $exporterPort | quote }}
+      {{- end }}
     spec:
       containers:
         - name: {{ .name }}
           image: redis:{{ dig "image" "tag" "7-alpine" . }}
           command: ["/bin/sh", "/scripts/start.sh"]
           ports:
-            - containerPort: {{ .service.port | default 6379 }}
+            - containerPort: {{ $redisPort }}
           volumeMounts:
             - name: scripts
               mountPath: /scripts
@@ -30,6 +38,29 @@ spec:
               mountPath: {{ .storage.mountPath | default "/data" }}
           resources:
             {{- toYaml .resources | nindent 12 }}
+        {{- if $exporterEnabled }}
+        - name: redis-exporter
+          image: oliver006/redis_exporter:{{ dig "exporter" "image" "tag" "v1.67.0" . }}
+          env:
+            - name: REDIS_ADDR
+              value: "redis://localhost:{{ $redisPort }}"
+            {{- if dig "redis" "requirepass" "" . }}
+            - name: REDIS_PASSWORD
+              value: {{ dig "redis" "requirepass" "" . | quote }}
+            {{- end }}
+          ports:
+            - containerPort: {{ $exporterPort }}
+          resources:
+            {{- with dig "exporter" "resources" nil . }}
+            {{- toYaml . | nindent 12 }}
+            {{- else }}
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+            {{- end }}
+        {{- end }}
       volumes:
         - name: scripts
           configMap:

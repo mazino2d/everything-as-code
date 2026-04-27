@@ -24,3 +24,14 @@ instances: []
 #     appendonly: ""        # "yes" = AOF durable; "no" = faster (default)
 #     save: ""              # RDB snapshots, e.g. "900 1 300 10"; "" = disable
 #     requirepass: ""       # password cho AUTH command
+#   exporter:
+#     enabled: false        # thêm redis_exporter sidecar + pod annotations để Prometheus scrape
+#     port: 9121
+#     image:
+#       tag: "v1.67.0"
+#     resources:            # optional; default: 5m CPU / 16-32Mi memory
+#       requests:
+#         cpu: 5m
+#         memory: 16Mi
+#       limits:
+#         memory: 32Mi
