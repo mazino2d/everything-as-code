@@ -20,3 +20,9 @@ resource "infisical_identity_universal_auth" "this" {
   access_token_ttl     = var.access_token_ttl
   access_token_max_ttl = var.access_token_max_ttl
 }
+
+resource "infisical_identity_universal_auth_client_secret" "this" {
+  for_each    = { for s in var.client_secrets : s.name => s }
+  identity_id = infisical_identity.this.id
+  description = each.value.description
+}
