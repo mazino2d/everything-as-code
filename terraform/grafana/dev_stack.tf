@@ -1,8 +1,8 @@
 module "grafana_cloud_dev" {
   source = "./_modules/grafana-cloud-stack"
 
-  stack_slug        = "mazino2d-dev"
-  stack_name        = "mazino2d-dev"
+  stack_slug        = "mazino2ddev"
+  stack_name        = "mazino2ddev"
   stack_region_slug = "ap-southeast-0"
 }
 
