@@ -1,9 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-helmGlobals:
-  chartHome: ../../../../charts
 helmCharts:
-  - name: eac-node-exporter
+  - name: prometheus-node-exporter
+    repo: https://prometheus-community.github.io/helm-charts
     releaseName: node-exporter
     namespace: monitoring
+    version: "4.39.0"
     valuesFile: values.yaml
