@@ -33,7 +33,7 @@ resource "infisical_secret" "dev_remote_write_password" {
 
 resource "infisical_secret" "dev_loki_url" {
   name         = "LOKI_URL"
-  value        = module.grafana_cloud_dev.loki_endpoint
+  value        = "${trimsuffix(module.grafana_cloud_dev.loki_endpoint, "/")}/loki/api/v1/push"
   env_slug     = "dev"
   workspace_id = var.infisical_project_id
   folder_path  = "/monitoring/grafana-alloy"

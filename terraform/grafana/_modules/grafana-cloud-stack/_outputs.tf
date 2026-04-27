@@ -12,7 +12,7 @@ output "prometheus_password" {
 }
 
 output "loki_endpoint" {
-  value = "${local.stack.logs_url}/loki/api/v1/push"
+  value = local.stack.logs_url
 }
 
 output "loki_username" {
