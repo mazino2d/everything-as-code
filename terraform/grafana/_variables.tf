@@ -20,12 +20,3 @@ variable "infisical_project_id" {
   type        = string
   description = "ID of the everything-as-code Infisical project (from Infisical UI → Project Settings)."
 }
-
-variable "dev_stack_slug" {
-  type = string
-}
-
-variable "dev_stack_region_slug" {
-  type    = string
-  default = "ap-southeast-0"
-}

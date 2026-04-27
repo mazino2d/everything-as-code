@@ -1,9 +1,9 @@
 module "grafana_cloud_dev" {
   source = "./_modules/grafana-cloud-stack"
 
-  stack_slug        = var.dev_stack_slug
-  stack_name        = var.dev_stack_slug
-  stack_region_slug = var.dev_stack_region_slug
+  stack_slug        = "mazino2d-dev"
+  stack_name        = "mazino2d-dev"
+  stack_region_slug = "ap-southeast-0"
 }
 
 resource "infisical_secret" "dev_remote_write_url" {
