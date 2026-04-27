@@ -28,8 +28,6 @@ Add variables:
 | `infisical_client_id` | ✅ |
 | `infisical_client_secret` | ✅ |
 | `infisical_project_id` | ❌ |
-| `stack_slug` | ❌ |
-| `stack_region_slug` | ❌ (default: `ap-southeast-0`) |
 
 ## 4. Apply
 
