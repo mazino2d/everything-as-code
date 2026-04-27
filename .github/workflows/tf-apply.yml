@@ -17,6 +17,7 @@ jobs:
           - terraform/github
           - terraform/gcp/mazino2d-as-se1-dev
           - terraform/infisical
+          - terraform/grafana
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
