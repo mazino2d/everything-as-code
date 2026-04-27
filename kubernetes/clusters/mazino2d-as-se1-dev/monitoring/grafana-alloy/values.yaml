@@ -1,0 +1,51 @@
+alloy:
+  envFrom:
+    - secretRef:
+        name: grafana-alloy
+  configMap:
+    content: |
+      prometheus.scrape "node_exporter" {
+        targets = [{"__address__" = "node-exporter.monitoring.svc.cluster.local:9100"}]
+        forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+      }
+
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      discovery.relabel "annotated_pods" {
+        targets = discovery.kubernetes.pods.targets
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+          action        = "keep"
+          regex         = "true"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+          action        = "replace"
+          target_label  = "__metrics_path__"
+          regex         = "(.+)"
+        }
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+          action        = "replace"
+          target_label  = "__address__"
+          regex         = "([^:]+)(?::\\d+)?;(\\d+)"
+          replacement   = "$1:$2"
+        }
+      }
+
+      prometheus.scrape "annotated_pods" {
+        targets    = discovery.relabel.annotated_pods.output
+        forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+      }
+
+      prometheus.remote_write "grafana_cloud" {
+        endpoint {
+          url = env("REMOTE_WRITE_URL")
+          basic_auth {
+            username = env("REMOTE_WRITE_USERNAME")
+            password = env("REMOTE_WRITE_PASSWORD")
+          }
+        }
+      }

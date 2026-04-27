@@ -4,3 +4,4 @@ namespace: monitoring
 resources:
   - namespace.yaml
   - node-exporter
+  - grafana-alloy
