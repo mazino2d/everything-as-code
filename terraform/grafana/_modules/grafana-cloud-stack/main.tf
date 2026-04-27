@@ -8,9 +8,19 @@ terraform {
 }
 
 resource "grafana_cloud_stack" "this" {
+  count       = var.create_stack ? 1 : 0
   name        = var.stack_name
   slug        = var.stack_slug
   region_slug = var.stack_region_slug
+}
+
+data "grafana_cloud_stack" "this" {
+  count = var.create_stack ? 0 : 1
+  slug  = var.stack_slug
+}
+
+locals {
+  stack = var.create_stack ? grafana_cloud_stack.this[0] : data.grafana_cloud_stack.this[0]
 }
 
 resource "grafana_cloud_access_policy" "metrics_push" {
@@ -22,7 +32,7 @@ resource "grafana_cloud_access_policy" "metrics_push" {
 
   realm {
     type       = "stack"
-    identifier = grafana_cloud_stack.this.id
+    identifier = local.stack.id
   }
 }
 
