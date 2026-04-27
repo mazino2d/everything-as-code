@@ -20,7 +20,7 @@ resource "grafana_cloud_access_policy" "metrics_push" {
 
   scopes = ["metrics:write"]
 
-  realms {
+  realm {
     type       = "stack"
     identifier = grafana_cloud_stack.this.id
   }
