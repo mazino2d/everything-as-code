@@ -10,3 +10,16 @@ output "prometheus_password" {
   value     = grafana_cloud_access_policy_token.alloy.token
   sensitive = true
 }
+
+output "loki_endpoint" {
+  value = "${local.stack.logs_url}/loki/api/v1/push"
+}
+
+output "loki_username" {
+  value = tostring(local.stack.logs_user_id)
+}
+
+output "loki_password" {
+  value     = grafana_cloud_access_policy_token.alloy.token
+  sensitive = true
+}
