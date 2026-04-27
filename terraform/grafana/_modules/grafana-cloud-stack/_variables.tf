@@ -13,5 +13,5 @@ variable "stack_name" {
 
 variable "stack_region_slug" {
   type    = string
-  default = "prod-ap-southeast-0"
+  default = "prod-ap-southeast-1"
 }
