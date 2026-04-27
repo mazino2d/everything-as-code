@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    infisical = {
+      source  = "infisical/infisical"
+      version = "~> 0.12"
+    }
+  }
+}
+
 resource "infisical_identity" "this" {
   name = var.name
   role = var.org_role

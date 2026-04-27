@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    infisical = {
+      source  = "infisical/infisical"
+      version = "~> 0.12"
+    }
+  }
+}
+
 resource "infisical_project" "this" {
   name = var.name
   slug = var.slug
