@@ -36,4 +36,16 @@ jobs:
         run: terraform init
 
       - name: Apply
-        run: terraform apply -auto-approve
+        run: |
+          exit_code=0
+          for i in 1 2 3; do
+            output=$(terraform apply -auto-approve 2>&1)
+            exit_code=$?
+            echo "$output"
+            [ $exit_code -eq 0 ] && break
+            if ! echo "$output" | grep -qE "Failed to install provider|connection reset by peer"; then
+              exit $exit_code
+            fi
+            [ $i -lt 3 ] && echo "Attempt $i failed due to provider download error, retrying in 15s..." && sleep 15
+          done
+          exit $exit_code
