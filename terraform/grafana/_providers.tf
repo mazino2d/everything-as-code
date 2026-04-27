@@ -27,6 +27,6 @@ provider "grafana" {
 
 provider "infisical" {
   host          = "https://app.infisical.com"
-  client_id     = data.terraform_remote_state.infisical.outputs.cicd_client_id
-  client_secret = data.terraform_remote_state.infisical.outputs.cicd_grafana_client_secret
+  client_id     = var.infisical_client_id
+  client_secret = var.infisical_client_secret
 }
