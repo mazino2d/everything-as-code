@@ -17,5 +17,8 @@
 *_sa_key.json
 service-account*.json
 
+# Kubernetes - downloaded Helm charts
+kubernetes/clusters/*/*/*/charts
+
 # OS
 .DS_Store
