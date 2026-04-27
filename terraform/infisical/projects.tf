@@ -4,10 +4,10 @@ module "everything_as_code" {
   slug   = "everything-as-code"
 
   identities = [
-    { id = module.github_actions.id, role = "developer" },
+    { name = "github-actions", id = module.github_actions.id, role = "developer" },
   ]
 
   groups = [
-    { id = module.admins.id, role = "admin" },
+    { name = "admins", id = module.admins.id, role = "admin" },
   ]
 }
