@@ -25,4 +25,6 @@ resource "infisical_identity_universal_auth_client_secret" "this" {
   for_each    = { for s in var.client_secrets : s.name => s }
   identity_id = infisical_identity.this.id
   description = each.value.description
+
+  depends_on = [infisical_identity_universal_auth.this]
 }
