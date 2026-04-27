@@ -7,9 +7,11 @@ terraform {
   }
 }
 
+data "infisical_organizations" "current" {}
+
 resource "infisical_identity" "this" {
   name   = var.name
-  org_id = var.org_id
+  org_id = data.infisical_organizations.current.organizations[0].id
   role   = var.role
 }
 

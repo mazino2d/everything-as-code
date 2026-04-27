@@ -3,11 +3,6 @@ variable "name" {
   description = "Display name of the machine identity."
 }
 
-variable "org_id" {
-  type        = string
-  description = "Infisical organization ID."
-}
-
 variable "role" {
   type        = string
   description = "Org-level role: no-access, member, or admin."
