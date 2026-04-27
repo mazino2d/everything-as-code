@@ -11,7 +11,6 @@ variable "slug" {
 variable "identities" {
   type = list(object({
     id   = string
-    slug = string
     role = string
   }))
   description = "Machine identities to assign to this project."

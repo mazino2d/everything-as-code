@@ -4,7 +4,7 @@ module "everything_as_code" {
   slug   = "everything-as-code"
 
   identities = [
-    { id = module.github_actions.id, slug = "github-actions", role = "developer" },
+    { id = module.github_actions.id, role = "developer" },
   ]
 
   groups = [

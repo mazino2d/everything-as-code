@@ -8,8 +8,9 @@ terraform {
 }
 
 resource "infisical_identity" "this" {
-  name = var.name
-  role = var.org_role
+  name   = var.name
+  org_id = var.org_id
+  role   = var.role
 }
 
 resource "infisical_identity_universal_auth" "this" {

@@ -9,3 +9,8 @@ variable "infisical_client_secret" {
   sensitive = true
   default   = null
 }
+
+variable "infisical_org_id" {
+  type    = string
+  default = null
+}

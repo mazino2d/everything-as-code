@@ -26,18 +26,26 @@ Create a machine identity for Terraform to authenticate against Infisical:
 
 ---
 
-## 3. Terraform Cloud Workspace Variables
+## 3. Infisical Organization ID
 
-Go to workspace `infisical` → **Variables** → add the following:
-
-| Category  | Key                       | Value         | Sensitive |
-|-----------|---------------------------|---------------|-----------|
-| terraform | `infisical_client_id`     | Client ID     | ❌        |
-| terraform | `infisical_client_secret` | Client Secret | ✅        |
+1. Go to **Infisical org → Organization Settings**
+2. Copy the **Organization ID** (UUID shown on the settings page)
 
 ---
 
-## 4. Terraform Cloud Workspace Settings
+## 4. Terraform Cloud Workspace Variables
+
+Go to workspace `infisical` → **Variables** → add the following:
+
+| Category  | Key                       | Value           | Sensitive |
+|-----------|---------------------------|-----------------|-----------|
+| terraform | `infisical_client_id`     | Client ID       | ❌        |
+| terraform | `infisical_client_secret` | Client Secret   | ✅        |
+| terraform | `infisical_org_id`        | Organization ID | ❌        |
+
+---
+
+## 5. Terraform Cloud Workspace Settings
 
 Go to workspace `infisical` → **Settings → General**:
 
