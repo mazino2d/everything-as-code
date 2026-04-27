@@ -1,5 +1,5 @@
-output "prometheus_remote_write_url" {
-  value = module.grafana_cloud_dev.prometheus_remote_write_url
+output "prometheus_remote_endpoint" {
+  value = module.grafana_cloud_dev.prometheus_remote_endpoint
 }
 
 output "prometheus_username" {
