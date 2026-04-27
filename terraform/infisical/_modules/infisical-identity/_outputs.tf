@@ -7,7 +7,7 @@ output "name" {
 }
 
 output "client_id" {
-  value = infisical_identity.this.id
+  value = try(values(infisical_identity_universal_auth_client_secret.this)[0].client_id, null)
 }
 
 output "client_secrets" {
