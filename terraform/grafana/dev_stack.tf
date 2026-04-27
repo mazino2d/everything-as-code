@@ -12,7 +12,7 @@ resource "infisical_secret" "dev_remote_write_url" {
   value        = module.grafana_cloud_dev.prometheus_remote_write_url
   env_slug     = "dev"
   workspace_id = var.infisical_project_id
-  folder_path  = "/grafana-alloy"
+  folder_path  = "/monitoring/grafana-alloy"
 }
 
 resource "infisical_secret" "dev_remote_write_username" {
@@ -20,7 +20,7 @@ resource "infisical_secret" "dev_remote_write_username" {
   value        = module.grafana_cloud_dev.prometheus_username
   env_slug     = "dev"
   workspace_id = var.infisical_project_id
-  folder_path  = "/grafana-alloy"
+  folder_path  = "/monitoring/grafana-alloy"
 }
 
 resource "infisical_secret" "dev_remote_write_password" {
@@ -28,5 +28,5 @@ resource "infisical_secret" "dev_remote_write_password" {
   value        = module.grafana_cloud_dev.prometheus_password
   env_slug     = "dev"
   workspace_id = var.infisical_project_id
-  folder_path  = "/grafana-alloy"
+  folder_path  = "/monitoring/grafana-alloy"
 }
