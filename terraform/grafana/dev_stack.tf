@@ -1,0 +1,31 @@
+module "grafana_cloud_dev" {
+  source = "./_modules/grafana-cloud-stack"
+
+  stack_slug        = var.dev_stack_slug
+  stack_name        = var.dev_stack_slug
+  stack_region_slug = var.dev_stack_region_slug
+}
+
+resource "infisical_secret" "dev_remote_write_url" {
+  name         = "REMOTE_WRITE_URL"
+  value        = module.grafana_cloud_dev.prometheus_remote_write_url
+  env_slug     = "dev"
+  workspace_id = var.infisical_project_id
+  folder_path  = "/grafana-alloy"
+}
+
+resource "infisical_secret" "dev_remote_write_username" {
+  name         = "REMOTE_WRITE_USERNAME"
+  value        = module.grafana_cloud_dev.prometheus_username
+  env_slug     = "dev"
+  workspace_id = var.infisical_project_id
+  folder_path  = "/grafana-alloy"
+}
+
+resource "infisical_secret" "dev_remote_write_password" {
+  name         = "REMOTE_WRITE_PASSWORD"
+  value        = module.grafana_cloud_dev.prometheus_password
+  env_slug     = "dev"
+  workspace_id = var.infisical_project_id
+  folder_path  = "/grafana-alloy"
+}

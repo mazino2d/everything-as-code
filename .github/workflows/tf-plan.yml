@@ -35,6 +35,7 @@ jobs:
           - terraform/github
           - terraform/gcp/mazino2d-as-se1-dev
           - terraform/infisical
+          - terraform/grafana
     defaults:
       run:
         working-directory: ${{ matrix.stack }}
