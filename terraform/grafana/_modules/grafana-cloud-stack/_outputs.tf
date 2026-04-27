@@ -1,4 +1,4 @@
-output "prometheus_remote_write_url" {
+output "prometheus_remote_endpoint" {
   value = local.stack.prometheus_remote_endpoint
 }
 
