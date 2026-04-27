@@ -1,4 +1,2 @@
 grafana_cloud_access_policy_token = "your-grafana-cloud-pat"
-infisical_client_id               = "your-infisical-client-id"
-infisical_client_secret           = "your-infisical-client-secret"
 infisical_project_id              = "uuid-from-infisical-project-settings"
