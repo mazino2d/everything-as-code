@@ -24,6 +24,7 @@ make validate STACK=terraform/github          # Validate configs
 Valid `STACK` values:
 - `terraform/github` (default)
 - `terraform/gcp/mazino2d-as-se1-dev`
+- `terraform/infisical`
 
 ### Kubernetes (manual validation)
 
