@@ -21,3 +21,5 @@ instances:
       maxmemoryPolicy: "noeviction"
       appendonly: "yes"
       save: "900 1 300 10"
+    exporter:
+      enabled: true
