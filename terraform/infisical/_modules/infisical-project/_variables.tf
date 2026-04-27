@@ -17,13 +17,3 @@ variable "identities" {
   description = "Machine identities to assign to this project. 'name' is used as the static for_each key."
   default     = []
 }
-
-variable "groups" {
-  type = list(object({
-    name = string
-    id   = string
-    role = string
-  }))
-  description = "Groups to assign to this project. 'name' is used as the static for_each key."
-  default     = []
-}
