@@ -9,3 +9,34 @@ helmCharts:
     releaseName: infisical-operator
     namespace: infra
     valuesFile: values.yaml
+patches:
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: Deployment
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: ServiceAccount
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: Service
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: Role
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: RoleBinding
