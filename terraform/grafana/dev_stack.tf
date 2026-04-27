@@ -9,7 +9,7 @@ module "grafana_cloud_dev" {
 
 resource "infisical_secret" "dev_remote_write_url" {
   name         = "REMOTE_WRITE_URL"
-  value        = module.grafana_cloud_dev.prometheus_remote_write_url
+  value        = "${trimsuffix(module.grafana_cloud_dev.prometheus_remote_endpoint, "/")}/push"
   env_slug     = "dev"
   workspace_id = var.infisical_project_id
   folder_path  = "/monitoring/grafana-alloy"
