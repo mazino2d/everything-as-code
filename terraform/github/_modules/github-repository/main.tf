@@ -18,23 +18,23 @@ resource "github_repository" "this" {
   archived                    = var.archived
   auto_init                   = false
 
-  dynamic "pages" {
-    for_each = var.pages != null ? [var.pages] : []
-    content {
-      build_type = pages.value.build_type
-      cname      = pages.value.cname
-      dynamic "source" {
-        for_each = pages.value.build_type != "workflow" ? [pages.value] : []
-        content {
-          branch = source.value.branch
-          path   = source.value.path
-        }
-      }
-    }
-  }
-
   lifecycle {
     prevent_destroy = false
+  }
+}
+
+resource "github_repository_pages" "this" {
+  count      = var.pages != null ? 1 : 0
+  repository = github_repository.this.name
+  build_type = try(var.pages.build_type, null)
+  cname      = try(var.pages.cname, null)
+
+  dynamic "source" {
+    for_each = var.pages != null && var.pages.build_type != "workflow" ? [var.pages] : []
+    content {
+      branch = source.value.branch
+      path   = source.value.path
+    }
   }
 }
 
