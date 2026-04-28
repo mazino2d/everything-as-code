@@ -1,91 +1,114 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working in this repository.
 
 ## What This Repo Is
 
-A GitOps monorepo managing all personal infrastructure as code:
-- **Terraform** — manages GCP compute and GitHub repos/settings
-- **Kubernetes (K3S)** — app workloads and monitoring on a single GCP spot VM
-- **GitHub Actions** — CI/CD for both IaC and Kubernetes deployments
+A GitOps monorepo managing personal infrastructure and platform assets:
+- Terraform for cloud/services provisioning and external platform config
+- Kubernetes (K3S) workloads on a GCP spot VM
+- GitHub Actions for validation and deployment automation
+- MkDocs blog content and publishing
 
 ## Common Commands
 
 ### Terraform (via Makefile)
 
 ```bash
-make init STACK=terraform/github              # Initialize backend
-make plan STACK=terraform/github              # Preview changes
-make apply STACK=terraform/github             # Apply changes
-make fmt                                      # Format all Terraform files recursively
-make validate STACK=terraform/github          # Validate configs
+make init STACK=terraform/github
+make plan STACK=terraform/github
+make apply STACK=terraform/github
+make fmt
+make validate STACK=terraform/github
 ```
 
 Valid `STACK` values:
 - `terraform/github` (default)
 - `terraform/gcp/mazino2d-as-se1-dev`
 - `terraform/infisical`
+- `terraform/grafana`
+- `terraform/k8s`
 
 ### Kubernetes (manual validation)
 
 ```bash
 helm lint kubernetes/charts/<chart-name>
 kustomize build --enable-helm kubernetes/clusters/mazino2d-as-se1-dev/apps
+kustomize build --enable-helm kubernetes/clusters/mazino2d-as-se1-dev/infra
 kustomize build --enable-helm kubernetes/clusters/mazino2d-as-se1-dev/monitoring
+```
+
+### Blog (manual validation)
+
+```bash
+pip install mkdocs mkdocs-material
+mkdocs build --strict
 ```
 
 ## Architecture
 
 ### GitOps Flow
 
-PRs trigger validation only (no mutations). Merges to `main` auto-apply:
-- Terraform changes via GitHub Actions → Terraform Cloud workspaces
-- Kubernetes changes via Kustomize + `kubectl apply` against the K3S cluster
+PRs run validation-only pipelines (no mutations):
+- Terraform: `.github/workflows/tf-plan.yml`
+- Kubernetes: `.github/workflows/k8s-validate.yml`
+- Blog: `.github/workflows/blog-check.yml`
+
+Pushes to `main` trigger deployment/apply pipelines:
+- Terraform apply to Terraform Cloud workspaces (`tf-apply.yml`)
+- Kubernetes deploy via Kustomize + `kubectl apply` (`k8s-deploy.yml`)
+- Blog build and deploy to GitHub Pages (`blog-deploy.yml`)
 
 ### Terraform Structure
 
-Two independent stacks, each with its own Terraform Cloud workspace (`mazino2d-everything-as-code` org):
+Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 
-| Stack | Workspace | Manages |
-|-------|-----------|---------|
-| `terraform/github` | `github` | GitHub repos, branch protection, Pages settings |
-| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP project, VM, firewall rules |
+| Stack | Workspace | Primary scope |
+|-------|-----------|---------------|
+| `terraform/github` | `github` | GitHub repos/settings/branch protection |
+| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP VM/networking for K3S |
+| `terraform/infisical` | `infisical` | Infisical projects, identities, folders |
+| `terraform/grafana` | `grafana` | Grafana Cloud stack and related secrets flow |
+| `terraform/k8s` | `k8s` | Kubernetes provider-managed resources |
 
-Reusable modules live in each stack's `_modules/` directory. The GCP stack also has `_scripts/install_k3s.sh` — the VM startup script that installs K3S and updates DuckDNS with the ephemeral external IP.
+Reusable modules live under each stack's `_modules/`. The GCP stack includes `_scripts/install_k3s.sh`, the startup script that installs K3S and updates DuckDNS to the VM external IP.
 
 ### Kubernetes Structure
 
 ```
 kubernetes/
-├── charts/                    # Reusable Helm chart definitions
-│   ├── eac-app/               # Generic Deployment/StatefulSet template
-│   ├── eac-redis/             # Redis StatefulSet with optional replication
-│   └── eac-node-exporter/     # Prometheus node exporter DaemonSet
+├── charts/
+│   ├── eac-app/
+│   └── eac-redis/
 └── clusters/
     └── mazino2d-as-se1-dev/
-        ├── apps/              # apps namespace (whoami, Redis)
-        └── monitoring/        # monitoring namespace (node exporter)
+        ├── apps/        # app workloads (e.g., whoami, redis)
+        ├── infra/       # cluster infra components (e.g., infisical operator)
+        └── monitoring/  # observability components (e.g., node exporter, alloy)
 ```
 
-Helm charts are defined in `kubernetes/charts/` and consumed via Kustomize in `kubernetes/clusters/`. To add a new workload, either reference an existing chart in a cluster kustomization or create a new chart under `kubernetes/charts/`.
+Local reusable charts are defined in `kubernetes/charts/`. Some cluster components also consume external Helm charts directly from upstream repos via Kustomize `helmCharts`.
 
 ### Infrastructure Notes
 
-- The GCP VM is a **spot e2-small** in `asia-southeast1-b` — it can be preempted at any time. K3S is re-installed on each boot via startup script.
-- **DuckDNS** (`mazino2d-k3s.duckdns.org`) is updated at startup to point to the current ephemeral external IP, keeping the kubeconfig valid across reboots. TLS SANs include both the domain and live IP.
-- Firewall rules open ports 22 (SSH), 6443 (K3S API), 80/443 (HTTP/S), and 30379 (Redis NodePort).
+- The main VM is a spot `e2-small` in `asia-southeast1-b`, so preemption is expected.
+- DuckDNS (`mazino2d-k3s.duckdns.org`) is updated during VM startup; K3S API TLS SANs include both domain and active external IP.
+- Firewall rules expose 22 (SSH), 6443 (K3S API), 80/443 (HTTP/S), and 30379 (Redis NodePort).
 
-### CI/CD Checks Required for Merge
+### PR Status Checks
 
-Branch protection (managed by Terraform) requires these checks to pass:
-- `check-terraform` — from `tf-plan.yml`
-- `check-k8s` — from `k8s-validate.yml`
+Validation workflows expose these gate jobs:
+- `check-terraform`
+- `check-k8s`
+- `check-blog`
 
-### Required Secrets
+### Required GitHub Secrets
 
 | Secret | Used by |
 |--------|---------|
-| `TF_API_TOKEN` | Terraform Cloud authentication |
-| `KUBECONFIG` | Base64-encoded kubeconfig for kubectl deploy |
-| `DUCKDNS_TOKEN` | VM startup script for DNS updates |
-| `GCP_CREDENTIALS` | GCP provider auth in Terraform |
+| `TF_API_TOKEN` | Terraform CLI auth in `tf-plan.yml` and `tf-apply.yml` |
+| `KUBECONFIG` | Base64 kubeconfig for `k8s-deploy.yml` |
+
+Notes:
+- `GITHUB_TOKEN` is provided automatically by GitHub Actions.
+- Other sensitive values (for example `gcp_credentials`, `infisical_client_secret`, `grafana_cloud_access_policy_token`) are Terraform input variables managed per stack/workspace, not repository-level GitHub secrets.
