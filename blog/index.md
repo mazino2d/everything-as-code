@@ -8,7 +8,10 @@ A personal learning journal for DevOps — each post explains a principle or con
 
 | # | Title | Topics |
 | - | ----- | ------ |
-| 01 | [DevOps Principles](posts/devops/01-devops-principles.md) | EaC, GitOps, IaC, Immutable Infrastructure, Shift Left |
+| 01 | [The Three Ways](posts/devops/01-devops-principles.md) | Flow, Feedback, Continual Learning |
+| 02 | [DORA Metrics](posts/devops/02-dora-metrics.md) | Deployment Frequency, Lead Time, Change Failure Rate, MTTR |
+| 03 | [Observability](posts/devops/03-observability.md) | Monitoring vs Observability, Logs, Metrics, Traces, Cardinality |
+| 04 | [Blameless Postmortem](posts/devops/04-blameless-postmortem.md) | Blame Culture, Swiss Cheese Model, Contributing Factors, Just Culture |
 
 ---
 
