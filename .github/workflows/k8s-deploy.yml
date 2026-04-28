@@ -30,7 +30,7 @@ jobs:
       - name: Configure kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Deploy
