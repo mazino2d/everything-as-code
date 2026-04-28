@@ -1,157 +1,100 @@
 ---
-date: 2025-04-26
-title: DevOps Principles — From Theory to Real Infrastructure
+date: 2026-04-28
+title: The Three Ways — The Principles Behind DevOps
 ---
 
-Modern DevOps is not a role or a toolset — it is a set of principles that guide how teams build, deliver, and operate software reliably at speed. This post walks through seven foundational principles and why each one matters.
+Most explanations of DevOps start with tools: Terraform, Kubernetes, CI/CD pipelines. That is the wrong place to start.
 
----
+Tools are answers. Before reaching for an answer, it helps to understand the question.
 
-## 1. Everything as Code (EaC)
+The question DevOps is trying to answer: **why does it take so long — and go so wrong — to get working software from a developer's machine into the hands of users?**
 
-The broadest principle: treat every operational concern — infrastructure, configuration, pipelines, policies, even documentation — as versioned, reviewable source code.
-
-When everything is code, you get three things for free:
-
-- **Auditability**: every change has a commit, an author, and a reason
-- **Reproducibility**: the same code produces the same result on any machine, at any time
-- **Collaboration**: changes go through pull requests, not chat messages or tickets
-
-EaC is the foundation. Every other principle in this list is a specialisation of it.
+Gene Kim, co-author of *The Phoenix Project* and *The DevOps Handbook*, framed the answer as three principles he called The Three Ways. Every practice, tool, and process that works in DevOps can be traced back to one of them.
 
 ---
 
-## 2. GitOps
+## The First Way: Flow
 
-GitOps is the operational model built on top of EaC. The core rule: **git is the single source of truth, and the live state of any system should always converge toward what is declared in the main branch**.
+The First Way is about optimising the *entire* system — from the moment a developer writes code to the moment a user benefits from it. Not optimising individual parts. The whole.
 
-The workflow is pull-request-driven:
+This distinction matters more than it sounds. A team can have excellent individual contributors, fast code reviewers, and reliable deployments, yet still ship slowly — because each hand-off between stages introduces waiting. Code waits for review. A reviewed PR waits for CI. A passed build waits for a deployment window. A deployment waits for a sign-off.
 
-```text
-Developer → Pull Request → Automated Checks → Merge → Auto-apply
-```
+The bottleneck is almost never where people think it is. It is usually in the *gaps between steps*, not the steps themselves.
 
-There are two key properties that make GitOps work:
+**Making work visible** is the precondition for improving flow. You cannot optimise what you cannot see. Kanban boards, deployment dashboards, and lead-time metrics are not bureaucracy — they make the invisible visible so that bottlenecks can be identified and attacked.
 
-**Declarative desired state**: the repo describes *what* the system should look like, not *how* to get there. A GitOps controller (or CI pipeline) continuously reconciles the live system toward that declaration.
+**Limiting work in progress** is one of the most effective ways to improve flow. It sounds backward, but doing fewer things at the same time helps teams deliver faster. When engineers juggle many tasks, each task slows down because of context switching and blocked dependencies. Teams cannot always finish one task before starting another, but keeping WIP limits tight gets close to that and usually improves throughput.
 
-**Automated reconciliation**: changes reach the system through the pipeline, never through direct human access. The git history becomes the audit log. Rolling back is just reverting a commit.
+**Eliminating waste** in the delivery pipeline is the ongoing work. Waste, in lean manufacturing terms, is anything that consumes time or resources but does not add value: waiting, rework, unnecessary approval gates, manual steps that could be automated, documentation written for compliance but never read. Each eliminated waste shortens the feedback loop between intention and outcome.
 
-!!! note "GitOps vs. traditional CI/CD"
-    Traditional CI/CD pushes changes to the system. GitOps pulls: the system watches the repo and applies changes when it diverges from the declared state. The result is self-healing infrastructure — if someone manually modifies the live system, the next reconciliation loop corrects it.
+The First Way asks: how fast can a change travel from an idea to production? That number — lead time — is the most useful single measure of a delivery system's health.
 
----
-
-## 3. Infrastructure as Code (IaC)
-
-IaC is how EaC is applied specifically to infrastructure. Instead of clicking through a cloud console or running ad-hoc shell scripts, you write code that *declares* what infrastructure should exist. A tool reconciles the real world to match.
-
-Popular tools and their domains:
-
-| Tool | Primary domain |
-|---|---|
-| Terraform / OpenTofu | Cloud resources, DNS, SaaS APIs |
-| Pulumi | Same as Terraform, but in a general-purpose language |
-| Ansible | Server configuration and software installation |
-| Crossplane | Kubernetes-native cloud resource management |
-
-The benefits compound over time:
-
-- New environments (staging, dev) are created by copying and parameterising existing code
-- Drift between environments is visible as a diff, not a support ticket
-- Onboarding is reading code, not tribal knowledge transfer
+!!! tip "The deployment frequency signal"
+    Teams that deploy frequently (multiple times per day) are not reckless — they have reduced the cost and risk of each deployment so much that frequent deployment becomes the safest option. High deployment frequency and low change failure rate are not in tension. They correlate positively. Fast flow, done right, is also reliable flow.
 
 ---
 
-## 4. Declarative over Imperative
+## The Second Way: Feedback
 
-Declarative and imperative are two ways of expressing the same intent:
+Flow creates speed. Speed without feedback creates disasters.
 
-| Imperative | Declarative |
-|---|---|
-| `kubectl create deployment nginx --image=nginx` | `kubectl apply -f nginx-deployment.yaml` |
-| Bash script that provisions resources step by step | Terraform that describes the desired end state |
-| Manual runbook for setting up a server | Ansible playbook that enforces configuration |
+The Second Way is about amplifying feedback loops at every stage of the delivery pipeline — so that problems are discovered as close as possible to where they are introduced.
 
-With an imperative approach, you must handle every case: "if the resource already exists, skip; if it's in the wrong state, fix it." With a declarative approach, you describe the goal and the tool figures out the diff.
+The economics here are straightforward and brutal: the cost of fixing a bug grows exponentially with distance from its origin. A type error caught by a linter before a commit is a five-second fix. The same error caught in a code review is a five-minute fix. Caught in QA, it is a five-hour fix. Caught in production at 2am on a Saturday, with users affected, it is a five-day incident with a postmortem attached.
 
-Declarative systems are more predictable because the same manifest applied twice produces the same result — they are **idempotent**. This matters in automation: retries are safe.
+Shifting checks left — earlier in the pipeline — is not a process preference. It is cost reduction.
 
-!!! tip "Where imperative is still useful"
-    Declarative tools often have escape hatches for one-off operations — `kubectl exec`, `terraform taint`, a `null_resource` in Terraform. These are appropriate for debugging and incident response. They should not be used for routine changes.
+**Observability** is the production half of feedback. Logs, metrics, and traces are not nice-to-haves; they are the instruments that tell you whether what you shipped actually works the way you believe it does. The absence of observability is not "we have nothing to monitor" — it is "we are flying blind and will only discover problems from user complaints."
 
----
+A useful question to ask before any deployment: *how will we know if this change is causing harm?* If the answer is "we will wait and see," the feedback loop is broken.
 
-## 5. Immutable Infrastructure
+**Blameless postmortems** are where feedback becomes learning rather than punishment. When an incident is treated as evidence of a systemic failure rather than individual incompetence, people are willing to report problems, share context, and engage honestly with what went wrong. Blame, by contrast, drives problems underground — where they accumulate until the next, larger incident.
 
-Traditional infrastructure is treated like a **pet**: named, cared for, patched in place over years. Problems are fixed by logging in and changing things.
+The Second Way asks: how quickly does the system tell you something is wrong, and how honestly can the team discuss it?
 
-Immutable infrastructure treats servers like **cattle**: when something needs to change, you build a new instance from a known-good base and replace the old one. You never modify a running system.
-
-The practical implications:
-
-- No SSH access for configuration changes — everything goes through the pipeline
-- Server images (AMIs, container images) are versioned and tested before deployment
-- Rollback means deploying the previous image, not undoing manual changes
-
-The deeper benefit is eliminating **configuration drift** — the slow accumulation of undocumented changes that makes two servers that were once identical behave differently over time. Drift is one of the most common root causes of hard-to-reproduce incidents.
-
-Containers and container images make this pattern accessible at the application layer. Spot and preemptible cloud instances push it to the infrastructure layer: a VM that can be terminated and replaced at any time *must* be designed to be stateless and reproducible.
+!!! note "Feedback is bidirectional"
+    Feedback flows toward developers (tests, monitoring, postmortems) but also toward users and product teams. A feature shipped with instrumentation that measures adoption and impact closes the loop on whether the right thing was built. Without that loop, teams optimise delivery of the wrong things faster and faster.
 
 ---
 
-## 6. Shift Left
+## The Third Way: Continual Learning and Experimentation
 
-"Shift left" means moving validation and testing earlier in the development process — closer to when code is written, not after it is deployed.
+The First Way optimises the path. The Second Way makes the path honest. The Third Way ensures the organisation gets better at walking it.
 
-The name refers to shifting checks leftward on the delivery timeline:
+Continual learning means treating every failure as an opportunity to improve the system, not an anomaly to suppress. Every postmortem produces improvements to tooling, process, or documentation. Every near-miss is investigated before it becomes an incident. The system grows more reliable not because nothing goes wrong, but because the organisation learns faster than problems accumulate.
 
-```text
-Write → [✓ check here] → PR → Merge → Deploy → Production
-```
+**Psychological safety** is the precondition for this to work. If surfacing a problem risks blame, people will hide problems. If admitting uncertainty risks appearing incompetent, people will fake confidence. An organisation that punishes honesty gets dishonesty — and operational brittleness.
 
-In practice this means:
+**Experimentation** is the active form of learning. Rather than optimising a fixed process, high-performing teams question the process itself: what would happen if we removed this approval gate? What if we deployed on Fridays? What if on-call rotation included developers? The willingness to run controlled experiments — and to accept the results — is what separates teams that improve from teams that stagnate.
 
-- **Linting and static analysis** run on every commit or PR, not in a nightly job
-- **Security scanning** happens on the branch, before it reaches main
-- **Infrastructure plans** (`terraform plan`) are generated and reviewed as part of the PR, so reviewers see what will change before approving
-- **Dry-run validation** (Helm lint, Kustomize build, schema validation) catches broken configs before they are applied to a live cluster
+**Chaos engineering** is experimentation taken to its logical conclusion in infrastructure: deliberately introducing failures in production-like environments to find resilience gaps before they find you. The organisations that practice this — Netflix, Google, Amazon — are not reckless. They have concluded that the alternative (discovering failures during real incidents, without preparation) is more dangerous.
 
-The economics of shift left are straightforward: a bug caught in a PR comment takes minutes to fix. The same bug caught in production takes hours, involves more people, and may have already caused user impact.
+**Knowledge sharing** breaks down the silos that make teams fragile. When only one person understands a critical system, every deployment of that system is a risk. Documentation, pair work, runbooks, and internal tech talks distribute knowledge so that the bus factor — the number of people who would have to leave before the system becomes unmaintainable — is never one.
 
-Required status checks on the main branch enforce this pattern. Nothing merges unless the checks pass.
+The Third Way asks: is this organisation more capable of delivering reliably next quarter than it is today?
 
 ---
 
-## 7. Cost-conscious Engineering
+## How The Three Ways Relate
 
-Cloud infrastructure costs grow in two ways: planned growth, and unnoticed waste. Cost-conscious engineering means making deliberate tradeoffs between capability and cost, and being explicit about them.
+The three ways are not sequential phases. They operate simultaneously and reinforce each other:
 
-Common patterns:
+- **Flow** without **Feedback** is speed without a steering wheel.
+- **Feedback** without **Flow** is a well-instrumented system that is still slow to change.
+- **Learning** without **Flow** or **Feedback** is theory without grounding.
 
-**Right-size first, scale later.** Start with the smallest instance type that meets the actual requirement. Overprovisioning "just in case" is the norm, but it means paying for idle capacity indefinitely.
+And crucially: none of the three are primarily about tools. A team can have world-class CI/CD infrastructure and still have broken flow if there are too many approval gates. A team can have comprehensive monitoring and still ignore what it says if the culture punishes the messenger. A team can run postmortems and still not improve if the action items are never completed.
 
-**Use spot/preemptible instances for fault-tolerant workloads.** Spot instances can be 60–90% cheaper than on-demand. The constraint — they can be terminated at any time — is only a problem for workloads that do not tolerate interruption. Stateless services, batch jobs, and CI runners are good candidates.
-
-**Prefer managed services only when the operational savings justify the cost.** A managed Kubernetes service (GKE, EKS, AKS) saves significant operational effort. A lightweight distribution (K3S, k0s) on a single VM costs a fraction of the price for workloads that do not need the managed service's features.
-
-**Make costs visible.** Tag resources by team, environment, and purpose. Cost anomalies are much easier to catch when they appear in a dashboard than when they appear on a monthly bill.
-
-!!! note "The tradeoff is real"
-    Every cost optimisation trades something. Spot instances trade availability guarantees. K3S trades managed upgrades and multi-master HA. Free-tier DNS trades SLAs. The goal is not minimum cost — it is minimum cost *for your actual requirements*. Name the tradeoff explicitly so it can be revisited when requirements change.
+The tools matter. But they amplify culture. They do not replace it.
 
 ---
 
-## How These Principles Relate
+## Why This Framing Matters
 
-These seven principles are not independent — they reinforce each other:
+The Three Ways reframe DevOps from a set of tools and roles into a *way of thinking about delivery systems*. That framing is durable in a way that tool recommendations are not.
 
-- **EaC** is the foundation; everything else is built on it
-- **GitOps** gives EaC its operational workflow
-- **IaC** is the concrete application of EaC to infrastructure
-- **Declarative configuration** is what makes IaC and GitOps tractable at scale
-- **Immutable infrastructure** eliminates the state that makes declarative configuration hard to reason about
-- **Shift left** catches mistakes before they reach the immutable system
-- **Cost-conscious engineering** ensures the whole thing remains sustainable
+Terraform will be replaced by something else. Kubernetes will evolve past recognition. The principle that you should optimise for flow, amplify feedback, and build a learning organisation — that holds regardless of what the toolchain looks like in five years.
 
-Understanding these relationships helps when deciding which principle to apply to a specific problem — and which tradeoffs to accept.
+Starting from principles means that when a new tool or practice appears, you have a framework for evaluating it: does this improve flow? Does it shorten feedback loops? Does it help the team learn? If yes, it is worth examining. If it only adds complexity without advancing one of the three ways, it is worth skipping.
+
+The question is never "should we adopt this tool?" It is always "what problem are we actually trying to solve, and is this the right way to solve it?"
