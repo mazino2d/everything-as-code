@@ -54,3 +54,27 @@ resource "infisical_secret" "dev_loki_password" {
   workspace_id = var.infisical_project_id
   folder_path  = "/monitoring/grafana-alloy"
 }
+
+resource "infisical_secret" "dev_tempo_url" {
+  name         = "TEMPO_URL"
+  value        = "${trimsuffix(module.grafana_cloud_dev.tempo_endpoint, "/")}/otlp"
+  env_slug     = "dev"
+  workspace_id = var.infisical_project_id
+  folder_path  = "/monitoring/grafana-alloy"
+}
+
+resource "infisical_secret" "dev_tempo_username" {
+  name         = "TEMPO_USERNAME"
+  value        = module.grafana_cloud_dev.tempo_username
+  env_slug     = "dev"
+  workspace_id = var.infisical_project_id
+  folder_path  = "/monitoring/grafana-alloy"
+}
+
+resource "infisical_secret" "dev_tempo_password" {
+  name         = "TEMPO_PASSWORD"
+  value        = module.grafana_cloud_dev.tempo_password
+  env_slug     = "dev"
+  workspace_id = var.infisical_project_id
+  folder_path  = "/monitoring/grafana-alloy"
+}
