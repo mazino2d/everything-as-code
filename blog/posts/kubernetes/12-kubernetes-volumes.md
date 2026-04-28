@@ -70,11 +70,11 @@ volumes:
 
 ### configMap and secret
 
-Mount a ConfigMap or Secret as files in the container's filesystem. Covered in depth in the [ConfigMaps and Secrets](12-kubernetes-configmap-secret.md) post.
+Mount a ConfigMap or Secret as files in the container's filesystem. Covered in depth in the [ConfigMaps and Secrets](11-kubernetes-configmap-secret.md) post.
 
 ### PersistentVolumeClaim (PVC)
 
-Mount a persistent volume — network-attached storage that outlives the Pod. This is the standard for anything that needs to survive Pod deletion. Covered in depth in the [next post](14-kubernetes-pv-pvc.md).
+Mount a persistent volume — network-attached storage that outlives the Pod. This is the standard for anything that needs to survive Pod deletion. Covered in depth in the [next post](13-kubernetes-pv-pvc.md).
 
 ---
 
