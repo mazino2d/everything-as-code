@@ -86,6 +86,6 @@ Branch protection (managed by Terraform) requires these checks to pass:
 | Secret | Used by |
 |--------|---------|
 | `TF_API_TOKEN` | Terraform Cloud authentication |
-| `K3S_KUBECONFIG` | Base64-encoded kubeconfig for kubectl deploy |
+| `KUBECONFIG` | Base64-encoded kubeconfig for kubectl deploy |
 | `DUCKDNS_TOKEN` | VM startup script for DNS updates |
 | `GCP_CREDENTIALS` | GCP provider auth in Terraform |
