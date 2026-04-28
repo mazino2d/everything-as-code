@@ -2,12 +2,16 @@
 
 ## 1. Accounts
 
+Create accounts if you don't have them already:
+
 - GCP: [console.cloud.google.com](https://console.cloud.google.com)
-- HCP Terraform: [app.terraform.io](https://app.terraform.io) (org `mazino2d-everything-as-code` already exists)
+- HCP Terraform: [app.terraform.io](https://app.terraform.io)
 
 ---
 
 ## 2. Create GCP Project + Service Account (one-time, manual)
+
+Create billing account if you don't have one already: [console.cloud.google.com/billing](https://console.cloud.google.com/billing)
 
 ```bash
 # Create project
@@ -33,7 +37,31 @@ gcloud iam service-accounts keys create /tmp/terraform-sa-key.json \
 
 ---
 
-## 3. Import Project into Terraform State
+## 3. Terraform Cloud Workspace
+
+### Org-level settings
+
+In the `mazino2d-everything-as-code` org at [app.terraform.io](https://app.terraform.io), go to **Settings → General** and set:
+
+- Execution Mode: **Remote**
+- Auto-apply API, UI, & VCS runs: **On**
+
+### Workspace
+
+Create a new workspace:
+
+1. **API-driven workflow**
+2. Name: `gcp-<project-id>`
+3. **Variables** → add:
+
+  | Type        | Key               | Value                                    | Sensitive |
+  |-------------|-------------------|------------------------------------------|-----------|
+  | Terraform   | `gcp_credentials` | contents of `/tmp/terraform-sa-key.json` | ✅        |
+  | Environment | `DUCKDNS_TOKEN`   | DuckDNS API token                        | ✅        |
+
+---
+
+## 4. Import Project into Terraform State
 
 ```bash
 cd terraform/gcp/<project-id>
@@ -45,41 +73,7 @@ Then trigger an apply on TF Cloud — APIs and project settings will be tracked 
 
 ---
 
-## 4. Terraform Cloud Workspace
-
-Create a new workspace at [app.terraform.io](https://app.terraform.io):
-
-1. **Version Control** → select repo `everything-as-code`
-2. Name: `gcp-<project-id>`
-3. Working Directory: `terraform/gcp/<project-id>`
-4. **Variables** → add:
-
-| Type        | Key               | Value                                    | Sensitive |
-|-------------|-------------------|------------------------------------------|-----------|
-| Terraform   | `gcp_credentials` | contents of `/tmp/terraform-sa-key.json` | ✅        |
-| Environment | `DUCKDNS_TOKEN`   | DuckDNS API token                        | ✅        |
-
-1. **Settings → General**:
-   - Execution Mode: **Remote**
-   - Auto-apply API, UI, & VCS runs: **On**
-
----
-
-## 5. K3S Kubeconfig
-
-After k3s is installed on the VM, export the kubeconfig and set it as a GitHub secret.
-The VM uses an ephemeral IP — use the DuckDNS domain so the kubeconfig stays valid after restarts:
-
-```bash
-ssh user@<duckdns-domain>.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
-  | sed 's/127.0.0.1/<duckdns-domain>.duckdns.org/g' \
-  | base64 \
-  | gh secret set K3S_KUBECONFIG --repo <owner>/<repo>
-```
-
----
-
-## 6. GitHub Actions
+## 5. GitHub Actions
 
 Add the new project to the matrix in both workflow files:
 

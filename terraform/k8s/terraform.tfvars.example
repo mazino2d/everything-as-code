@@ -1,1 +1,1 @@
-k3s_kubeconfig = "base64-encoded-kubeconfig"
+kubeconfig = "base64-encoded-kubeconfig"

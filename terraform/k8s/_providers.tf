@@ -18,7 +18,7 @@ terraform {
 }
 
 locals {
-  kubeconfig = yamldecode(base64decode(var.k3s_kubeconfig))
+  kubeconfig = yamldecode(base64decode(var.kubeconfig))
 }
 
 provider "kubernetes" {
