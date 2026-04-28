@@ -3,100 +3,83 @@ date: 2025-04-26
 title: Docker Recap — Images, Containers & Packaging Apps Right
 ---
 
-Before Kubernetes makes sense, containers must make sense. This post covers Docker fundamentals — specifically the mental model around images, layers, and what "packaging an app correctly" actually means.
+Before Kubernetes makes sense, containers must make sense. This post focuses on the core mental models behind Docker — what a container actually is, how images work, and what it means to package an application correctly.
+
+---
+
+## The Problem Docker Solves
+
+The classic "works on my machine" problem comes from environment mismatch: different OS versions, different library versions, different runtime configs between dev, staging, and production.
+
+Docker solves this by packaging the application together with everything it needs to run — libraries, config, runtime — into a single portable unit. That unit behaves identically regardless of where it runs.
 
 ---
 
 ## Containers vs Virtual Machines
 
-A virtual machine emulates an entire computer: its own kernel, OS, drivers, and userland. A container shares the host kernel and isolates only the process and its dependencies.
+A **virtual machine** emulates an entire computer. It has its own kernel, its own OS, its own drivers. The hypervisor sits between the hardware and each VM, translating instructions. This gives strong isolation — each VM is a completely separate machine — but it's heavy. A VM takes minutes to boot and consumes gigabytes of memory.
 
-```text
-VM:        [App] [Libs] [OS] [Kernel] │ [App] [Libs] [OS] [Kernel]
-           ─────────────────────────  │ ─────────────────────────
-                  Hypervisor                  Hypervisor
+A **container** takes a different approach. Instead of emulating hardware, it uses Linux kernel features (`namespaces` and `cgroups`) to isolate a process directly on the host. Containers share the host kernel; they just can't see each other's filesystems, networks, or process trees.
 
-Container: [App] [Libs] │ [App] [Libs] │ [App] [Libs]
-           ─────────────────────────────────────────
-                       Shared Kernel (host)
-```
+| | Virtual Machine | Container |
+|---|---|---|
+| **Kernel** | Each VM has its own | Shared with host |
+| **Isolation** | Full OS boundary | Namespaces + cgroups |
+| **Startup** | Minutes | Milliseconds |
+| **Footprint** | Gigabytes | Megabytes |
 
-Containers start in milliseconds, use megabytes instead of gigabytes, and pack dozens onto a single machine. The tradeoff: they share the kernel, so kernel-level isolation is weaker than a VM.
+The tradeoff for that efficiency: shared kernel means weaker isolation. A kernel exploit can potentially break out of a container; it cannot break out of a properly configured VM.
 
 ---
 
 ## Images and Layers
 
-A Docker image is a read-only stack of filesystem layers. Each instruction in a `Dockerfile` adds a layer.
+A Docker **image** is a read-only, portable snapshot of a filesystem — the app, its dependencies, config files, everything except the kernel. It is built from a `Dockerfile`, a series of instructions that each produce a filesystem layer.
 
-```dockerfile
-FROM ubuntu:22.04        # base layer (100MB)
-RUN apt-get install ...  # new layer (deps added)
-COPY app /app            # new layer (your code)
-CMD ["./app"]            # metadata, no new layer
-```
+Layers are **content-addressed** and **cached**. If a layer hasn't changed since the last build, Docker reuses it from cache. This is why layer ordering matters: put stable things (base OS, dependencies) at the top of the `Dockerfile` and frequently-changing things (application code) at the bottom. A cache miss at layer N forces every subsequent layer to rebuild from scratch.
 
-Layers are **content-addressed** and **cached**. If the base layer hasn't changed, Docker reuses it from cache on the next build. This makes rebuilds fast — as long as you order instructions from least to most frequently changed.
+A running **container** is an image plus a thin writable layer on top. Anything written inside the container (logs, temp files, database state) goes into that writable layer. When the container is deleted, the writable layer is gone too. Persistent data must be stored in volumes — external storage mounted into the container — not on the container filesystem.
 
-!!! tip "Layer cache strategy"
-    Put `COPY requirements.txt` and `RUN pip install` *before* `COPY . .`. Dependencies change less often than application code. Breaking the cache at the dependency layer forces a full reinstall on every code change.
-
-A running container adds a thin **writable layer** on top of the image layers. When the container is deleted, that layer is gone. This is why stateful data must live in volumes, not the container filesystem.
+The key mental model: **image is a template, container is an instance**. The same image can spawn many containers simultaneously. Containers are ephemeral by design.
 
 ---
 
-## What Makes a Good Dockerfile
+## The Registry
 
-**Use a small base image.** `ubuntu:22.04` is 78MB; `python:3.12-slim` is 48MB; `python:3.12-alpine` is 22MB; `gcr.io/distroless/python3` has no shell at all. Smaller images mean faster pulls, smaller attack surface, and less to patch.
+Images are distributed via a **registry** — a content-addressed store of image layers. Docker Hub is the public default. Private registries (GCR, ECR, GHCR) are common in production.
 
-**Use multi-stage builds** to separate the build environment from the runtime environment:
+When you run `docker pull`, Docker fetches only the layers it doesn't already have locally. When you `docker push`, it uploads only the layers the registry doesn't already have. This delta transfer makes image distribution efficient.
 
-```dockerfile
-# Stage 1: build
-FROM golang:1.22 AS builder
-WORKDIR /app
-COPY . .
-RUN go build -o server .
+Image names encode the registry, repository, and tag: `registry/repository:tag`. The tag is mutable — `latest` can point to different images at different times. For reproducibility, pin to an immutable digest: `image@sha256:abc123...`.
 
-# Stage 2: runtime (no compiler, no source code)
-FROM gcr.io/distroless/static
-COPY --from=builder /app/server /server
-ENTRYPOINT ["/server"]
-```
+---
 
-The final image contains only the compiled binary — not the Go toolchain or source code.
+## What Makes a Good Image
 
-**Run as a non-root user.** Most base images run as root by default. This is a security risk: a container escape with root privileges is far more damaging than one with a regular user.
+The goal when building an image is to make it **small, reproducible, and least-privileged**.
 
-```dockerfile
-RUN adduser --disabled-password appuser
-USER appuser
-```
+**Small base image.** The base image is the starting layer. A full Ubuntu image is ~78MB before your app is even added. Slim and Alpine variants strip out package managers, shells, and other tooling you don't need at runtime — bringing the base down to 20–50MB. Distroless images go further: no shell, no package manager, only the runtime libraries the app actually needs. Smaller images pull faster, have a smaller attack surface, and are cheaper to scan.
 
-**Be explicit with tags.** `FROM python:latest` will silently upgrade when the image is rebuilt. Pin to a specific version: `FROM python:3.12.3-slim`.
+**Multi-stage builds.** Build tools (compilers, test runners, build-time dependencies) should never end up in the final image. A multi-stage build uses one image to build the artifact and a separate, minimal image for the final output. Only the compiled binary or built assets get copied across — the toolchain stays behind. The result is an image that contains exactly what's needed to run the app, nothing more.
+
+**Non-root user.** Container processes run as root by default. If an attacker exploits the running process, they have root inside the container. While container root is not the same as host root, it significantly raises the blast radius of a container escape. The fix is simple: create a dedicated user in the image and switch to it before the entrypoint.
+
+**Pinned tags.** `FROM python:latest` is a moving target. The next build might pull a different version, silently changing behavior. Pin to a specific version tag, or better, to an immutable digest. This makes builds reproducible and prevents surprise upgrades.
 
 ---
 
 ## The Container Lifecycle
 
 ```text
-docker build  →  Image (stored in registry)
-docker pull   →  Image (local)
-docker run    →  Container (running process)
-docker stop   →  Container (stopped)
-docker rm     →  Container (deleted)
+Dockerfile  →  docker build  →  Image
+Image       →  docker push   →  Registry
+Registry    →  docker pull   →  Local image
+Local image →  docker run    →  Container (running process)
+Container   →  docker stop   →  Container (stopped)
+Container   →  docker rm     →  Container (deleted)
 ```
 
-Key commands for day-to-day work:
-
-```bash
-docker build -t myapp:1.0 .          # build image from current directory
-docker run -p 8080:8080 myapp:1.0    # run, map host port 8080 to container 8080
-docker logs <container-id>           # tail container logs
-docker exec -it <id> sh              # open a shell inside a running container
-docker images                        # list local images
-docker ps -a                         # list all containers (including stopped)
-```
+The image persists on disk until explicitly removed. The container is transient — it runs, stops, and gets deleted. Its writable layer disappears with it. This cycle is intentional: containers should be stateless and replaceable.
 
 ---
 
@@ -106,7 +89,7 @@ A single container on a single machine is manageable. The problems appear at sca
 
 - Which machine should this container run on?
 - What happens when the container crashes?
-- How do you update 50 containers with zero downtime?
-- How do running containers find each other?
+- How do you roll out an update to 50 containers with zero downtime?
+- How do running containers discover and talk to each other?
 
 These are orchestration problems. That is what Kubernetes is for.
