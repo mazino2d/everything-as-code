@@ -23,3 +23,16 @@ output "loki_password" {
   value     = grafana_cloud_access_policy_token.alloy.token
   sensitive = true
 }
+
+output "tempo_endpoint" {
+  value = local.stack.traces_url
+}
+
+output "tempo_username" {
+  value = tostring(local.stack.traces_user_id)
+}
+
+output "tempo_password" {
+  value     = grafana_cloud_access_policy_token.alloy.token
+  sensitive = true
+}

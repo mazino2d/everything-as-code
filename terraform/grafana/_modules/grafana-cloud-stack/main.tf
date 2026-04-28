@@ -28,7 +28,7 @@ resource "grafana_cloud_access_policy" "metrics_push" {
   name         = "${var.stack_slug}-metrics-push"
   display_name = "${var.stack_slug} Alloy metrics push"
 
-  scopes = ["metrics:write", "logs:write"]
+  scopes = ["metrics:write", "logs:write", "traces:write"]
 
   realm {
     type       = "stack"
