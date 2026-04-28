@@ -116,7 +116,7 @@ locals {
 }
 ```
 
-However, workspaces have limitations — they share the same provider configuration and variable definitions, just with different state. For environments with significantly different configurations, separate directories are often cleaner (covered in the [next chapter](30-terraform-workspaces-directories.md)).
+However, workspaces have limitations — they share the same provider configuration and variable definitions, just with different state. For environments with significantly different configurations, separate directories are often cleaner (covered in the [next chapter](10-terraform-workspaces-directories.md)).
 
 ---
 

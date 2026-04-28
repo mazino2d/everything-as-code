@@ -39,46 +39,46 @@ markdown_extensions:
 nav:
   - Home: index.md
   - DevOps Principles:
-    - "01 · DevOps Principles": posts/01-devops-principles.md
+    - "01 · DevOps Principles": posts/devops/01-devops-principles.md
   - Kubernetes Series:
     - "Chapter 1 — Container Fundamentals":
-      - "02 · Docker: Images & Containers": posts/02-docker-image-container.md
-      - "03 · Why Kubernetes": posts/03-why-kubernetes.md
-      - "04 · Lab Setup": posts/04-kubernetes-lab-setup.md
+      - "01 · Docker: Images & Containers": posts/kubernetes/01-docker-image-container.md
+      - "02 · Why Kubernetes": posts/kubernetes/02-why-kubernetes.md
+      - "03 · Lab Setup": posts/kubernetes/03-kubernetes-lab-setup.md
     - "Chapter 2 — Core Objects":
-      - "05 · Pods": posts/05-kubernetes-pods.md
-      - "06 · Deployments": posts/06-kubernetes-deployment.md
-      - "07 · StatefulSets": posts/07-kubernetes-statefulset.md
-      - "08 · DaemonSets": posts/08-kubernetes-daemonset.md
-      - "09 · Jobs & CronJobs": posts/09-kubernetes-job-cronjob.md
+      - "04 · Pods": posts/kubernetes/04-kubernetes-pods.md
+      - "05 · Deployments": posts/kubernetes/05-kubernetes-deployment.md
+      - "06 · StatefulSets": posts/kubernetes/06-kubernetes-statefulset.md
+      - "07 · DaemonSets": posts/kubernetes/07-kubernetes-daemonset.md
+      - "08 · Jobs & CronJobs": posts/kubernetes/08-kubernetes-job-cronjob.md
     - "Chapter 3 — Networking":
-      - "10 · Services": posts/10-kubernetes-service.md
-      - "11 · Ingress": posts/11-kubernetes-ingress.md
-      - "12 · ConfigMaps & Secrets": posts/12-kubernetes-configmap-secret.md
+      - "09 · Services": posts/kubernetes/09-kubernetes-service.md
+      - "10 · Ingress": posts/kubernetes/10-kubernetes-ingress.md
     - "Chapter 4 — Storage":
-      - "13 · Volumes": posts/13-kubernetes-volumes.md
-      - "14 · PV & PVC": posts/14-kubernetes-pv-pvc.md
+      - "11 · ConfigMaps & Secrets": posts/kubernetes/11-kubernetes-configmap-secret.md
+      - "12 · Volumes": posts/kubernetes/12-kubernetes-volumes.md
+      - "13 · PV & PVC": posts/kubernetes/13-kubernetes-pv-pvc.md
     - "Chapter 5 — Resource Management":
-      - "15 · Resource Limits": posts/15-kubernetes-resource-limits.md
-      - "16 · Labels & Selectors": posts/16-kubernetes-labels-selectors.md
-      - "17 · Affinity & Taints": posts/17-kubernetes-affinity-taints.md
+      - "14 · Resource Limits": posts/kubernetes/14-kubernetes-resource-limits.md
+      - "15 · Labels & Selectors": posts/kubernetes/15-kubernetes-labels-selectors.md
+      - "16 · Affinity & Taints": posts/kubernetes/16-kubernetes-affinity-taints.md
     - "Chapter 6 — Ecosystem":
-      - "18 · Helm": posts/18-kubernetes-helm.md
-      - "19 · Kustomize": posts/19-kubernetes-kustomize.md
-      - "20 · Lens": posts/20-kubernetes-lens.md
+      - "17 · Helm": posts/kubernetes/17-kubernetes-helm.md
+      - "18 · Kustomize": posts/kubernetes/18-kubernetes-kustomize.md
+      - "19 · Lens": posts/kubernetes/19-kubernetes-lens.md
   - Terraform Series:
     - "Chapter 1 — The Mental Model":
-      - "21 · State, Plan, Apply": posts/21-terraform-state-plan-apply.md
-      - "22 · The Provider Model": posts/22-terraform-provider-model.md
-      - "23 · HCL Fundamentals": posts/23-terraform-hcl-fundamentals.md
+      - "01 · State, Plan, Apply": posts/terraform/01-terraform-state-plan-apply.md
+      - "02 · The Provider Model": posts/terraform/02-terraform-provider-model.md
+      - "03 · HCL Fundamentals": posts/terraform/03-terraform-hcl-fundamentals.md
     - "Chapter 2 — State":
-      - "24 · State": posts/24-terraform-state.md
-      - "25 · Remote State & Backends": posts/25-terraform-remote-state.md
-      - "26 · Drift & Import": posts/26-terraform-drift-import.md
+      - "04 · State": posts/terraform/04-terraform-state.md
+      - "05 · Remote State & Backends": posts/terraform/05-terraform-remote-state.md
+      - "06 · Drift & Import": posts/terraform/06-terraform-drift-import.md
     - "Chapter 3 — Modules":
-      - "27 · Modules": posts/27-terraform-modules.md
-      - "28 · Module Design": posts/28-terraform-module-design.md
+      - "07 · Modules": posts/terraform/07-terraform-modules.md
+      - "08 · Module Design": posts/terraform/08-terraform-module-design.md
     - "Chapter 4 — Workflow":
-      - "29 · The Plan/Apply Workflow": posts/29-terraform-workflow.md
-      - "30 · Workspaces vs Directories": posts/30-terraform-workspaces-directories.md
-      - "31 · Managing Secrets": posts/31-terraform-secrets.md
+      - "09 · The Plan/Apply Workflow": posts/terraform/09-terraform-workflow.md
+      - "10 · Workspaces vs Directories": posts/terraform/10-terraform-workspaces-directories.md
+      - "11 · Managing Secrets": posts/terraform/11-terraform-secrets.md
