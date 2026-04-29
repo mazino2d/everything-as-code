@@ -1,0 +1,17 @@
+name: hotrod
+image:
+  repository: jaegertracing/example-hotrod
+  tag: latest
+replicaCount: 1
+service:
+  port: 8080
+  containerPort: 8080
+ingress:
+  enabled: true
+  host: hotrod.mazino2d-k3s.duckdns.org
+env:
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4317
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi

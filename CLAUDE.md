@@ -82,7 +82,7 @@ kubernetes/
 │   └── eac-redis/
 └── clusters/
     └── mazino2d-as-se1-dev/
-        ├── apps/        # app workloads (e.g., whoami, redis)
+        ├── apps/        # app workloads (e.g., hotrod, httpbin, redis)
         ├── infra/       # cluster infra components (e.g., infisical operator)
         └── monitoring/  # observability components (e.g., node exporter, alloy)
 ```
