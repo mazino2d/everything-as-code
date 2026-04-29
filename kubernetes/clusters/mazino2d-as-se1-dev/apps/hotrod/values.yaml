@@ -10,7 +10,7 @@ ingress:
   enabled: true
   host: hotrod.mazino2d-k3s.duckdns.org
 env:
-  OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4317
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4318
 resources:
   requests:
     cpu: 50m
