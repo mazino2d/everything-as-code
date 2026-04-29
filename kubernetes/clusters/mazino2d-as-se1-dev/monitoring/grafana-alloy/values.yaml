@@ -2,6 +2,11 @@ alloy:
   envFrom:
     - secretRef:
         name: grafana-alloy
+  extraPorts:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
   configMap:
     content: |
       prometheus.scrape "node_exporter" {
