@@ -40,6 +40,9 @@ nav:
   - Home: index.md
   - DevOps Principles:
     - "01 · DevOps Principles": posts/devops/01-devops-principles.md
+    - "02 · DORA Metrics": posts/devops/02-dora-metrics.md
+    - "03 · Observability": posts/devops/03-observability.md
+    - "04 · Blameless Postmortem": posts/devops/04-blameless-postmortem.md
   - Kubernetes Series:
     - "Chapter 1 — Container Fundamentals":
       - "01 · Docker: Images & Containers": posts/kubernetes/01-docker-image-container.md
@@ -65,7 +68,7 @@ nav:
     - "Chapter 6 — Ecosystem":
       - "17 · Helm": posts/kubernetes/17-kubernetes-helm.md
       - "18 · Kustomize": posts/kubernetes/18-kubernetes-kustomize.md
-      - "19 · Lens": posts/kubernetes/19-kubernetes-lens.md
+      - "19 · Argo CD": posts/kubernetes/19-kubernetes-argocd.md
   - Terraform Series:
     - "Chapter 1 — The Mental Model":
       - "01 · State, Plan, Apply": posts/terraform/01-terraform-state-plan-apply.md
