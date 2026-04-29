@@ -1,0 +1,4 @@
+apiVersion: v2
+name: eac-postgresql
+version: 0.1.0
+description: Manages one or more single-instance PostgreSQL StatefulSets

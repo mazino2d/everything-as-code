@@ -11,3 +11,10 @@ helmCharts:
   - name: eac-redis
     releaseName: redis
     valuesFile: redis.yml
+  - name: eac-postgresql
+    releaseName: postgresql
+    valuesFile: postgresql.yml
+    valuesInline:
+      infisical:
+        projectSlug: everything-as-code
+        envSlug: dev

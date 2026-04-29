@@ -1,0 +1,73 @@
+{{- $root := . -}}
+{{- range .Values.instances }}
+{{- if dig "backup" "enabled" false . }}
+{{- $passwordSource := dig "auth" "password" "source" "auto" . }}
+{{- $autoSecretName := dig "auth" "password" "secretName" (printf "%s-auth" .name) . }}
+{{- $existingSecretName := dig "auth" "password" "existingSecret" "" . }}
+{{- $secretName := $autoSecretName }}
+{{- if eq $passwordSource "existingSecret" }}
+{{- $secretName = required (printf "instances[%s].auth.password.existingSecret is required when source=existingSecret" .name) $existingSecretName }}
+{{- end }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .name }}-backup
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  schedule: {{ dig "backup" "schedule" "0 2 * * *" . | quote }}
+  successfulJobsHistoryLimit: {{ dig "backup" "successfulJobsHistoryLimit" 3 . }}
+  failedJobsHistoryLimit: {{ dig "backup" "failedJobsHistoryLimit" 3 . }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: {{ dig "backup" "restartPolicy" "OnFailure" . }}
+          containers:
+            - name: pg-dump
+              image: {{ dig "image" "repository" "postgres" . }}:{{ dig "image" "tag" "16-alpine" . }}
+              imagePullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" . }}
+              env:
+                - name: PGHOST
+                  value: {{ .name }}
+                - name: PGPORT
+                  value: {{ dig "service" "port" 5432 . | quote }}
+                - name: POSTGRES_USER
+                  value: {{ dig "auth" "adminUsername" "postgres" . | quote }}
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $secretName }}
+                      key: admin_password
+                - name: POSTGRES_DB
+                  value: postgres
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $secretName }}
+                      key: admin_password
+              {{- if dig "backup" "command" nil . }}
+              command:
+                {{- toYaml (dig "backup" "command" nil .) | nindent 16 }}
+              {{- else }}
+              command:
+                - /bin/sh
+                - -c
+                - >-
+                  TS=$(date +%Y%m%d%H%M%S) &&
+                  pg_dump -h "$PGHOST" -p "$PGPORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip > /tmp/${POSTGRES_DB}-${TS}.sql.gz &&
+                  ls -lh /tmp
+              {{- end }}
+              {{- if dig "backup" "storage" "enabled" false . }}
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: {{ dig "backup" "storage" "mountPath" "/backup" . }}
+              {{- end }}
+          {{- if dig "backup" "storage" "enabled" false . }}
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: {{ dig "backup" "storage" "existingClaim" "" . }}
+          {{- end }}
+{{- end }}
+{{- end }}

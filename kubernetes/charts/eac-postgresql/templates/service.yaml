@@ -1,0 +1,19 @@
+{{- $root := . -}}
+{{- range .Values.instances }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  type: {{ dig "service" "type" "ClusterIP" . }}
+  selector:
+    app: {{ .name }}
+  ports:
+    - port: {{ dig "service" "port" 5432 . }}
+      targetPort: {{ dig "service" "port" 5432 . }}
+      {{- if dig "service" "nodePort" nil . }}
+      nodePort: {{ dig "service" "nodePort" nil . }}
+      {{- end }}
+{{- end }}

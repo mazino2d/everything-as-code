@@ -1,0 +1,16 @@
+{{- $root := . -}}
+{{- range .Values.instances }}
+{{- if .initdbScripts }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}-initdb
+  namespace: {{ $root.Release.Namespace }}
+data:
+{{- range $fileName, $script := .initdbScripts }}
+  {{ $fileName }}: |
+{{ $script | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

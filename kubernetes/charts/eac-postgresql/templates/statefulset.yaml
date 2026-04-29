@@ -1,0 +1,162 @@
+{{- $root := . -}}
+{{- range .Values.instances }}
+{{- $passwordSource := dig "auth" "password" "source" "auto" . }}
+{{- $autoSecretName := dig "auth" "password" "secretName" (printf "%s-auth" .name) . }}
+{{- $existingSecretName := dig "auth" "password" "existingSecret" "" . }}
+{{- $secretName := $autoSecretName }}
+{{- if eq $passwordSource "existingSecret" }}
+{{- $secretName = required (printf "instances[%s].auth.password.existingSecret is required when source=existingSecret" .name) $existingSecretName }}
+{{- end }}
+{{- $port := dig "service" "port" 5432 . }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .name }}
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  serviceName: {{ .name }}-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+      {{- if dig "exporter" "enabled" false . }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ dig "exporter" "port" 9187 . | quote }}
+      {{- end }}
+    spec:
+      securityContext:
+        fsGroup: {{ dig "securityContext" "fsGroup" 999 . }}
+      containers:
+        - name: {{ .name }}
+          image: {{ dig "image" "repository" "postgres" . }}:{{ dig "image" "tag" "16-alpine" . }}
+          imagePullPolicy: {{ dig "image" "pullPolicy" "IfNotPresent" . }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: {{ dig "securityContext" "runAsUser" 999 . }}
+            runAsGroup: {{ dig "securityContext" "runAsGroup" 999 . }}
+            allowPrivilegeEscalation: false
+          env:
+            - name: POSTGRES_USER
+              value: {{ dig "auth" "adminUsername" "postgres" . | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: admin_password
+            - name: POSTGRES_DB
+              value: postgres
+            - name: PGDATA
+              value: {{ printf "%s/pgdata" (dig "storage" "mountPath" "/var/lib/postgresql/data" .) | quote }}
+          args:
+            - -c
+            - max_connections={{ dig "postgresql" "maxConnections" "100" . }}
+            - -c
+            - shared_buffers={{ dig "postgresql" "sharedBuffers" "128MB" . }}
+            - -c
+            - work_mem={{ dig "postgresql" "workMem" "4MB" . }}
+            - -c
+            - maintenance_work_mem={{ dig "postgresql" "maintenanceWorkMem" "64MB" . }}
+            - -c
+            - wal_level={{ dig "postgresql" "walLevel" "replica" . }}
+          ports:
+            - containerPort: {{ $port }}
+          startupProbe:
+            {{- if dig "probes" "startup" "enabled" true . }}
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -h 127.0.0.1 -p {{ $port }} -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: {{ dig "probes" "startup" "initialDelaySeconds" 10 . }}
+            periodSeconds: {{ dig "probes" "startup" "periodSeconds" 10 . }}
+            timeoutSeconds: {{ dig "probes" "startup" "timeoutSeconds" 5 . }}
+            failureThreshold: {{ dig "probes" "startup" "failureThreshold" 30 . }}
+            {{- else }}
+            tcpSocket:
+              port: {{ $port }}
+            {{- end }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -h 127.0.0.1 -p {{ $port }} -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: {{ dig "probes" "readiness" "initialDelaySeconds" 10 . }}
+            periodSeconds: {{ dig "probes" "readiness" "periodSeconds" 10 . }}
+            timeoutSeconds: {{ dig "probes" "readiness" "timeoutSeconds" 5 . }}
+            failureThreshold: {{ dig "probes" "readiness" "failureThreshold" 6 . }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -h 127.0.0.1 -p {{ $port }} -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: {{ dig "probes" "liveness" "initialDelaySeconds" 30 . }}
+            periodSeconds: {{ dig "probes" "liveness" "periodSeconds" 20 . }}
+            timeoutSeconds: {{ dig "probes" "liveness" "timeoutSeconds" 5 . }}
+            failureThreshold: {{ dig "probes" "liveness" "failureThreshold" 6 . }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ dig "storage" "mountPath" "/var/lib/postgresql/data" . }}
+            {{- if .initdbScripts }}
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+        {{- if dig "exporter" "enabled" false . }}
+        - name: postgres-exporter
+          image: {{ dig "exporter" "image" "repository" "quay.io/prometheuscommunity/postgres-exporter" . }}:{{ dig "exporter" "image" "tag" "v0.15.0" . }}
+          imagePullPolicy: {{ dig "exporter" "image" "pullPolicy" "IfNotPresent" . }}
+          env:
+            - name: DATA_SOURCE_URI
+              value: 127.0.0.1:{{ $port }}/postgres?sslmode=disable
+            - name: DATA_SOURCE_USER
+              value: {{ dig "auth" "adminUsername" "postgres" . | quote }}
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: admin_password
+          ports:
+            - containerPort: {{ dig "exporter" "port" 9187 . }}
+          resources:
+            {{- with dig "exporter" "resources" nil . }}
+            {{- toYaml . | nindent 12 }}
+            {{- else }}
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+            {{- end }}
+        {{- end }}
+      {{- if .initdbScripts }}
+      volumes:
+        - name: initdb
+          configMap:
+            name: {{ .name }}-initdb
+            defaultMode: 0755
+      {{- end }}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- with dig "storage" "storageClassName" "" . }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ dig "storage" "size" "1Gi" . }}
+{{- end }}
