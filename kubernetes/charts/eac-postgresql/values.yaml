@@ -1,0 +1,106 @@
+# Cluster-wide Infisical defaults (can be overridden per instance under infisical:)
+infisical:
+  projectSlug: ""
+  envSlug: dev
+  hostAPI: https://app.infisical.com/api
+  resyncInterval: 60
+  credentialsRef:
+    secretName: infisical-machine-identity
+    secretNamespace: infra
+
+instances: []
+# Each entry supports:
+#   name: ""                    (required)
+#   replicaCount: 1              # single instance for now; keep = 1
+#   image:
+#     repository: postgres
+#     tag: "16-alpine"
+#     pullPolicy: IfNotPresent
+#   auth:
+#     adminUsername: postgres
+#     password:
+#       source: auto             # auto | existingSecret
+#       secretName: ""          # optional; default: <instance-name>-auth
+#       existingSecret: ""      # required when source=existingSecret
+#       infisical:
+#         enabled: true
+#         projectSlug: everything-as-code
+#         envSlug: dev
+#         secretsPath: /apps/app-db  # folder path in Infisical
+#         resyncInterval: 60
+#         hostAPI: https://app.infisical.com/api
+#         credentialsRef:
+#           secretName: infisical-machine-identity
+#           secretNamespace: infra
+#   storage:
+#     size: 1Gi
+#     storageClassName: ""      # empty = cluster default
+#     mountPath: /var/lib/postgresql/data
+#   service:
+#     type: ClusterIP            # ClusterIP | NodePort | LoadBalancer
+#     port: 5432
+#     nodePort: null             # used only when type = NodePort
+#   resources:
+#     requests:
+#       cpu: 50m
+#       memory: 128Mi
+#     limits:
+#       memory: 512Mi
+#   securityContext:
+#     runAsUser: 999
+#     runAsGroup: 999
+#     fsGroup: 999
+#   probes:
+#     startup:
+#       enabled: true
+#       initialDelaySeconds: 10
+#       periodSeconds: 10
+#       timeoutSeconds: 5
+#       failureThreshold: 30
+#     readiness:
+#       initialDelaySeconds: 10
+#       periodSeconds: 10
+#       timeoutSeconds: 5
+#       failureThreshold: 6
+#     liveness:
+#       initialDelaySeconds: 30
+#       periodSeconds: 20
+#       timeoutSeconds: 5
+#       failureThreshold: 6
+#   postgresql:
+#     maxConnections: "100"
+#     sharedBuffers: "128MB"
+#     workMem: "4MB"
+#     maintenanceWorkMem: "64MB"
+#     walLevel: "replica"
+#   exporter:
+#     enabled: false
+#     image:
+#       repository: quay.io/prometheuscommunity/postgres-exporter
+#       tag: "v0.15.0"
+#       pullPolicy: IfNotPresent
+#     port: 9187
+#     resources:
+#       requests:
+#         cpu: 10m
+#         memory: 32Mi
+#       limits:
+#         memory: 64Mi
+#   networkPolicy:
+#     enabled: false
+#     allowFromNamespaces: []    # e.g. ["apps", "monitoring"]
+#   backup:
+#     enabled: false
+#     schedule: "0 2 * * *"
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     restartPolicy: OnFailure
+#     storage:
+#       enabled: false
+#       existingClaim: ""       # required when storage.enabled = true
+#       mountPath: /backup
+#     # Optional command override, example:
+#     # command:
+#     #   - /bin/sh
+#     #   - -c
+#     #   - pg_dump -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip > /backup/dump.sql.gz
