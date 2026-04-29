@@ -112,3 +112,7 @@ Validation workflows expose these gate jobs:
 Notes:
 - `GITHUB_TOKEN` is provided automatically by GitHub Actions.
 - Other sensitive values (for example `gcp_credentials`, `infisical_client_secret`, `grafana_cloud_access_policy_token`) are Terraform input variables managed per stack/workspace, not repository-level GitHub secrets.
+
+## Coding Style
+
+- Write all code, comments, variable names, and documentation in British English.

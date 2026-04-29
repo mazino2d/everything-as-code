@@ -1,13 +1,7 @@
 name: k8s Deploy
 
+# ArgoCD handles normal deployments — this workflow is an emergency escape hatch only.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "kubernetes/clusters/**"
-      - "kubernetes/charts/**"
-      - ".github/workflows/k8s-deploy.yml"
   workflow_dispatch:
 
 jobs:

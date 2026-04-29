@@ -9,7 +9,7 @@ plan:
 	terraform -chdir=$(STACK) plan
 
 apply:
-	terraform -chdir=$(STACK) apply
+	terraform -chdir=$(STACK) apply -auto-approve
 
 fmt:
 	terraform fmt -recursive terraform/
