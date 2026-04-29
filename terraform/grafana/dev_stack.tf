@@ -57,7 +57,7 @@ resource "infisical_secret" "dev_loki_password" {
 
 resource "infisical_secret" "dev_tempo_url" {
   name         = "TEMPO_URL"
-  value        = trimsuffix(module.grafana_cloud_dev.tempo_endpoint, "/")
+  value        = "${trimprefix(trimprefix(trimsuffix(module.grafana_cloud_dev.tempo_endpoint, "/"), "https://"), "http://")}:443"
   env_slug     = "dev"
   workspace_id = var.infisical_project_id
   folder_path  = "/monitoring/grafana-alloy"
