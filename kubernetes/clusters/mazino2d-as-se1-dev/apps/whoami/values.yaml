@@ -8,7 +8,7 @@ service:
   containerPort: 80
 ingress:
   enabled: true
-  host: whoami.mazino2d-k3s.duckdns.org
+  host: whoami-test.mazino2d-k3s.duckdns.org
 env:
   APP_ENV: dev
   GREETING: hello from k3s
