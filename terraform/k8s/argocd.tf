@@ -30,36 +30,33 @@ resource "helm_release" "argocd" {
   ]
 }
 
-resource "kubernetes_manifest" "argocd_application" {
+resource "kubectl_manifest" "argocd_application" {
   for_each = local.argocd_apps
 
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = each.key
-      namespace = "argocd"
-      finalizers = ["resources-finalizer.argocd.argoproj.io"]
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = "git@github.com:mazino2d/everything-as-code.git"
-        targetRevision = "main"
-        path           = each.value
-      }
-      destination = {
-        server = "https://kubernetes.default.svc"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-        syncOptions = ["CreateNamespace=true", "ServerSideApply=true"]
-      }
-    }
-  }
+  yaml_body = <<-YAML
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: ${each.key}
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:mazino2d/everything-as-code.git
+        targetRevision: main
+        path: ${each.value}
+      destination:
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+  YAML
 
   depends_on = [helm_release.argocd]
 }
