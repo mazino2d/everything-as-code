@@ -14,7 +14,5 @@ resource "infisical_secret" "apps_app_db_admin_password" {
   value_wo_version = 1
   env_slug     = each.value
   workspace_id = module.everything_as_code.id
-  folder_path  = "/apps/app-db"
-
-  depends_on = [infisical_secret_folder.apps_app_db]
+  folder_path  = infisical_secret_folder.apps_app_db[each.key].path
 }
