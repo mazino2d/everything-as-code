@@ -26,7 +26,7 @@ Posts covering Kubernetes from first principles to production tooling.
 | [3 · Networking](posts/kubernetes/09-kubernetes-service.md) | 2 | Service, Ingress |
 | [4 · Storage](posts/kubernetes/11-kubernetes-configmap-secret.md) | 3 | ConfigMap & Secret, Volumes, PV & PVC |
 | [5 · Resource Management](posts/kubernetes/14-kubernetes-resource-limits.md) | 3 | Limits, Labels, Scheduling |
-| [6 · Ecosystem](posts/kubernetes/17-kubernetes-helm.md) | 3 | Helm, Kustomize, Lens |
+| [6 · Ecosystem](posts/kubernetes/17-kubernetes-helm.md) | 3 | Helm, Kustomize, Argo CD |
 
 ---
 
