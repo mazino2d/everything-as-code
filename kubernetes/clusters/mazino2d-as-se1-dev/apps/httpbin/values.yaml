@@ -1,7 +1,7 @@
 name: httpbin
 image:
   repository: kong/httpbin
-  tag: "0.1.0"
+  tag: "0.2.3"
 replicaCount: 1
 service:
   port: 80
