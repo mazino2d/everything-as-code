@@ -1,0 +1,35 @@
+instances:
+  - name: app-db
+    replicaCount: 1
+    image:
+      repository: postgres
+      tag: "16-alpine"
+    auth:
+      adminUsername: postgres
+      password:
+        source: auto
+        infisical:
+          enabled: true
+    storage:
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    postgresql:
+      maxConnections: "100"
+      sharedBuffers: "128MB"
+      workMem: "4MB"
+      maintenanceWorkMem: "64MB"
+      walLevel: "replica"
+    exporter:
+      enabled: true
+    backup:
+      enabled: false
+      schedule: "0 2 * * *"
+      storage:
+        enabled: false
+        existingClaim: ""
+        mountPath: /backup
