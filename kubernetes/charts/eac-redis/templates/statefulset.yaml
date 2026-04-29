@@ -67,7 +67,9 @@ spec:
             name: {{ .name }}-startup
             defaultMode: 0755
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: data
       spec:
         accessModes: [ReadWriteOnce]
