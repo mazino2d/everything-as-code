@@ -5,7 +5,8 @@ helmGlobals:
   chartHome: ../../../charts
 resources:
   - namespace.yaml
-  - whoami
+  - hotrod
+  - httpbin
 helmCharts:
   - name: eac-redis
     releaseName: redis

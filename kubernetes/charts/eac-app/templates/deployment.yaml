@@ -13,6 +13,15 @@ spec:
     metadata:
       labels:
         app: {{ .Values.name }}
+      {{- if or .Values.podAnnotations .Values.instrumentation.enabled }}
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
+        {{- if .Values.instrumentation.enabled }}
+        instrumentation.opentelemetry.io/inject-python: {{ .Values.name }}
+        {{- end }}
+      {{- end }}
     spec:
       containers:
         - name: {{ .Values.name }}

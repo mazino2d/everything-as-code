@@ -12,6 +12,10 @@ ingress:
   enabled: false
   host: ""
 env: {}
+podAnnotations: {}
+instrumentation:
+  enabled: false
+  endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318
 resources:
   requests:
     cpu: 10m
