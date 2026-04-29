@@ -86,7 +86,8 @@ resource "google_compute_instance" "this" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy           = false
+    allow_stopping_for_update = var.allow_stopping_for_update
   }
 }
 
