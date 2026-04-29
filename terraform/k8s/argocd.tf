@@ -19,7 +19,7 @@ resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
-  version          = "7.7.5"
+  version          = "9.5.9"
   namespace        = "argocd"
   create_namespace = true
   values = [<<-YAML
