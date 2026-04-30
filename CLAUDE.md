@@ -56,7 +56,7 @@ PRs run validation-only pipelines (no mutations):
 
 Pushes to `main` trigger deployment/apply pipelines:
 - Terraform apply to Terraform Cloud workspaces (`tf-apply.yml`)
-- Kubernetes deploy via Kustomize + `kubectl apply` (`k8s-deploy.yml`)
+- Kubernetes workloads reconcile via Argo CD (GitOps in-cluster)
 - Blog build and deploy to GitHub Pages (`blog-deploy.yml`)
 
 ### Terraform Structure
@@ -107,10 +107,10 @@ Validation workflows expose these gate jobs:
 | Secret | Used by |
 |--------|---------|
 | `TF_API_TOKEN` | Terraform CLI auth in `tf-plan.yml` and `tf-apply.yml` |
-| `KUBECONFIG` | Base64 kubeconfig for `k8s-deploy.yml` |
 
 Notes:
 - `GITHUB_TOKEN` is provided automatically by GitHub Actions.
+- Kubernetes deployment is not driven by GitHub Actions in normal operation; Argo CD performs reconciliation in-cluster.
 - Other sensitive values (for example `gcp_credentials`, `infisical_client_secret`, `grafana_cloud_access_policy_token`) are Terraform input variables managed per stack/workspace, not repository-level GitHub secrets.
 
 ## Coding Style

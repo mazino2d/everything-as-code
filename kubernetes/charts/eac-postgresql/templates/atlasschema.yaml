@@ -22,7 +22,7 @@ metadata:
   name: {{ dig "name" (dig "name" "" $atlas) $atlasSchema | required "instances[].atlas.name or instances[].atlas.schemas[].name is required" }}
   namespace: {{ $.Release.Namespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   {{- if $atlasURL }}
   url: {{ $atlasURL | quote }}
