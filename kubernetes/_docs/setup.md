@@ -28,13 +28,35 @@ Then go to Terraform Cloud workspace `k8s` -> Variables and set:
 For local kubectl usage on laptop (optional):
 
 ```bash
-ssh <ssh-user>@mazino2d-k3s.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
+ssh user@mazino2d-k3s.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
   | sed 's/127.0.0.1/mazino2d-k3s.duckdns.org/g' \
   > "$HOME/.kube/mazino2d-k3s.yaml"
 
 chmod 600 "$HOME/.kube/mazino2d-k3s.yaml"
-export KUBECONFIG="$HOME/.kube/mazino2d-k3s.yaml"
+```
+
+Rename k3s default context to avoid conflicts:
+
+```bash
+kubectl config rename-context default k3s-mazino2d --kubeconfig="$HOME/.kube/mazino2d-k3s.yaml"
+```
+
+Merge into default kubeconfig:
+
+```bash
+KUBECONFIG="$HOME/.kube/config:$HOME/.kube/mazino2d-k3s.yaml" kubectl config view --flatten > /tmp/merged.yaml
+mv /tmp/merged.yaml "$HOME/.kube/config"
+chmod 600 "$HOME/.kube/config"
+kubectl config use-context k3s-mazino2d
 kubectl get nodes
+```
+
+If your SSH key is not used by default, specify it explicitly:
+
+```bash
+ssh -i <path-to-private-key> <ssh-user>@mazino2d-k3s.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
+  | sed 's/127.0.0.1/mazino2d-k3s.duckdns.org/g' \
+  > "$HOME/.kube/mazino2d-k3s.yaml"
 ```
 
 Notes:
@@ -46,7 +68,7 @@ Notes:
 
 ## 2. Access Argo CD and check admin password
 
-After refreshing kubeconfig, use these commands from your laptop.
+After merging kubeconfig into default context, use these commands from your laptop.
 
 Port-forward Argo CD server:
 
