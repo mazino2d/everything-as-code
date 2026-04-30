@@ -76,6 +76,17 @@ instances: []
 #   atlas:
 #     enabled: false
 #     name: hotrod-db-schema   # AtlasSchema resource name for this database/app
+#     # New preferred form for multiple AtlasSchema resources per DB instance:
+#     # schemas:
+#     #   - name: hotrod-db-schema
+#     #     schemaConfigMap: hotrod-db-schema
+#     #     schemas: [public]
+#     #     exclude: ["public.httpbin_*"]
+#     #   - name: httpbin-db-schema
+#     #     schemaConfigMap: httpbin-db-schema
+#     #     schemas: [public]
+#     #     exclude: ["public.hotrod_*"]
+#     # The legacy fields below still work for a single AtlasSchema.
 #     # Optional explicit URL inputs. If omitted, the chart derives Atlas credentials
 #     # from the DB instance config and auth secret.
 #     # url: postgres://...
@@ -93,9 +104,12 @@ instances: []
 #     #     secretKeyRef:
 #     #       name: app-db-auth   # Optional; defaults to auth.password.secretName or <instance>-auth
 #     #       key: admin_password # Optional; defaults to admin_password
-#     schemaConfigMap:
-#       name: hotrod-db-schema # ConfigMap with this app's HCL schema definition
-#       key: schema.hcl
+#     schemaConfigMap: hotrod-db-schema # Optional string form; key defaults to schema.hcl
+#     # schemaConfigMap:
+#     #   name: hotrod-db-schema       # Optional object form; defaults to atlas.name
+#     #   key: schema.hcl              # Optional; defaults to schema.hcl
+#     # schemas: [public]              # Optional DB schema scope for this AtlasSchema
+#     # exclude: ["public.audit_*"]   # Optional object exclusion patterns
 #     policy:
 #       lint:
 #         destructive:
