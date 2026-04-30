@@ -2,6 +2,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-staging
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   acme:
     email: mazino2d@gmail.com
@@ -17,6 +19,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   acme:
     email: mazino2d@gmail.com
