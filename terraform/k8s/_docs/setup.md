@@ -14,7 +14,20 @@ Go to workspace `k8s` -> **Variables** -> add:
 
 | Category  | Key          | Value                                                             | Sensitive |
 |-----------|--------------|-------------------------------------------------------------------|-----------|
-| terraform | `kubeconfig` | base64-encoded kubeconfig for the target cluster (`KUBECONFIG`)   | ✅        |
+| terraform | `kubeconfig` | base64-encoded kubeconfig for the target cluster                  | ✅        |
+
+Generate the value using:
+
+```bash
+ssh user@mazino2d-k3s.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
+  | sed 's/127.0.0.1/mazino2d-k3s.duckdns.org/g' \
+  | base64
+```
+
+Notes:
+
+- Store this value in HCP Terraform workspace variables.
+- Argo CD performs workload reconciliation; GitHub Actions is not the normal Kubernetes deployment path.
 
 ## 3. Terraform Cloud Workspace Settings
 
