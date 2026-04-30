@@ -33,7 +33,7 @@ resource "helm_release" "argocd" {
         issuer:
           group: cert-manager.io
           kind: ClusterIssuer
-          name: letsencrypt-prod
+          name: letsencrypt-staging
       ingress:
         enabled: true
         ingressClassName: traefik
