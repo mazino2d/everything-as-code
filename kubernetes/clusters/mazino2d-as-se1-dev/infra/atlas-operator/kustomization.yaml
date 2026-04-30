@@ -1,11 +1,47 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
-  - github.com/ariga/atlas-operator/config/default?ref=v0.7.28
+helmGlobals:
+  chartHome: charts
+helmCharts:
+  - name: atlas-operator
+    repo: oci://ghcr.io/ariga/charts
+    version: 0.7.28
+    releaseName: atlas-operator
+    namespace: infra
 patches:
   - patch: |-
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: atlas-operator-system
-      $patch: delete
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: Deployment
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: ServiceAccount
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: Service
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: Role
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: RoleBinding
+  - patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infra
+    target:
+      kind: ClusterRoleBinding

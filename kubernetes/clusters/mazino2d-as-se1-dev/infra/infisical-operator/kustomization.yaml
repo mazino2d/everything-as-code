@@ -8,7 +8,8 @@ helmCharts:
     version: 0.10.32
     releaseName: infisical-operator
     namespace: infra
-    valuesFile: values.yaml
+    valuesInline:
+      installCRDs: true
 patches:
   - patch: |-
       - op: add
