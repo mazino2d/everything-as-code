@@ -4,4 +4,5 @@ namespace: infra
 resources:
   - namespace.yaml
   - adminer
+  - atlas-operator
   - infisical-operator
