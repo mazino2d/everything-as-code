@@ -73,6 +73,33 @@ instances: []
 #     workMem: "4MB"
 #     maintenanceWorkMem: "64MB"
 #     walLevel: "replica"
+#   atlas:
+#     enabled: false
+#     name: hotrod-db-schema   # AtlasSchema resource name for this database/app
+#     # Optional explicit URL inputs. If omitted, the chart derives Atlas credentials
+#     # from the DB instance config and auth secret.
+#     # url: postgres://...
+#     # urlFrom:
+#     #   secretKeyRef:
+#     #     name: app-db-auth
+#     #     key: url
+#     # credentials:
+#     #   scheme: postgres
+#     #   host: app-db.apps.svc.cluster.local
+#     #   port: 5432
+#     #   database: postgres
+#     #   user: postgres
+#     #   passwordFrom:
+#     #     secretKeyRef:
+#     #       name: app-db-auth   # Optional; defaults to auth.password.secretName or <instance>-auth
+#     #       key: admin_password # Optional; defaults to admin_password
+#     schemaConfigMap:
+#       name: hotrod-db-schema # ConfigMap with this app's HCL schema definition
+#       key: schema.hcl
+#     policy:
+#       lint:
+#         destructive:
+#           error: true        # Reject destructive schema changes
 #   exporter:
 #     enabled: false
 #     image:

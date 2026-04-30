@@ -1,0 +1,50 @@
+{{- range $instance := .Values.instances }}
+{{- if $instance.atlas.enabled }}
+{{- $passwordSource := dig "auth" "password" "source" "auto" $instance }}
+{{- $autoSecretName := dig "auth" "password" "secretName" (printf "%s-auth" $instance.name) $instance }}
+{{- $existingSecretName := dig "auth" "password" "existingSecret" "" $instance }}
+{{- $passwordSecretName := $autoSecretName }}
+{{- if eq $passwordSource "existingSecret" }}
+{{- $passwordSecretName = required (printf "instances[%s].auth.password.existingSecret is required when source=existingSecret" $instance.name) $existingSecretName }}
+{{- end }}
+{{- $atlasURL := dig "atlas" "url" "" $instance }}
+{{- $atlasURLSecretName := dig "atlas" "urlFrom" "secretKeyRef" "name" "" $instance }}
+{{- $atlasURLSecretKey := dig "atlas" "urlFrom" "secretKeyRef" "key" "" $instance }}
+apiVersion: db.atlasgo.io/v1alpha1
+kind: AtlasSchema
+metadata:
+  name: {{ $instance.atlas.name | required "instances[].atlas.name is required when atlas.enabled=true" }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  {{- if $atlasURL }}
+  url: {{ $atlasURL | quote }}
+  {{- else if and $atlasURLSecretName $atlasURLSecretKey }}
+  urlFrom:
+    secretKeyRef:
+      name: {{ $atlasURLSecretName }}
+      key: {{ $atlasURLSecretKey }}
+  {{- else }}
+  credentials:
+    scheme: {{ dig "atlas" "credentials" "scheme" "postgres" $instance | quote }}
+    host: {{ dig "atlas" "credentials" "host" (printf "%s.%s.svc.cluster.local" $instance.name $.Release.Namespace) $instance | quote }}
+    port: {{ dig "atlas" "credentials" "port" (dig "service" "port" 5432 $instance) $instance }}
+    database: {{ dig "atlas" "credentials" "database" "postgres" $instance | quote }}
+    user: {{ dig "atlas" "credentials" "user" (dig "auth" "adminUsername" "postgres" $instance) $instance | quote }}
+    passwordFrom:
+      secretKeyRef:
+        name: {{ dig "atlas" "credentials" "passwordFrom" "secretKeyRef" "name" $passwordSecretName $instance }}
+        key: {{ dig "atlas" "credentials" "passwordFrom" "secretKeyRef" "key" "admin_password" $instance }}
+  {{- end }}
+  {{- with $instance.atlas.policy }}
+  policy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  schema:
+    configMapKeyRef:
+      name: {{ $instance.atlas.schemaConfigMap.name | required "instances[].atlas.schemaConfigMap.name is required" }}
+      key: {{ $instance.atlas.schemaConfigMap.key | required "instances[].atlas.schemaConfigMap.key is required" }}
+---
+{{- end }}
+{{- end }}
