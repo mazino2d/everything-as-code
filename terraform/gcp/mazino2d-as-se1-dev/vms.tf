@@ -4,6 +4,7 @@ module "vm" {
   project_id       = module.project.project_id
   zone             = "asia-southeast1-b"
   machine_type     = "e2-medium"
+  disk_size_gb     = 20
   spot             = true
   external_ip_type = "ephemeral"
   duckdns_domain   = "mazino2d-k3s"
