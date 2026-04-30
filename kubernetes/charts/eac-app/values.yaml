@@ -10,7 +10,13 @@ service:
   nodePort: null
 ingress:
   enabled: false
+  className: traefik
   host: ""
+  annotations: {}
+  tls:
+    enabled: true
+    secretName: ""
+    clusterIssuer: letsencrypt-staging
 env: {}
 podAnnotations: {}
 instrumentation:

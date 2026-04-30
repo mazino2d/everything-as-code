@@ -4,8 +4,25 @@ kind: Ingress
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
+  {{- $hasTlsIssuer := and .Values.ingress.tls.enabled .Values.ingress.tls.clusterIssuer }}
+  {{- $hasCustomAnnotations := .Values.ingress.annotations }}
+  {{- if or $hasTlsIssuer $hasCustomAnnotations }}
+  annotations:
+    {{- if $hasTlsIssuer }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.tls.clusterIssuer }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
+{{ toYaml . | indent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
-  ingressClassName: traefik
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ default (printf "%s-tls" .Values.name) .Values.ingress.tls.secretName }}
+  {{- end }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:
