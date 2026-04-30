@@ -38,6 +38,8 @@ spec:
     port: {{ dig "credentials" "port" (dig "credentials" "port" (dig "service" "port" 5432 $instance) $atlas) $atlasSchema }}
     database: {{ dig "credentials" "database" (dig "credentials" "database" "postgres" $atlas) $atlasSchema | quote }}
     user: {{ dig "credentials" "user" (dig "credentials" "user" (dig "auth" "adminUsername" "postgres" $instance) $atlas) $atlasSchema | quote }}
+    parameters:
+      sslmode: {{ dig "credentials" "parameters" "sslmode" "disable" $atlasSchema | quote }}
     passwordFrom:
       secretKeyRef:
         name: {{ dig "credentials" "passwordFrom" "secretKeyRef" "name" (dig "credentials" "passwordFrom" "secretKeyRef" "name" $passwordSecretName $atlas) $atlasSchema }}
