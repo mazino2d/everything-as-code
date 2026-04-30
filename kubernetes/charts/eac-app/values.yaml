@@ -16,7 +16,7 @@ ingress:
   tls:
     enabled: true
     secretName: ""
-    clusterIssuer: letsencrypt-staging
+    clusterIssuer: letsencrypt-prod
 env: {}
 podAnnotations: {}
 instrumentation:
