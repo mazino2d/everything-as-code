@@ -26,6 +26,12 @@ resource "helm_release" "argocd" {
     configs:
       cm:
         kustomize.buildOptions: "--enable-helm"
+    server:
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        hostname: argocd.mazino2d-k3s.duckdns.org
+        tls: true
   YAML
   ]
 }
