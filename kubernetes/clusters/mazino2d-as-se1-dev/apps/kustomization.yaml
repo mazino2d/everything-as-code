@@ -3,6 +3,14 @@ kind: Kustomization
 namespace: apps
 helmGlobals:
   chartHome: ../../../charts
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+configMapGenerator:
+  - name: hotrod-db-schema
+    files:
+      - hotrod/schema.hcl
 resources:
   - namespace.yaml
   - hotrod

@@ -1,0 +1,69 @@
+{{- range $instance := .Values.instances }}
+{{- $atlas := dig "atlas" dict $instance }}
+{{- $atlasSchemas := dig "schemas" list $atlas }}
+{{- if and (eq (len $atlasSchemas) 0) (dig "enabled" false $atlas) }}
+{{- $atlasSchemas = list $atlas }}
+{{- end }}
+{{- range $atlasSchema := $atlasSchemas }}
+{{- $passwordSource := dig "auth" "password" "source" "auto" $instance }}
+{{- $autoSecretName := dig "auth" "password" "secretName" (printf "%s-auth" $instance.name) $instance }}
+{{- $existingSecretName := dig "auth" "password" "existingSecret" "" $instance }}
+{{- $passwordSecretName := $autoSecretName }}
+{{- if eq $passwordSource "existingSecret" }}
+{{- $passwordSecretName = required (printf "instances[%s].auth.password.existingSecret is required when source=existingSecret" $instance.name) $existingSecretName }}
+{{- end }}
+{{- $atlasURL := dig "url" (dig "url" "" $atlas) $atlasSchema }}
+{{- $atlasURLSecretName := dig "urlFrom" "secretKeyRef" "name" (dig "urlFrom" "secretKeyRef" "name" "" $atlas) $atlasSchema }}
+{{- $atlasURLSecretKey := dig "urlFrom" "secretKeyRef" "key" (dig "urlFrom" "secretKeyRef" "key" "" $atlas) $atlasSchema }}
+{{- $schemaConfigMap := dig "schemaConfigMap" (dig "schemaConfigMap" nil $atlas) $atlasSchema }}
+apiVersion: db.atlasgo.io/v1alpha1
+kind: AtlasSchema
+metadata:
+  name: {{ dig "name" (dig "name" "" $atlas) $atlasSchema | required "instances[].atlas.name or instances[].atlas.schemas[].name is required" }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  {{- if $atlasURL }}
+  url: {{ $atlasURL | quote }}
+  {{- else if and $atlasURLSecretName $atlasURLSecretKey }}
+  urlFrom:
+    secretKeyRef:
+      name: {{ $atlasURLSecretName }}
+      key: {{ $atlasURLSecretKey }}
+  {{- else }}
+  credentials:
+    scheme: {{ dig "credentials" "scheme" (dig "credentials" "scheme" "postgres" $atlas) $atlasSchema | quote }}
+    host: {{ dig "credentials" "host" (dig "credentials" "host" (printf "%s.%s.svc.cluster.local" $instance.name $.Release.Namespace) $atlas) $atlasSchema | quote }}
+    port: {{ dig "credentials" "port" (dig "credentials" "port" (dig "service" "port" 5432 $instance) $atlas) $atlasSchema }}
+    database: {{ dig "credentials" "database" (dig "credentials" "database" "postgres" $atlas) $atlasSchema | quote }}
+    user: {{ dig "credentials" "user" (dig "credentials" "user" (dig "auth" "adminUsername" "postgres" $instance) $atlas) $atlasSchema | quote }}
+    passwordFrom:
+      secretKeyRef:
+        name: {{ dig "credentials" "passwordFrom" "secretKeyRef" "name" (dig "credentials" "passwordFrom" "secretKeyRef" "name" $passwordSecretName $atlas) $atlasSchema }}
+        key: {{ dig "credentials" "passwordFrom" "secretKeyRef" "key" (dig "credentials" "passwordFrom" "secretKeyRef" "key" "admin_password" $atlas) $atlasSchema }}
+  {{- end }}
+  {{- with (dig "policy" (dig "policy" nil $atlas) $atlasSchema) }}
+  policy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with (dig "schemas" list $atlasSchema) }}
+  schemas:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with (dig "exclude" list $atlasSchema) }}
+  exclude:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  schema:
+    configMapKeyRef:
+      {{- if kindIs "string" $schemaConfigMap }}
+      name: {{ $schemaConfigMap }}
+      key: schema.hcl
+      {{- else }}
+      name: {{ dig "schemaConfigMap" "name" (dig "name" (dig "name" "" $atlas) $atlasSchema) $atlasSchema }}
+      key: {{ dig "schemaConfigMap" "key" (dig "schemaConfigMap" "key" "schema.hcl" $atlas) $atlasSchema }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}
