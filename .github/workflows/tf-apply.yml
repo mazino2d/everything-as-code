@@ -23,7 +23,12 @@ jobs:
       - name: Detect terraform changes
         id: filter
         run: |
-          changed_files="$(git diff --name-only HEAD~1 HEAD)"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            changed_files=""
+          else
+            changed_files="$(git diff --name-only ${{ github.event.before }}...${{ github.sha }})"
+          fi
+
           all_stacks=(
             "terraform/github"
             "terraform/gcp/mazino2d-as-se1-dev"
@@ -33,7 +38,7 @@ jobs:
           )
 
           changed_stacks=()
-          if echo "$changed_files" | grep -qE '^\.github/workflows/tf-apply\.yml$'; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             changed_stacks=("${all_stacks[@]}")
           else
             for stack in "${all_stacks[@]}"; do
@@ -45,9 +50,11 @@ jobs:
 
           if [ ${#changed_stacks[@]} -gt 0 ]; then
             echo "terraform=true" >> $GITHUB_OUTPUT
+            echo "🔧 Detected changes in: $(IFS=, ; echo "${changed_stacks[*]}")"
             matrix_json="$(printf '%s\n' "${changed_stacks[@]}" | jq -R . | jq -cs '{stack: .}')"
           else
             echo "terraform=false" >> $GITHUB_OUTPUT
+            echo "✅ No Terraform changes detected"
             matrix_json='{"stack":[]}'
           fi
 
