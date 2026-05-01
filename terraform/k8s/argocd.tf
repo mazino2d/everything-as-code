@@ -29,18 +29,11 @@ resource "helm_release" "argocd" {
       cm:
         kustomize.buildOptions: "--enable-helm"
     server:
-      certificate:
-        enabled: true
-        domain: argocd.mazino2d-k3s.duckdns.org
-        issuer:
-          group: cert-manager.io
-          kind: ClusterIssuer
-          name: letsencrypt-staging
       ingress:
         enabled: true
         ingressClassName: traefik
         hostname: argocd.mazino2d-k3s.duckdns.org
-        tls: true
+        tls: false
   YAML
   ]
 }
