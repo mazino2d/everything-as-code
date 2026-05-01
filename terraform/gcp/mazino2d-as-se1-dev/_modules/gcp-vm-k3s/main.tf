@@ -17,9 +17,11 @@ module "vm" {
   allow_stopping_for_update = var.allow_stopping_for_update
 
   instance_metadata = {
-    k3s-ca-cert-b64     = local.k3s_certs.ca_cert
-    k3s-ca-key-b64      = local.k3s_certs.ca_key
-    k3s-server-cert-b64 = local.k3s_certs.server_cert
-    k3s-server-key-b64  = local.k3s_certs.server_key
+    k3s-ca-cert-b64        = local.k3s_certs.server_ca_cert
+    k3s-ca-key-b64         = local.k3s_certs.server_ca_key
+    k3s-client-ca-cert-b64 = local.k3s_certs.client_ca_cert
+    k3s-client-ca-key-b64  = local.k3s_certs.client_ca_key
+    k3s-server-cert-b64    = local.k3s_certs.server_cert
+    k3s-server-key-b64     = local.k3s_certs.server_key
   }
 }
