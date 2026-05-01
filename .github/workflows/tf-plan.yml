@@ -18,9 +18,6 @@ jobs:
         id: filter
         run: |
           changed_files="$(git diff --name-only origin/${{ github.base_ref }}...HEAD)"
-          echo "::group::Changed files"
-          echo "$changed_files"
-          echo "::endgroup::"
 
           all_stacks=(
             "terraform/github"
@@ -33,28 +30,21 @@ jobs:
           changed_stacks=()
           for stack in "${all_stacks[@]}"; do
             if echo "$changed_files" | grep -qE "^${stack}/"; then
-              echo "Found changes in: $stack"
               changed_stacks+=("$stack")
             fi
           done
 
-          echo "::group::Detected stacks"
-          for stack in "${changed_stacks[@]}"; do
-            echo "  - $stack"
-          done
-          echo "::endgroup::"
 
           if [ ${#changed_stacks[@]} -gt 0 ]; then
             echo "terraform=true" >> $GITHUB_OUTPUT
+            echo "🔧 Detected changes in: $(IFS=, ; echo "${changed_stacks[*]}")"
             matrix_json="$(printf '%s\n' "${changed_stacks[@]}" | jq -R . | jq -cs '{stack: .}')"
           else
             echo "terraform=false" >> $GITHUB_OUTPUT
+            echo "✅ No Terraform changes detected"
             matrix_json='{"stack":[]}'
           fi
 
-          echo "::group::Matrix JSON"
-          echo "$matrix_json"
-          echo "::endgroup::"
 
           echo "matrix=${matrix_json}" >> $GITHUB_OUTPUT
 
@@ -89,8 +79,6 @@ jobs:
           for i in 1 2 3; do
             terraform plan -no-color 2>&1 | tee /tmp/plan_output.txt
             plan_exit_code=$?
-            echo "::group::Plan attempt $i - exit code: $plan_exit_code"
-            echo "::endgroup::"
             
             if [ $plan_exit_code -eq 0 ]; then
               break
@@ -101,24 +89,19 @@ jobs:
             [ $i -lt 3 ] && echo "⏳ Attempt $i failed due to provider download error, retrying in 15s..." && sleep 15
           done
 
-          echo "::group::Detecting changes from plan output"
           # Check if plan has any changes
           if grep -qE "^Plan: [0-9]+ to (add|change|destroy)" /tmp/plan_output.txt; then
             plan_line="$(grep -E "^Plan: [0-9]+ to (add|change|destroy)" /tmp/plan_output.txt | head -1)"
-            echo "Found plan line: $plan_line"
             # Extract numbers: if any is > 0, we have changes
             if echo "$plan_line" | grep -qE "Plan: ([1-9][0-9]* to add|[1-9][0-9]* to change|[1-9][0-9]* to destroy)"; then
-              echo "✅ Changes detected"
+              echo "📝 Plan summary: $plan_line"
               echo "has_changes=true" >> $GITHUB_OUTPUT
             else
-              echo "ℹ️  No changes"
               echo "has_changes=false" >> $GITHUB_OUTPUT
             fi
           else
-            echo "No plan line found, assuming no changes"
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
-          echo "::endgroup::"
 
           # Exit 0 for success (regardless of changes), exit 1 only for actual errors
           [ $plan_exit_code -eq 0 ] && exit 0
@@ -139,10 +122,6 @@ jobs:
             const stack = '${{ matrix.stack }}';
             const marker = `<!-- tf-plan:${stack} -->`;
 
-            console.log('DEBUG: planOutcome =', planOutcome);
-            console.log('DEBUG: has_changes output =', '${{ steps.plan.outputs.has_changes }}');
-            console.log('DEBUG: hasChanges =', hasChanges);
-            console.log('DEBUG: summary =', summary);
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -154,7 +133,6 @@ jobs:
 
             // Keep PR clean: no comment for successful no-op plans.
             if (planOutcome === 'success' && !hasChanges) {
-              console.log('DEBUG: Skipping comment (success & no changes)');
               if (existing) {
                 await github.rest.issues.deleteComment({
                   owner: context.repo.owner,
@@ -165,7 +143,6 @@ jobs:
               return;
             }
 
-            console.log('DEBUG: Creating/updating comment');
             const body = [
               marker,
               `## ${status} \`${stack}\``,
