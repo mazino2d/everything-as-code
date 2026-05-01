@@ -31,11 +31,6 @@ variable "tags" {
   default = []
 }
 
-variable "startup_script" {
-  type    = string
-  default = null
-}
-
 variable "extra_ports" {
   type    = list(string)
   default = []
@@ -69,10 +64,3 @@ variable "allow_stopping_for_update" {
   type    = bool
   default = true
 }
-
-variable "instance_metadata" {
-  type        = map(string)
-  default     = {}
-  description = "Additional instance metadata entries to merge into default metadata"
-}
-

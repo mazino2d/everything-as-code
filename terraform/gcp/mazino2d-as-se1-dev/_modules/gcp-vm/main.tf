@@ -70,13 +70,17 @@ resource "google_compute_instance" "this" {
     }
   }
 
-  metadata = {
-    ssh-keys               = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
-    block-project-ssh-keys = "true"
-    startup-script         = var.startup_script
-    duckdns-token          = try(sensitive(data.external.duckdns_token[0].result.token), null)
-    duckdns-domain         = var.duckdns_domain
-  }
+  metadata = merge(
+    {
+      ssh-keys                = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
+      block-project-ssh-keys  = "true"
+      startup-script          = file("${path.module}/_scripts/wrap_duckdns_startup.sh")
+      user-startup-script-b64 = var.startup_script != null ? base64encode(var.startup_script) : null
+      duckdns-token           = try(sensitive(data.external.duckdns_token[0].result.token), null)
+      duckdns-domain          = var.duckdns_domain
+    },
+    var.instance_metadata,
+  )
 
   scheduling {
     preemptible                 = var.spot
