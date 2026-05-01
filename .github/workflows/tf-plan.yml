@@ -93,7 +93,7 @@ jobs:
           if grep -qE "^Plan: [0-9]+ to (add|change|destroy)" /tmp/plan_output.txt; then
             plan_line="$(grep -E "^Plan: [0-9]+ to (add|change|destroy)" /tmp/plan_output.txt | head -1)"
             # Extract numbers: if any is > 0, we have changes
-            if echo "$plan_line" | grep -qE "Plan: ([1-9][0-9]* to add|[1-9][0-9]* to change|[1-9][0-9]* to destroy)"; then
+            if echo "$plan_line" | grep -qE "([1-9][0-9]* to add|[1-9][0-9]* to change|[1-9][0-9]* to destroy)"; then
               echo "📝 Plan summary: $plan_line"
               echo "has_changes=true" >> $GITHUB_OUTPUT
             else
