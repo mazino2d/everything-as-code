@@ -62,9 +62,9 @@ locals {
     if secret.remote_state != null
   }
 
-  remote_state_workspaces = {
-    for secret in values(local.secret_instances_with_remote_state_values) : secret.remote_state.workspace => true
-  }
+  remote_state_workspaces = toset([
+    for secret in values(local.secret_instances_with_remote_state_values) : secret.remote_state.workspace
+  ])
 }
 
 data "terraform_remote_state" "workspaces" {
