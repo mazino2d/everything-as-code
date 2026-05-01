@@ -1,18 +1,20 @@
+data "terraform_remote_state" "github" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "github"
+    }
+  }
+}
+
 locals {
   argocd_apps = {
     infra      = "kubernetes/clusters/mazino2d-as-se1-dev/infra"
     monitoring = "kubernetes/clusters/mazino2d-as-se1-dev/monitoring"
     apps       = "kubernetes/clusters/mazino2d-as-se1-dev/apps"
   }
-}
-
-resource "tls_private_key" "argocd" {
-  algorithm   = "ECDSA"
-  ecdsa_curve = "P256"
-}
-
-output "argocd_public_key" {
-  value = tls_private_key.argocd.public_key_openssh
 }
 
 resource "helm_release" "argocd" {
@@ -86,7 +88,7 @@ resource "kubernetes_secret" "argocd_repo_creds" {
   data = {
     type          = "git"
     url           = "git@github.com:mazino2d"
-    sshPrivateKey = tls_private_key.argocd.private_key_pem
+    sshPrivateKey = data.terraform_remote_state.github.outputs.argocd_private_key_pem
   }
 
   depends_on = [helm_release.argocd]

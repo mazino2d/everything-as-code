@@ -6,6 +6,10 @@ terraform {
       source  = "integrations/github"
       version = "~> 6.11"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 
   cloud {
