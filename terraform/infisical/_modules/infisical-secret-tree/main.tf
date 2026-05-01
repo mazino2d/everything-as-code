@@ -3,7 +3,7 @@ locals {
     for item in flatten([
       for env in var.environments : [
         for top_name, _ in var.tree : {
-          key      = "${env}:${regexreplace(top_name, "[^a-zA-Z0-9]+", "_")}"
+          key      = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}"
           env_slug = env
           name     = top_name
         }
@@ -16,10 +16,10 @@ locals {
       for env in var.environments : [
         for top_name, children in var.tree : [
           for leaf_name, _ in children : {
-            key      = "${env}:${regexreplace(top_name, "[^a-zA-Z0-9]+", "_")}_${regexreplace(leaf_name, "[^a-zA-Z0-9]+", "_")}"
+            key      = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
             env_slug = env
             name     = leaf_name
-            top_ref  = "${env}:${regexreplace(top_name, "[^a-zA-Z0-9]+", "_")}"
+            top_ref  = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}"
           }
         ]
       ]
@@ -32,10 +32,10 @@ locals {
         for top_name, children in var.tree : [
           for leaf_name, leaf in children : [
             for secret in try(leaf.secrets, []) : {
-              key        = "${env}:${regexreplace(top_name, "[^a-zA-Z0-9]+", "_")}_${regexreplace(leaf_name, "[^a-zA-Z0-9]+", "_")}_${try(regexreplace(lower(secret.key), "[^a-z0-9]+", "_"), "")}"
+              key        = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}_${try(replace(lower(secret.key), "/[^a-z0-9]+/", "_"), "")}"
               env_slug   = env
               name       = try(secret.key, null)
-              folder_ref = "${env}:${regexreplace(top_name, "[^a-zA-Z0-9]+", "_")}_${regexreplace(leaf_name, "[^a-zA-Z0-9]+", "_")}"
+              folder_ref = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
               value      = try(secret.value, null)
               generate   = try(secret.generate, null)
             }
