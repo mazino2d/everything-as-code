@@ -1,8 +1,8 @@
 admissionWebhooks:
   certManager:
-    enabled: false
-  autoGenerateCert:
     enabled: true
+  autoGenerateCert:
+    enabled: false
 manager:
   collectorImage:
     repository: otel/opentelemetry-collector-contrib
