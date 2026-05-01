@@ -1,6 +1,6 @@
-module "vm" {
-  source           = "./_modules/gcp-vm"
-  name             = "vm"
+module "vm-dev" {
+  source           = "./_modules/gcp-vm-k3s"
+  name             = "vm-dev"
   project_id       = module.project.project_id
   zone             = "asia-southeast1-b"
   machine_type     = "e2-medium"
@@ -11,5 +11,4 @@ module "vm" {
   extra_ports      = ["6443", "80", "443", "30379"]
   tags             = ["k8s", "dev"]
   ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqUrfB0oPmolyXRYtA9kHDWYy5D2GhhaGb9odfQYvAu"
-  startup_script   = file("${path.module}/_scripts/install_k3s.sh")
 }
