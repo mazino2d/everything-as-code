@@ -10,15 +10,54 @@ on:
   workflow_dispatch:
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+      matrix: ${{ steps.filter.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect terraform changes
+        id: filter
+        run: |
+          changed_files="$(git diff --name-only HEAD~1 HEAD)"
+          all_stacks=(
+            "terraform/github"
+            "terraform/gcp/mazino2d-as-se1-dev"
+            "terraform/infisical"
+            "terraform/grafana"
+            "terraform/k8s"
+          )
+
+          changed_stacks=()
+          if echo "$changed_files" | grep -qE '^\.github/workflows/tf-apply\.yml$'; then
+            changed_stacks=("${all_stacks[@]}")
+          else
+            for stack in "${all_stacks[@]}"; do
+              if echo "$changed_files" | grep -qE "^${stack}/"; then
+                changed_stacks+=("$stack")
+              fi
+            done
+          fi
+
+          if [ ${#changed_stacks[@]} -gt 0 ]; then
+            echo "terraform=true" >> $GITHUB_OUTPUT
+            matrix_json="$(printf '%s\n' "${changed_stacks[@]}" | jq -R . | jq -cs '{stack: .}')"
+          else
+            echo "terraform=false" >> $GITHUB_OUTPUT
+            matrix_json='{"stack":[]}'
+          fi
+
+          echo "matrix=${matrix_json}" >> $GITHUB_OUTPUT
+
   apply:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.terraform == 'true'
     strategy:
-      matrix:
-        stack:
-          - terraform/github
-          - terraform/gcp/mazino2d-as-se1-dev
-          - terraform/infisical
-          - terraform/grafana
-          - terraform/k8s
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -38,14 +77,23 @@ jobs:
       - name: Apply
         run: |
           exit_code=0
+          output=""
           for i in 1 2 3; do
+            echo "::group::Attempt $i/3"
             output=$(terraform apply -auto-approve 2>&1)
             exit_code=$?
             echo "$output"
+            echo "::endgroup::"
+            
             [ $exit_code -eq 0 ] && break
             if ! echo "$output" | grep -qE "Failed to install provider|connection reset by peer"; then
-              exit $exit_code
+              echo ""
+              echo "::error::Apply failed with exit code: $exit_code"
+              echo "::group::Error Details"
+              echo "$output"
+              echo "::endgroup::"
+              break
             fi
-            [ $i -lt 3 ] && echo "Attempt $i failed due to provider download error, retrying in 15s..." && sleep 15
+            [ $i -lt 3 ] && echo "⏳ Attempt $i failed due to provider download error, retrying in 15s..." && sleep 15
           done
           exit $exit_code
