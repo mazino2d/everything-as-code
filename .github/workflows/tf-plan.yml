@@ -31,17 +31,12 @@ jobs:
           )
 
           changed_stacks=()
-          if echo "$changed_files" | grep -qE '^\.github/workflows/tf-plan\.yml$'; then
-            echo "Workflow file changed, running all stacks"
-            changed_stacks=("${all_stacks[@]}")
-          else
-            for stack in "${all_stacks[@]}"; do
-              if echo "$changed_files" | grep -qE "^${stack}/"; then
-                echo "Found changes in: $stack"
-                changed_stacks+=("$stack")
-              fi
-            done
-          fi
+          for stack in "${all_stacks[@]}"; do
+            if echo "$changed_files" | grep -qE "^${stack}/"; then
+              echo "Found changes in: $stack"
+              changed_stacks+=("$stack")
+            fi
+          done
 
           echo "::group::Detected stacks"
           for stack in "${changed_stacks[@]}"; do
