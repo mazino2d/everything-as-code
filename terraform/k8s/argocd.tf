@@ -1,8 +1,8 @@
 locals {
   argocd_apps = {
     infra = {
-      path         = "kubernetes/clusters/mazino2d-as-se1-dev/infra"
-      sync_wave    = 0
+      path      = "kubernetes/clusters/mazino2d-as-se1-dev/infra"
+      sync_wave = 0
       sync_options = [
         "CreateNamespace=true",
         "ServerSideApply=true",
@@ -11,8 +11,8 @@ locals {
       ]
     }
     monitoring = {
-      path         = "kubernetes/clusters/mazino2d-as-se1-dev/monitoring"
-      sync_wave    = 1
+      path      = "kubernetes/clusters/mazino2d-as-se1-dev/monitoring"
+      sync_wave = 1
       sync_options = [
         "CreateNamespace=true",
         "ServerSideApply=true",
@@ -22,8 +22,8 @@ locals {
       ]
     }
     apps = {
-      path         = "kubernetes/clusters/mazino2d-as-se1-dev/apps"
-      sync_wave    = 2
+      path      = "kubernetes/clusters/mazino2d-as-se1-dev/apps"
+      sync_wave = 2
       sync_options = [
         "CreateNamespace=true",
         "ServerSideApply=true",
@@ -57,6 +57,8 @@ resource "helm_release" "argocd" {
     configs:
       cm:
         kustomize.buildOptions: "--enable-helm"
+      params:
+        server.insecure: true
     server:
       ingress:
         enabled: true
