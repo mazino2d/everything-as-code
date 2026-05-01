@@ -18,6 +18,10 @@ jobs:
         id: filter
         run: |
           changed_files="$(git diff --name-only origin/${{ github.base_ref }}...HEAD)"
+          echo "::group::Changed files"
+          echo "$changed_files"
+          echo "::endgroup::"
+
           all_stacks=(
             "terraform/github"
             "terraform/gcp/mazino2d-as-se1-dev"
@@ -28,14 +32,22 @@ jobs:
 
           changed_stacks=()
           if echo "$changed_files" | grep -qE '^\.github/workflows/tf-plan\.yml$'; then
+            echo "Workflow file changed, running all stacks"
             changed_stacks=("${all_stacks[@]}")
           else
             for stack in "${all_stacks[@]}"; do
               if echo "$changed_files" | grep -qE "^${stack}/"; then
+                echo "Found changes in: $stack"
                 changed_stacks+=("$stack")
               fi
             done
           fi
+
+          echo "::group::Detected stacks"
+          for stack in "${changed_stacks[@]}"; do
+            echo "  - $stack"
+          done
+          echo "::endgroup::"
 
           if [ ${#changed_stacks[@]} -gt 0 ]; then
             echo "terraform=true" >> $GITHUB_OUTPUT
@@ -44,6 +56,10 @@ jobs:
             echo "terraform=false" >> $GITHUB_OUTPUT
             matrix_json='{"stack":[]}'
           fi
+
+          echo "::group::Matrix JSON"
+          echo "$matrix_json"
+          echo "::endgroup::"
 
           echo "matrix=${matrix_json}" >> $GITHUB_OUTPUT
 
