@@ -126,6 +126,11 @@ jobs:
             const stack = '${{ matrix.stack }}';
             const marker = `<!-- tf-plan:${stack} -->`;
 
+            console.log('DEBUG: planOutcome =', planOutcome);
+            console.log('DEBUG: has_changes output =', '${{ steps.plan.outputs.has_changes }}');
+            console.log('DEBUG: hasChanges =', hasChanges);
+            console.log('DEBUG: summary =', summary);
+
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -136,6 +141,7 @@ jobs:
 
             // Keep PR clean: no comment for successful no-op plans.
             if (planOutcome === 'success' && !hasChanges) {
+              console.log('DEBUG: Skipping comment (success & no changes)');
               if (existing) {
                 await github.rest.issues.deleteComment({
                   owner: context.repo.owner,
@@ -146,6 +152,7 @@ jobs:
               return;
             }
 
+            console.log('DEBUG: Creating/updating comment');
             const body = [
               marker,
               `## ${status} \`${stack}\``,
