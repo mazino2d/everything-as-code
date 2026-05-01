@@ -32,23 +32,50 @@ locals {
         for top_name, children in var.tree : [
           for leaf_name, leaf in children : [
             for secret in try(leaf.secrets, []) : {
-              key        = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}_${try(replace(lower(secret.key), "/[^a-z0-9]+/", "_"), "")}"
-              env_slug   = env
-              name       = try(secret.key, null)
-              folder_ref = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
-              value      = try(secret.value, null)
-              generate   = try(secret.generate, null)
+              key         = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}_${try(replace(lower(secret.key), "/[^a-z0-9]+/", "_"), "")}"
+              env_slug    = env
+              name        = try(secret.key, null)
+              folder_ref  = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
+              secret_envs = try(tolist(secret.environments), var.environments)
+              value       = try(secret.value, null)
+              generate    = try(secret.generate, null)
+              remote_state = try({
+                workspace = secret.remote_state.workspace
+                output    = secret.remote_state.output
+                format    = try(secret.remote_state.format, null)
+              }, null)
             }
           ]
         ]
       ]
     ]) : item.key => item
-    if item.name != null
+    if item.name != null && contains(item.secret_envs, item.env_slug)
   }
 
   secret_instances_with_generated_values = {
     for key, secret in local.secret_instances : key => secret
     if secret.generate != null
+  }
+
+  secret_instances_with_remote_state_values = {
+    for key, secret in local.secret_instances : key => secret
+    if secret.remote_state != null
+  }
+
+  remote_state_workspaces = {
+    for secret in values(local.secret_instances_with_remote_state_values) : secret.remote_state.workspace => true
+  }
+}
+
+data "terraform_remote_state" "workspaces" {
+  for_each = local.remote_state_workspaces
+
+  backend = "remote"
+  config = {
+    organization = var.remote_state_organization
+    workspaces = {
+      name = each.key
+    }
   }
 }
 
@@ -81,8 +108,15 @@ resource "random_password" "generated" {
 resource "infisical_secret" "secrets" {
   for_each = local.secret_instances
 
-  name             = each.value.name
-  value_wo         = each.value.generate != null ? random_password.generated[each.key].result : each.value.value
+  name = each.value.name
+  value_wo = each.value.generate != null ? random_password.generated[each.key].result : (
+    each.value.remote_state != null ? (
+      each.value.remote_state.format != null ? format(
+        each.value.remote_state.format,
+        data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output]
+      ) : data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output]
+    ) : each.value.value
+  )
   value_wo_version = 1
   env_slug         = each.value.env_slug
   workspace_id     = var.project_id
@@ -90,8 +124,22 @@ resource "infisical_secret" "secrets" {
 
   lifecycle {
     precondition {
-      condition     = each.value.generate != null || each.value.value != null
-      error_message = "Secret ${each.value.name} for env ${each.value.env_slug} needs either generate or value in secret_tree.yaml."
+      condition = (
+        (each.value.generate != null ? 1 : 0) +
+        (each.value.value != null ? 1 : 0) +
+        (each.value.remote_state != null ? 1 : 0)
+      ) == 1
+      error_message = "Secret ${each.value.name} for env ${each.value.env_slug} needs exactly one of generate, value, or remote_state in secret_tree.yaml."
+    }
+
+    precondition {
+      condition     = each.value.remote_state == null || can(data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output])
+      error_message = "Secret ${each.value.name} for env ${each.value.env_slug} references missing remote_state output in secret_tree.yaml."
+    }
+
+    precondition {
+      condition     = each.value.remote_state == null || each.value.remote_state.format == null || length(regexall("%s", each.value.remote_state.format)) == 1
+      error_message = "Secret ${each.value.name} for env ${each.value.env_slug} requires remote_state.format to include exactly one %s placeholder."
     }
   }
 }

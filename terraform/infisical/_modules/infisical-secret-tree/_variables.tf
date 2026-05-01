@@ -12,3 +12,8 @@ variable "tree" {
   type        = any
   description = "Tree config loaded from secret_tree.yaml."
 }
+
+variable "remote_state_organization" {
+  type        = string
+  description = "Terraform Cloud organization used when resolving remote_state secrets."
+}
