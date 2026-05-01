@@ -1,13 +1,13 @@
 # Generate persistent K3s certificates
 # These persist across VM recreation and keep kubeconfig stable.
 
-resource "tls_private_key" "k3s_ca" {
+resource "tls_private_key" "k3s_server_ca" {
   algorithm   = "ECDSA"
   ecdsa_curve = "P256"
 }
 
-resource "tls_self_signed_cert" "k3s_ca" {
-  private_key_pem       = tls_private_key.k3s_ca.private_key_pem
+resource "tls_self_signed_cert" "k3s_server_ca" {
+  private_key_pem       = tls_private_key.k3s_server_ca.private_key_pem
   is_ca_certificate     = true
   validity_period_hours = 87600 # 10 years
 
@@ -19,7 +19,30 @@ resource "tls_self_signed_cert" "k3s_ca" {
   ]
 
   subject {
-    common_name  = "k3s-ca"
+    common_name  = "k3s-server-ca"
+    organization = "k3s"
+  }
+}
+
+resource "tls_private_key" "k3s_client_ca" {
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P256"
+}
+
+resource "tls_self_signed_cert" "k3s_client_ca" {
+  private_key_pem       = tls_private_key.k3s_client_ca.private_key_pem
+  is_ca_certificate     = true
+  validity_period_hours = 87600 # 10 years
+
+  allowed_uses = [
+    "cert_signing",
+    "crl_signing",
+    "digital_signature",
+    "key_encipherment",
+  ]
+
+  subject {
+    common_name  = "k3s-client-ca"
     organization = "k3s"
   }
 }
@@ -40,8 +63,8 @@ resource "tls_cert_request" "k3s_server" {
 
 resource "tls_locally_signed_cert" "k3s_server" {
   cert_request_pem      = tls_cert_request.k3s_server.cert_request_pem
-  ca_private_key_pem    = tls_private_key.k3s_ca.private_key_pem
-  ca_cert_pem           = tls_self_signed_cert.k3s_ca.cert_pem
+  ca_private_key_pem    = tls_private_key.k3s_server_ca.private_key_pem
+  ca_cert_pem           = tls_self_signed_cert.k3s_server_ca.cert_pem
   validity_period_hours = 87600 # 10 years
 
   allowed_uses = [
@@ -67,8 +90,8 @@ resource "tls_cert_request" "k3s_client" {
 
 resource "tls_locally_signed_cert" "k3s_client" {
   cert_request_pem      = tls_cert_request.k3s_client.cert_request_pem
-  ca_private_key_pem    = tls_private_key.k3s_ca.private_key_pem
-  ca_cert_pem           = tls_self_signed_cert.k3s_ca.cert_pem
+  ca_private_key_pem    = tls_private_key.k3s_client_ca.private_key_pem
+  ca_cert_pem           = tls_self_signed_cert.k3s_client_ca.cert_pem
   validity_period_hours = 87600 # 10 years
 
   allowed_uses = [
@@ -80,11 +103,13 @@ resource "tls_locally_signed_cert" "k3s_client" {
 
 locals {
   k3s_certs = {
-    ca_cert     = base64encode(tls_self_signed_cert.k3s_ca.cert_pem)
-    ca_key      = base64encode(tls_private_key.k3s_ca.private_key_pem)
-    server_key  = base64encode(tls_private_key.k3s_server.private_key_pem)
-    server_cert = base64encode(tls_locally_signed_cert.k3s_server.cert_pem)
-    client_key  = base64encode(tls_private_key.k3s_client.private_key_pem)
-    client_cert = base64encode(tls_locally_signed_cert.k3s_client.cert_pem)
+    server_ca_cert = base64encode(tls_self_signed_cert.k3s_server_ca.cert_pem)
+    server_ca_key  = base64encode(tls_private_key.k3s_server_ca.private_key_pem)
+    client_ca_cert = base64encode(tls_self_signed_cert.k3s_client_ca.cert_pem)
+    client_ca_key  = base64encode(tls_private_key.k3s_client_ca.private_key_pem)
+    server_key     = base64encode(tls_private_key.k3s_server.private_key_pem)
+    server_cert    = base64encode(tls_locally_signed_cert.k3s_server.cert_pem)
+    client_key     = base64encode(tls_private_key.k3s_client.private_key_pem)
+    client_cert    = base64encode(tls_locally_signed_cert.k3s_client.cert_pem)
   }
 }

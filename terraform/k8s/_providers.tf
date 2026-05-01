@@ -25,31 +25,42 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "gcp" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "gcp-mazino2d-as-se1-dev"
+    }
+  }
+}
+
 locals {
-  kubeconfig = yamldecode(base64decode(var.kubeconfig))
+  kube_config = data.terraform_remote_state.gcp.outputs.kube_config_dev
 }
 
 provider "kubernetes" {
-  host                   = local.kubeconfig.clusters[0].cluster.server
-  cluster_ca_certificate = base64decode(local.kubeconfig.clusters[0].cluster["certificate-authority-data"])
-  client_certificate     = base64decode(local.kubeconfig.users[0].user["client-certificate-data"])
-  client_key             = base64decode(local.kubeconfig.users[0].user["client-key-data"])
+  host                   = local.kube_config.cluster_endpoint
+  cluster_ca_certificate = base64decode(local.kube_config.ca_cert_b64)
+  client_certificate     = base64decode(local.kube_config.client_cert_b64)
+  client_key             = base64decode(local.kube_config.client_key_b64)
 }
 
 provider "kubectl" {
-  host                   = local.kubeconfig.clusters[0].cluster.server
-  cluster_ca_certificate = base64decode(local.kubeconfig.clusters[0].cluster["certificate-authority-data"])
-  client_certificate     = base64decode(local.kubeconfig.users[0].user["client-certificate-data"])
-  client_key             = base64decode(local.kubeconfig.users[0].user["client-key-data"])
+  host                   = local.kube_config.cluster_endpoint
+  cluster_ca_certificate = base64decode(local.kube_config.ca_cert_b64)
+  client_certificate     = base64decode(local.kube_config.client_cert_b64)
+  client_key             = base64decode(local.kube_config.client_key_b64)
   load_config_file       = false
 }
 
 provider "helm" {
   kubernetes {
-    host                   = local.kubeconfig.clusters[0].cluster.server
-    cluster_ca_certificate = base64decode(local.kubeconfig.clusters[0].cluster["certificate-authority-data"])
-    client_certificate     = base64decode(local.kubeconfig.users[0].user["client-certificate-data"])
-    client_key             = base64decode(local.kubeconfig.users[0].user["client-key-data"])
+    host                   = local.kube_config.cluster_endpoint
+    cluster_ca_certificate = base64decode(local.kube_config.ca_cert_b64)
+    client_certificate     = base64decode(local.kube_config.client_cert_b64)
+    client_key             = base64decode(local.kube_config.client_key_b64)
   }
 }
 

@@ -10,23 +10,13 @@ The `k8s` stack reads Infisical machine identity outputs from remote state and w
 
 ## 2. Terraform Cloud Workspace Variables
 
-Go to workspace `k8s` -> **Variables** -> add:
+No `kubeconfig` variable is required.
 
-| Category  | Key          | Value                                                             | Sensitive |
-|-----------|--------------|-------------------------------------------------------------------|-----------|
-| terraform | `kubeconfig` | base64-encoded kubeconfig for the target cluster                  | ✅        |
-
-Generate the value using:
-
-```bash
-ssh user@mazino2d-k3s.duckdns.org "sudo cat /etc/rancher/k3s/k3s.yaml" \
-  | sed 's/127.0.0.1/mazino2d-k3s.duckdns.org/g' \
-  | base64
-```
+The `k8s` stack reads Kubernetes access credentials directly from remote state output `kube_config_dev` in workspace `gcp-mazino2d-as-se1-dev`.
 
 Notes:
 
-- Store this value in HCP Terraform workspace variables.
+- Ensure workspace `gcp-mazino2d-as-se1-dev` has been applied successfully before running `k8s`.
 - Argo CD performs workload reconciliation; GitHub Actions is not the normal Kubernetes deployment path.
 
 ## 3. Terraform Cloud Workspace Settings
