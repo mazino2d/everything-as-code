@@ -89,27 +89,38 @@ jobs:
           for i in 1 2 3; do
             terraform plan -no-color -detailed-exitcode 2>&1 | tee /tmp/plan_output.txt
             plan_exit_code=$?
+            echo "::group::Plan attempt $i exit code: $plan_exit_code"
+            echo "Exit code explanation:"
+            echo "  0 = no changes"
+            echo "  1 = error"
+            echo "  2 = has changes"
+            echo "::endgroup::"
             if [ $plan_exit_code -eq 0 ] || [ $plan_exit_code -eq 2 ]; then
               break
             fi
             if ! grep -qE "Failed to install provider|connection reset by peer" /tmp/plan_output.txt; then
               break
             fi
-            [ $i -lt 3 ] && echo "Attempt $i failed due to provider download error, retrying in 15s..." && sleep 15
+            [ $i -lt 3 ] && echo "⏳ Attempt $i failed due to provider download error, retrying in 15s..." && sleep 15
           done
 
+          echo "::group::Final plan_exit_code: $plan_exit_code"
           if [ $plan_exit_code -eq 2 ]; then
+            echo "Setting has_changes=true"
             echo "has_changes=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           if [ $plan_exit_code -eq 0 ]; then
+            echo "Setting has_changes=false"
             echo "has_changes=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
+          echo "Plan error, setting has_changes=false"
           echo "has_changes=false" >> $GITHUB_OUTPUT
           exit 1
+          echo "::endgroup::"
         continue-on-error: true
 
       - name: Comment PR
