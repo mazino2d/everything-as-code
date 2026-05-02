@@ -6,6 +6,7 @@ helmCharts:
     version: 12.0.1
     releaseName: velero
     namespace: infra
+    includeCRDs: true
     valuesFile: values.yaml
 resources:
   - infisical-secret.yaml
