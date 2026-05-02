@@ -1,4 +1,4 @@
-# Enforce STRICT mTLS for all workloads in the mesh.
+# Allow both mTLS and plaintext traffic for all workloads in the mesh.
 # Applying this to istio-system makes it a mesh-wide policy.
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
@@ -7,4 +7,4 @@ metadata:
   namespace: istio-system
 spec:
   mtls:
-    mode: STRICT
+    mode: PERMISSIVE
