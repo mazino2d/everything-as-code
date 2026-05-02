@@ -9,5 +9,34 @@ helmCharts:
     version: 0.7.28
     releaseName: atlas-operator
     namespace: atlas-operator
+patches:
+  - target:
+      kind: ServiceAccount
+      name: atlas-operator
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: atlas-operator
+  - target:
+      kind: Role
+      name: atlas-operator-leader-election-role
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: atlas-operator
+  - target:
+      kind: RoleBinding
+      name: atlas-operator-leader-election-role-binding
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: atlas-operator
+  - target:
+      kind: Deployment
+      name: atlas-operator
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: atlas-operator
 resources:
   - namespace.yaml

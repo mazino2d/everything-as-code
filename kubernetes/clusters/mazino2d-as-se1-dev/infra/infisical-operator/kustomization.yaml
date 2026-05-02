@@ -11,5 +11,41 @@ helmCharts:
     namespace: infisical-operator
     valuesInline:
       installCRDs: true
+patches:
+  - target:
+      kind: ServiceAccount
+      name: infisical-opera-controller-manager
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infisical-operator
+  - target:
+      kind: Role
+      name: infisical-opera-leader-election-role
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infisical-operator
+  - target:
+      kind: RoleBinding
+      name: infisical-opera-leader-election-rolebinding
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infisical-operator
+  - target:
+      kind: Service
+      name: infisical-opera-controller-manager-metrics-service
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infisical-operator
+  - target:
+      kind: Deployment
+      name: infisical-opera-controller-manager
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: infisical-operator
 resources:
   - namespace.yaml
