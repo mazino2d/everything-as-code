@@ -1,0 +1,9 @@
+workloads:
+  infra:
+    velero:
+      project_roles: []
+      bucket_roles:
+        mazino2d-as-se1-dev-velero-backups-usc1:
+          - roles/storage.objectAdmin
+          - roles/storage.legacyBucketReader
+      create_sa_key: true
