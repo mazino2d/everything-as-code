@@ -14,7 +14,7 @@ Current design:
 
 - Backup storage: GCS bucket mazino2d-as-se1-dev-velero-backups-usc1
 - Credentials source: Infisical Secret path /workload-gsa-keys/gcp-mazino2d-as-se1-dev/infra-velero
-- Kubernetes secret consumed by Velero: velero-gcp-credentials in namespace infra
+- Kubernetes secret consumed by Velero: velero-gcp-credentials in namespace velero
 - Credentials key used by Velero: gcp_service_account_json
 - Automatic schedules:
   - Daily at 02:00, TTL 7 days
@@ -31,13 +31,13 @@ Notes:
 
 - kubectl context points to the target cluster
 - velero CLI installed locally
-- Permission to read namespace infra and Velero resources
+- Permission to read namespace velero and Velero resources
 
 Quick checks:
 
-    kubectl get pods -n infra -l app.kubernetes.io/name=velero
-    kubectl get backupstoragelocation -n infra
-    kubectl get schedules -n infra
+    kubectl get pods -n velero -l app.kubernetes.io/name=velero
+    kubectl get backupstoragelocation -n velero
+    kubectl get schedules -n velero
 
 ---
 
@@ -71,9 +71,9 @@ List schedules:
 
 Describe schedules in cluster:
 
-    kubectl get schedules -n infra
-    kubectl describe schedule velero-velero-daily -n infra
-    kubectl describe schedule velero-velero-weekly -n infra
+    kubectl get schedules -n velero
+    kubectl describe schedule velero-velero-daily -n velero
+    kubectl describe schedule velero-velero-weekly -n velero
 
 List recent backups and status:
 
@@ -136,19 +136,19 @@ If backups are not created:
 
 - Check Velero pod logs:
 
-      kubectl logs deploy/velero -n infra
+    kubectl logs deploy/velero -n velero
 
 - Check schedule objects:
 
-      kubectl get schedules -n infra
+    kubectl get schedules -n velero
 
 - Check backup storage location availability:
 
-      kubectl get backupstoragelocation -n infra -o wide
+    kubectl get backupstoragelocation -n velero -o wide
 
 If backups fail with auth or access errors:
 
-- Ensure secret velero-gcp-credentials exists in namespace infra
+- Ensure secret velero-gcp-credentials exists in namespace velero
 - Ensure key gcp_service_account_json exists in that secret
 - Ensure GSA has Storage permissions on bucket mazino2d-as-se1-dev-velero-backups-usc1
 
