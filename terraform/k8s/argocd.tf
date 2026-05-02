@@ -1,5 +1,16 @@
 locals {
   argocd_apps = {
+    istio = {
+      path      = "kubernetes/clusters/mazino2d-as-se1-dev/istio"
+      sync_wave = -1
+      sync_options = [
+        "CreateNamespace=true",
+        "ServerSideApply=true",
+        "ApplyOutOfSyncOnly=true",
+        "PruneLast=true",
+        "SkipDryRunOnMissingResource=true",
+      ]
+    }
     infra = {
       path      = "kubernetes/clusters/mazino2d-as-se1-dev/infra"
       sync_wave = 0
