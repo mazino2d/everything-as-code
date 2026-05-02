@@ -77,23 +77,51 @@ Reusable modules live under each stack's `_modules/`. The GCP stack includes `_s
 
 ```
 kubernetes/
-├── charts/
-│   ├── eac-app/
-│   └── eac-redis/
+├── _docs/                   # cluster documentation
+│   ├── setup.md            # kubeconfig setup for local access
+│   └── backup-velero.md    # Velero backup procedures
+├── charts/                 # reusable Helm charts
+│   ├── eac-app/            # generic application chart template
+│   ├── eac-postgresql/     # PostgreSQL deployment chart
+│   └── eac-redis/          # Redis deployment chart
 └── clusters/
     └── mazino2d-as-se1-dev/
-        ├── apps/        # app workloads (e.g., hotrod, httpbin, redis)
-        ├── infra/       # cluster infra components (e.g., infisical operator)
-        └── monitoring/  # observability components (e.g., node exporter, alloy)
+        ├── apps/           # application workloads
+        │   ├── hotrod/     # Jaeger demo application
+        │   ├── httpbin/    # HTTP request/response debugging
+        │   ├── postgresql/ # PostgreSQL database
+        │   └── redis/      # Redis cache
+        ├── infra/          # cluster infrastructure components
+        │   ├── atlas-operator/      # DB schema automation
+        │   ├── cert-manager/        # TLS certificate management
+        │   ├── infisical-operator/  # secrets operator
+        │   ├── istio/               # service mesh
+        │   ├── kustomization.yaml
+        │   └── velero/              # cluster backup solution
+        ├── monitoring/     # observability stack
+        │   └── [observability components]
+        └── platform/       # platform utilities
+            ├── adminer/    # database admin UI
+            └── [other tools]
 ```
 
-Local reusable charts are defined in `kubernetes/charts/`. Some cluster components also consume external Helm charts directly from upstream repos via Kustomize `helmCharts`.
+Local reusable charts are defined in `kubernetes/charts/`. Cluster components use local charts via Kustomize `helmCharts`, and also consume external Helm charts directly from upstream repositories.
 
 ### Infrastructure Notes
 
-- The main VM is a spot `e2-small` in `asia-southeast1-b`, so preemption is expected.
-- DuckDNS (`mazino2d-k3s.duckdns.org`) is updated during VM startup; K3S API TLS SANs include both domain and active external IP.
-- Firewall rules expose 22 (SSH), 6443 (K3S API), 80/443 (HTTP/S), and 30379 (Redis NodePort).
+**Compute:**
+- Main K3S cluster runs on a GCP spot VM (`e2-small` in `asia-southeast1-b`). Preemption is expected; recovery is automated.
+- VM startup includes `_scripts/install_k3s.sh`, which installs K3S and updates DuckDNS with the current external IP.
+
+**Networking:**
+- DuckDNS domain: `mazino2d-k3s.duckdns.org` (stable DNS for ephemeral public IP)
+- K3S API TLS SANs include both the domain and the active external IP
+- Firewall rules expose: 22 (SSH), 6443 (K3S API), 80/443 (HTTP/S), 30379 (Redis NodePort)
+
+**Secrets & State:**
+- Infisical manages secret storage and distribution across infrastructure
+- Kubeconfig stored as base64 in Terraform Cloud workspace `k8s` variable
+- PostgreSQL and Redis are deployed in-cluster for demo/testing
 
 ### PR Status Checks
 
