@@ -4,13 +4,26 @@ configuration:
       provider: gcp
       bucket: mazino2d-as-se1-dev-velero-backups-usc1
       default: true
+  volumeSnapshotLocation:
+    - name: default
+      provider: gcp
   extraEnvVars:
     - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: /credentials/gcp_service_account_json
+      value: /credentials/cloud
 
 credentials:
-  useSecret: true
-  existingSecret: velero-gcp-credentials
+  useSecret: false
+
+extraVolumes:
+  - name: velero-gcp-credentials
+    secret:
+      secretName: velero-gcp-credentials
+
+extraVolumeMounts:
+  - name: velero-gcp-credentials
+    mountPath: /credentials/cloud
+    subPath: gcp_service_account_json
+    readOnly: true
 
 initContainers:
   - name: velero-plugin-for-gcp
