@@ -13,7 +13,7 @@ Velero is deployed from:
 Current design:
 
 - Backup storage: GCS bucket mazino2d-as-se1-dev-velero-backups-usc1
-- Credentials source: Infisical Secret path /workload-gsa-keys/gcp-mazino2d-as-se1-dev/infra-velero
+- Credentials source: Infisical Secret path /workload-gsa-keys/gcp-mazino2d-as-se1-dev/velero-velero
 - Kubernetes secret consumed by Velero: velero-gcp-credentials in namespace velero
 - Credentials key used by Velero: gcp_service_account_json
 - Automatic schedules:
