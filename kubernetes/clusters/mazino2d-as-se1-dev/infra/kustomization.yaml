@@ -7,3 +7,4 @@ resources:
   - atlas-operator
   - cert-manager
   - infisical-operator
+  - velero
