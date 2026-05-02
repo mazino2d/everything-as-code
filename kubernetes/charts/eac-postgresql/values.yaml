@@ -6,7 +6,7 @@ infisical:
   resyncInterval: 60
   credentialsRef:
     secretName: infisical-machine-identity
-    secretNamespace: infra
+    secretNamespace: infisical-operator
 
 instances: []
 # Each entry supports:
@@ -31,7 +31,7 @@ instances: []
 #         hostAPI: https://app.infisical.com/api
 #         credentialsRef:
 #           secretName: infisical-machine-identity
-#           secretNamespace: infra
+#           secretNamespace: infisical-operator
 #   storage:
 #     size: 1Gi
 #     storageClassName: ""      # empty = cluster default

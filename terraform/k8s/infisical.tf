@@ -9,16 +9,16 @@ data "terraform_remote_state" "infisical" {
   }
 }
 
-resource "kubernetes_namespace" "infra" {
+resource "kubernetes_namespace" "infisical_operator" {
   metadata {
-    name = "infra"
+    name = "infisical-operator"
   }
 }
 
 resource "kubernetes_secret" "infisical_machine_identity" {
   metadata {
     name      = "infisical-machine-identity"
-    namespace = "infra"
+    namespace = "infisical-operator"
   }
 
   data = {
@@ -26,5 +26,5 @@ resource "kubernetes_secret" "infisical_machine_identity" {
     clientSecret = data.terraform_remote_state.infisical.outputs.k8s_operator_client_secret
   }
 
-  depends_on = [kubernetes_namespace.infra]
+  depends_on = [kubernetes_namespace.infisical_operator]
 }

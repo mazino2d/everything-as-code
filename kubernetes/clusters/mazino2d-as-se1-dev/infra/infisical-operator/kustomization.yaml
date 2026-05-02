@@ -7,37 +7,8 @@ helmCharts:
     repo: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
     version: 0.10.32
     releaseName: infisical-operator
-    namespace: infra
+    namespace: infisical-operator
     valuesInline:
       installCRDs: true
-patches:
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: Deployment
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: ServiceAccount
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: Service
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: Role
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: RoleBinding
+resources:
+  - namespace.yaml

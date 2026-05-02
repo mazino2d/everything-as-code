@@ -7,41 +7,6 @@ helmCharts:
     repo: oci://ghcr.io/ariga/charts
     version: 0.7.28
     releaseName: atlas-operator
-    namespace: infra
-patches:
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: Deployment
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: ServiceAccount
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: Service
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: Role
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: RoleBinding
-  - patch: |-
-      - op: add
-        path: /metadata/namespace
-        value: infra
-    target:
-      kind: ClusterRoleBinding
+    namespace: atlas-operator
+resources:
+  - namespace.yaml
