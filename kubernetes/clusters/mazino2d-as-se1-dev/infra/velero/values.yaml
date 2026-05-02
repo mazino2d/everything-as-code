@@ -1,0 +1,39 @@
+configuration:
+  backupStorageLocation:
+    - name: default
+      provider: gcp
+      bucket: mazino2d-as-se1-dev-velero-backups-usc1
+      default: true
+  extraEnvVars:
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /credentials/gcp_service_account_json
+
+credentials:
+  useSecret: true
+  existingSecret: velero-gcp-credentials
+
+initContainers:
+  - name: velero-plugin-for-gcp
+    image: velero/velero-plugin-for-gcp:v1.13.0
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+schedules:
+  daily:
+    schedule: "0 2 * * *"
+    template:
+      storageLocation: default
+      snapshotVolumes: true
+      ttl: 168h0m0s
+      includedNamespaces:
+        - "*"
+  weekly:
+    schedule: "0 3 * * 0"
+    template:
+      storageLocation: default
+      snapshotVolumes: true
+      ttl: 720h0m0s
+      includedNamespaces:
+        - "*"
