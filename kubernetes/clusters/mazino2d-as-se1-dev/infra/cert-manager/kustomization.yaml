@@ -5,8 +5,9 @@ helmCharts:
     repo: https://charts.jetstack.io
     version: v1.17.2
     releaseName: cert-manager
-    namespace: infra
+    namespace: cert-manager
     valuesInline:
       installCRDs: true
 resources:
+  - namespace.yaml
   - letsencrypt-clusterissuer.yaml

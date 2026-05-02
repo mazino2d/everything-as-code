@@ -5,8 +5,9 @@ helmCharts:
     repo: https://vmware-tanzu.github.io/helm-charts
     version: 12.0.1
     releaseName: velero
-    namespace: infra
+    namespace: velero
     includeCRDs: true
     valuesFile: values.yaml
 resources:
+  - namespace.yaml
   - infisical-secret.yaml

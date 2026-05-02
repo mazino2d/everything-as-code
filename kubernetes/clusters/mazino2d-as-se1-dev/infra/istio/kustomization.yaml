@@ -14,7 +14,7 @@ helmCharts:
     namespace: istio-system
     valuesInline:
       meshConfig:
-        enableAutoMtls: true
+        enableAutoMtls: false
 resources:
   - namespace.yaml
   - peer-authentication.yaml

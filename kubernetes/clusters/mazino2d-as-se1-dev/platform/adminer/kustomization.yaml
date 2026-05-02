@@ -5,5 +5,5 @@ helmGlobals:
 helmCharts:
   - name: eac-app
     releaseName: adminer
-    namespace: infra
+    namespace: platform
     valuesFile: values.yaml

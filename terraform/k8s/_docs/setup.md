@@ -6,7 +6,7 @@
 - HCP Terraform workspace `k8s` in organisation `mazino2d-everything-as-code`
 - HCP Terraform workspace `infisical` already applied at least once
 
-The `k8s` stack reads Infisical machine identity outputs from remote state and writes the Kubernetes secret in namespace `infra`.
+The `k8s` stack reads Infisical machine identity outputs from remote state and writes the Kubernetes secret in namespace `infisical-operator`.
 
 ## 2. Terraform Cloud Workspace Variables
 
@@ -32,7 +32,7 @@ This stack must bootstrap both Infisical and Argo CD foundations via Terraform b
 
 Why:
 
-- Infisical bootstrap: the secret `infisical-machine-identity` must exist in namespace `infra` first, otherwise workloads that depend on Infisical-synced secrets cannot start correctly.
+- Infisical bootstrap: the secret `infisical-machine-identity` must exist in namespace `infisical-operator` first, otherwise workloads that depend on Infisical-synced secrets cannot start correctly.
 - Argo CD bootstrap: Argo CD itself (Helm release, repo credentials, and `Application` CRs) must exist first to start syncing cluster manifests from this repository.
 
 This is a classic chicken-and-egg problem in GitOps, so initial installation belongs in Terraform for deterministic first-run provisioning.
