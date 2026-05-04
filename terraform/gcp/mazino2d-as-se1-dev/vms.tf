@@ -3,7 +3,7 @@ module "vm-dev" {
   name             = "vm-dev"
   project_id       = module.project.project_id
   zone             = "asia-southeast1-b"
-  machine_type     = "e2-medium"
+  machine_type     = "e2-standard-2"
   disk_size_gb     = 20
   spot             = true
   external_ip_type = "ephemeral"
