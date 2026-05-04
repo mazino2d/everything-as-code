@@ -18,6 +18,22 @@ ingress:
     secretName: ""
     clusterIssuer: letsencrypt-staging
 env: {}
+infisical:
+  enabled: false
+  projectSlug: ""
+  envSlug: dev
+  hostAPI: https://app.infisical.com/api
+  resyncInterval: 60
+  secretsPath: ""
+  managedSecretName: ""
+  credentialsRef:
+    secretName: infisical-machine-identity
+    secretNamespace: infisical-operator
+# envFromSecrets supports two formats:
+# - "my-secret" (inject all keys from secret via envFrom.secretRef)
+# - "DATABASE_URL=my-secret:DATABASE_URL" (inject one key as a specific env var)
+# - "DATABASE_URL=postgres://postgres:$(DB_PASSWORD)@db.apps.svc.cluster.local:5432/postgres" (inject literal env value)
+envFromSecrets: []
 podAnnotations: {}
 instrumentation:
   enabled: false

@@ -1,7 +1,7 @@
 name: hotrod
 image:
   repository: jaegertracing/example-hotrod
-  tag: latest
+  tag: 2.17.0
 replicaCount: 1
 service:
   port: 8080
