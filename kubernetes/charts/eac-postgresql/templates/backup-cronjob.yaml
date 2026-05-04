@@ -38,14 +38,14 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ $secretName }}
-                      key: admin_password
+                      key: POSTGRES_PASSWORD
                 - name: POSTGRES_DB
                   value: postgres
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: {{ $secretName }}
-                      key: admin_password
+                      key: POSTGRES_PASSWORD
               {{- if dig "backup" "command" nil . }}
               command:
                 {{- toYaml (dig "backup" "command" nil .) | nindent 16 }}

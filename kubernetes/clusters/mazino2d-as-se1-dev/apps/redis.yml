@@ -1,24 +1,20 @@
 instances:
-  - name: counter
-    replicaCount: 2 # pod-0 = primary (write), pod-1 = replica (read-only sync)
+  - name: outline-cache-1
+    replicaCount: 1
     image:
       tag: "7-alpine"
     storage:
-      size: 100Mi
+      size: 200Mi
       mountPath: /data
-    service:
-      type: NodePort
-      port: 6379
-      nodePort: 30379
     resources:
       requests:
-        cpu: 10m
-        memory: 32Mi
-      limits:
+        cpu: 20m
         memory: 64Mi
+      limits:
+        memory: 128Mi
     redis:
-      maxmemory: "50mb"
-      maxmemoryPolicy: "noeviction"
+      maxmemory: "100mb"
+      maxmemoryPolicy: "allkeys-lru"
       appendonly: "yes"
       save: "900 1 300 10"
     exporter:

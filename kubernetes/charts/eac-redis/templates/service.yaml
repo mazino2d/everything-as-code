@@ -1,6 +1,8 @@
 {{- $root := . -}}
 {{- range .Values.instances }}
-{{- $port := (.service.port | default 6379) }}
+{{- $port := dig "service" "port" 6379 . }}
+{{- $serviceType := dig "service" "type" "ClusterIP" . }}
+{{- $nodePort := dig "service" "nodePort" nil . }}
 ---
 apiVersion: v1
 kind: Service
@@ -8,14 +10,14 @@ metadata:
   name: {{ .name }}
   namespace: {{ $root.Release.Namespace }}
 spec:
-  type: {{ .service.type | default "ClusterIP" }}
+  type: {{ $serviceType }}
   selector:
     statefulset.kubernetes.io/pod-name: {{ .name }}-0
   ports:
     - port: {{ $port }}
       targetPort: {{ $port }}
-      {{- if .service.nodePort }}
-      nodePort: {{ .service.nodePort }}
+      {{- if $nodePort }}
+      nodePort: {{ $nodePort }}
       {{- end }}
 ---
 apiVersion: v1

@@ -39,6 +39,7 @@ locals {
               secret_envs = try(tolist(secret.environments), var.environments)
               value       = try(secret.value, null)
               generate    = try(secret.generate, null)
+              generate_mode = lower(trimspace(tostring(try(secret.generate.mode, ""))))
               remote_state = try({
                 workspace = secret.remote_state.workspace
                 output    = secret.remote_state.output
@@ -54,7 +55,12 @@ locals {
 
   secret_instances_with_generated_values = {
     for key, secret in local.secret_instances : key => secret
-    if secret.generate != null
+    if secret.generate != null && !contains(["openssl_rand_hex_32", "hex32"], secret.generate_mode)
+  }
+
+  secret_instances_with_generated_hex_values = {
+    for key, secret in local.secret_instances : key => secret
+    if secret.generate != null && contains(["openssl_rand_hex_32", "hex32"], secret.generate_mode)
   }
 
   secret_instances_with_remote_state_values = {
@@ -105,11 +111,21 @@ resource "random_password" "generated" {
   override_special = try(each.value.generate.override_special, "!#$%&*()-_=+[]{}<>:?")
 }
 
+resource "random_id" "generated_hex" {
+  for_each = local.secret_instances_with_generated_hex_values
+
+  byte_length = try(tonumber(each.value.generate.byte_length), 32)
+}
+
 resource "infisical_secret" "secrets" {
   for_each = local.secret_instances
 
   name = each.value.name
-  value_wo = each.value.generate != null ? random_password.generated[each.key].result : (
+  value_wo = each.value.generate != null ? (
+    contains(["openssl_rand_hex_32", "hex32"], each.value.generate_mode)
+      ? random_id.generated_hex[each.key].hex
+      : random_password.generated[each.key].result
+  ) : (
     each.value.remote_state != null ? (
       each.value.remote_state.format != null ? format(
         each.value.remote_state.format,
@@ -140,6 +156,11 @@ resource "infisical_secret" "secrets" {
     precondition {
       condition     = each.value.remote_state == null || each.value.remote_state.format == null || length(regexall("%s", each.value.remote_state.format)) == 1
       error_message = "Secret ${each.value.name} for env ${each.value.env_slug} requires remote_state.format to include exactly one %s placeholder."
+    }
+
+    precondition {
+      condition     = each.value.generate == null || each.value.generate_mode == "" || contains(["openssl_rand_hex_32", "hex32"], each.value.generate_mode)
+      error_message = "Secret ${each.value.name} for env ${each.value.env_slug} has unsupported generate.mode. Supported: openssl_rand_hex_32, hex32."
     }
   }
 }

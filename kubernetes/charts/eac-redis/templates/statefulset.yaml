@@ -2,7 +2,7 @@
 {{- range .Values.instances }}
 {{- $exporterEnabled := dig "exporter" "enabled" false . }}
 {{- $exporterPort := dig "exporter" "port" 9121 . }}
-{{- $redisPort := .service.port | default 6379 }}
+{{- $redisPort := dig "service" "port" 6379 . }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet

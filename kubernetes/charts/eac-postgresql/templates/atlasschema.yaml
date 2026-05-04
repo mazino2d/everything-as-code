@@ -43,7 +43,7 @@ spec:
     passwordFrom:
       secretKeyRef:
         name: {{ dig "credentials" "passwordFrom" "secretKeyRef" "name" (dig "credentials" "passwordFrom" "secretKeyRef" "name" $passwordSecretName $atlas) $atlasSchema }}
-        key: {{ dig "credentials" "passwordFrom" "secretKeyRef" "key" (dig "credentials" "passwordFrom" "secretKeyRef" "key" "admin_password" $atlas) $atlasSchema }}
+        key: {{ dig "credentials" "passwordFrom" "secretKeyRef" "key" (dig "credentials" "passwordFrom" "secretKeyRef" "key" "POSTGRES_PASSWORD" $atlas) $atlasSchema }}
   {{- end }}
   {{- with (dig "policy" (dig "policy" nil $atlas) $atlasSchema) }}
   policy:
