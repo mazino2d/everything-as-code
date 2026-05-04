@@ -48,7 +48,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: admin_password
+                  key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               value: postgres
             - name: PGDATA
@@ -124,7 +124,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: admin_password
+                  key: POSTGRES_PASSWORD
           ports:
             - containerPort: {{ dig "exporter" "port" 9187 . }}
           resources:

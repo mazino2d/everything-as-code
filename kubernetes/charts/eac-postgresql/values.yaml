@@ -103,7 +103,7 @@ instances: []
 #     #   passwordFrom:
 #     #     secretKeyRef:
 #     #       name: app-db-auth   # Optional; defaults to auth.password.secretName or <instance>-auth
-#     #       key: admin_password # Optional; defaults to admin_password
+#     #       key: POSTGRES_PASSWORD # Optional; defaults to POSTGRES_PASSWORD
 #     schemaConfigMap: hotrod-db-schema # Optional string form; key defaults to schema.hcl
 #     # schemaConfigMap:
 #     #   name: hotrod-db-schema       # Optional object form; defaults to atlas.name

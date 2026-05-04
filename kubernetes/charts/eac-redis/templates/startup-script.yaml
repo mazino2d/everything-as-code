@@ -1,6 +1,6 @@
 {{- $root := . -}}
 {{- range .Values.instances }}
-{{- $port := (.service.port | default 6379) }}
+{{- $port := dig "service" "port" 6379 . }}
 {{- $primaryHost := printf "%s-0.%s-headless.%s.svc.cluster.local" .name .name $root.Release.Namespace }}
 ---
 apiVersion: v1

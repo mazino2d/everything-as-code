@@ -1,5 +1,5 @@
 instances:
-  - name: app-db
+  - name: outline-db-1
     replicaCount: 1
     image:
       repository: postgres
@@ -11,11 +11,11 @@ instances:
         infisical:
           enabled: true
     storage:
-      size: 1Gi
+      size: 2Gi
     resources:
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 100m
+        memory: 256Mi
       limits:
         memory: 512Mi
     postgresql:
@@ -24,12 +24,6 @@ instances:
       workMem: "4MB"
       maintenanceWorkMem: "64MB"
       walLevel: "replica"
-    atlas:
-      schemas:
-        - name: hotrod-db-schema
-          schemaConfigMap: hotrod-db-schema
-          schemas:
-            - public
     exporter:
       enabled: true
     backup:
