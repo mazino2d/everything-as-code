@@ -1,7 +1,7 @@
 name: outline
 image:
   repository: outlinewiki/outline
-  tag: latest
+  tag: "1.7.1"
 replicaCount: 1
 service:
   port: 3000
@@ -10,7 +10,7 @@ ingress:
   enabled: true
   host: outline.mazino2d-k3s.duckdns.org
 env:
-  URL: http://outline.mazino2d-k3s.duckdns.org
+  URL: https://outline.mazino2d-k3s.duckdns.org
   FORCE_HTTPS: "false"
   FILE_STORAGE: local
   FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
