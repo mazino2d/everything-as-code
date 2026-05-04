@@ -26,12 +26,57 @@ spec:
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          {{- $parsedEnvEntries := dict "items" (list) }}
+          {{- $secretEnvFromRefs := dict "enabled" false }}
+          {{- range .Values.envFromSecrets }}
+          {{- if and (kindIs "string" .) (contains "=" .) }}
+          {{- $parts := splitList "=" . }}
+            {{- if lt (len $parts) 2 }}
+          {{- fail (printf "invalid envFromSecrets entry %q. expected ENV_NAME=value or ENV_NAME=secretName:key" .) }}
+          {{- end }}
+          {{- $envName := trim (index $parts 0) }}
+          {{- if eq $envName "" }}
+          {{- fail (printf "invalid envFromSecrets entry %q. empty ENV_NAME" .) }}
+          {{- end }}
+            {{- $envValue := trim (join "=" (slice $parts 1)) }}
+          {{- $mappingParts := splitList ":" $envValue }}
+          {{- if and (eq (len $mappingParts) 2) (ne (trim (index $mappingParts 0)) "") (ne (trim (index $mappingParts 1)) "") }}
+          {{- $_ := set $parsedEnvEntries "items" (append (index $parsedEnvEntries "items") (dict "mode" "secret" "name" $envName "secretName" (trim (index $mappingParts 0)) "key" (trim (index $mappingParts 1)))) }}
+          {{- else }}
+          {{- $_ := set $parsedEnvEntries "items" (append (index $parsedEnvEntries "items") (dict "mode" "literal" "name" $envName "value" $envValue)) }}
+          {{- end }}
+          {{- else if and (kindIs "string" .) . }}
+          {{- $_ := set $secretEnvFromRefs "enabled" true }}
+          {{- end }}
+          {{- end }}
           ports:
             - containerPort: {{ .Values.service.containerPort }}
-          {{- if .Values.env }}
+          {{- if gt (len (index $parsedEnvEntries "items")) 0 }}
+          env:
+            {{- range (index $parsedEnvEntries "items") }}
+            - name: {{ .name }}
+              {{- if eq .mode "secret" }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .key }}
+              {{- else }}
+              value: {{ .value | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+            {{- if or .Values.env (index $secretEnvFromRefs "enabled") }}
           envFrom:
+            {{- if .Values.env }}
             - configMapRef:
                 name: {{ .Values.name }}
+            {{- end }}
+            {{- range .Values.envFromSecrets }}
+            {{- if not (contains "=" .) }}
+            - secretRef:
+                name: {{ . }}
+            {{- end }}
+            {{- end }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
