@@ -16,7 +16,13 @@ helmCharts:
       meshConfig:
         enableAutoMtls: false
 patches:
-  - path: patch-webhook-failure-policy.yaml
+  - target:
+      kind: MutatingWebhookConfiguration
+      name: istio-sidecar-injector
+    patch: |
+      - op: replace
+        path: /webhooks/0/failurePolicy
+        value: Ignore
 
 resources:
   - namespace.yaml
