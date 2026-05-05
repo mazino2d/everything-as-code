@@ -13,6 +13,7 @@ spec:
   ports:
     - port: {{ dig "service" "port" 5432 . }}
       targetPort: {{ dig "service" "port" 5432 . }}
+      appProtocol: tcp
       {{- if dig "service" "nodePort" nil . }}
       nodePort: {{ dig "service" "nodePort" nil . }}
       {{- end }}
