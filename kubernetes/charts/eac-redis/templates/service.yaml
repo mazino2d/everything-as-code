@@ -16,6 +16,7 @@ spec:
   ports:
     - port: {{ $port }}
       targetPort: {{ $port }}
+      appProtocol: tcp
       {{- if $nodePort }}
       nodePort: {{ $nodePort }}
       {{- end }}
@@ -31,4 +32,5 @@ spec:
   ports:
     - port: {{ $port }}
       targetPort: {{ $port }}
+      appProtocol: tcp
 {{- end }}
