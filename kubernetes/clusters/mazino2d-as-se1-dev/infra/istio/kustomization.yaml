@@ -15,6 +15,9 @@ helmCharts:
     valuesInline:
       meshConfig:
         enableAutoMtls: false
+patches:
+  - path: patch-webhook-failure-policy.yaml
+
 resources:
   - namespace.yaml
   - peer-authentication.yaml
