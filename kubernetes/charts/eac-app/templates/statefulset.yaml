@@ -85,6 +85,8 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
   {{- if .Values.statefulset.storage.enabled }}
   volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
     - metadata:
         name: data
       spec:
