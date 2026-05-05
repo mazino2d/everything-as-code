@@ -1,52 +1,94 @@
-name: ""
-replicaCount: 1
+# REQUIRED
+name: ""                  # used for all resource names (Deployment/StatefulSet, Service, Ingress, ConfigMap)
+
+# IMAGE
 image:
-  repository: ""
-  tag: latest
+  repository: ""          # required; container image (e.g. ghcr.io/org/app)
+  tag: latest             # optional; default: latest — pin to a specific tag in production
+
+# WORKLOAD
+replicaCount: 1           # optional; default: 1
+
+# SERVICE
 service:
-  type: ""
-  port: 80
-  containerPort: 80
-  nodePort: null
+  type: ""                # optional; ClusterIP | NodePort | LoadBalancer — omit to use K8s default (ClusterIP)
+  port: 80                # optional; port exposed by the Service — default: 80
+  containerPort: 80       # optional; port the container listens on — default: 80
+  nodePort: null          # optional; only used when type=NodePort
+
+# INGRESS
 ingress:
-  enabled: false
-  className: traefik
-  host: ""
-  annotations: {}
+  enabled: false          # optional; default: false
+  className: traefik      # optional; default: traefik
+  host: ""                # required when enabled; e.g. app.example.com
+  annotations: {}         # optional; extra Ingress annotations
   tls:
-    enabled: true
-    secretName: ""
-    clusterIssuer: letsencrypt-staging
+    enabled: true         # optional; default: true — provisions a TLS certificate via cert-manager
+    secretName: ""        # optional; default: <name>-tls
+    clusterIssuer: letsencrypt-staging  # optional; default: letsencrypt-staging
+
+# ENVIRONMENT VARIABLES
+# Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
 env: {}
-infisical:
-  enabled: false
-  projectSlug: ""
-  envSlug: dev
-  hostAPI: https://app.infisical.com/api
-  resyncInterval: 60
-  secretsPath: ""
-  managedSecretName: ""
-  credentialsRef:
-    secretName: infisical-machine-identity
-    secretNamespace: infisical-operator
-# envFromSecrets supports two formats:
-# - "my-secret" (inject all keys from secret via envFrom.secretRef)
-# - "DATABASE_URL=my-secret:DATABASE_URL" (inject one key as a specific env var)
-# - "DATABASE_URL=postgres://postgres:$(DB_PASSWORD)@db.apps.svc.cluster.local:5432/postgres" (inject literal env value)
+# e.g.
+# env:
+#   LOG_LEVEL: info
+#   PORT: "8080"
+
+# ENVIRONMENT FROM SECRETS
+# Three formats supported:
+#   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
+#   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
+#   - "ENV_NAME=literal-value"                 inject a literal string as an env var
 envFromSecrets: []
-podAnnotations: {}
-instrumentation:
-  enabled: false
-  endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318
-resources:
+# e.g.
+# envFromSecrets:
+#   - my-app-env                               # bulk: all keys from Secret "my-app-env"
+#   - DATABASE_URL=app-db-auth:DATABASE_URL    # single key from Secret
+#   - FEATURE_FLAG=true                        # literal value
+
+# INFISICAL SECRET SYNC
+# Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret
+# which is then injected into the pod via envFromSecrets (using bulk format).
+infisical:
+  enabled: false          # optional; default: false — requires Infisical Operator in cluster
+  projectSlug: ""         # required when enabled
+  envSlug: dev            # optional; default: dev
+  hostAPI: https://app.infisical.com/api  # optional
+  resyncInterval: 60      # optional; seconds between secret syncs — default: 60
+  secretsPath: ""         # optional; Infisical folder path — default: /<namespace>/<name>
+  managedSecretName: ""   # optional; name of the managed K8s Secret — default: <name>-env
+  credentialsRef:
+    secretName: infisical-machine-identity   # optional
+    secretNamespace: infisical-operator      # optional
+
+# RESOURCES
+resources:                # required; always set limits to avoid unbounded resource usage
   requests:
     cpu: 10m
     memory: 64Mi
+  # limits:
+  #   memory: 128Mi
+
+# POD ANNOTATIONS
+podAnnotations: {}        # optional; extra annotations added to the pod template
+
+# OPENTELEMETRY INSTRUMENTATION
+# Creates an Instrumentation CRD and adds the OTel inject annotation to the pod.
+# Requires the OpenTelemetry Operator in the cluster. Currently targets Python apps.
+instrumentation:
+  enabled: false          # optional; default: false
+  endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318  # optional
+
+# STATEFULSET MODE
+# When enabled, deploys a StatefulSet instead of a Deployment.
+# Also creates a headless Service (<name>-headless) for stable pod DNS.
 statefulset:
-  enabled: false
-  command: []
-  args: []
+  enabled: false          # optional; default: false
+  command: []             # optional; override container entrypoint
+  args: []                # optional; override container args
   storage:
-    enabled: false
-    size: 1Mi
-    mountPath: /data
+    enabled: false        # optional; default: false — provisions a PVC per replica
+    size: 1Gi             # optional; default: 1Gi
+    mountPath: /data      # optional; default: /data
+    storageClassName: ""  # optional; default: cluster default StorageClass

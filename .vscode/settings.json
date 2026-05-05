@@ -1,3 +1,6 @@
 {
-  "explorer.excludeGitIgnore": true
+  "explorer.excludeGitIgnore": true,
+  "files.associations": {
+    "**/templates/*.yaml": "plaintext"
+  },
 }
