@@ -15,6 +15,7 @@ env:
   FILE_STORAGE: local
   FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
   REDIS_URL: redis://outline-cache-1.apps.svc.cluster.local:6379
+  PGSSLMODE: disable
 infisical:
   enabled: true
   projectSlug: everything-as-code
