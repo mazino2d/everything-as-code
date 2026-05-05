@@ -17,8 +17,15 @@ helmCharts:
         enableAutoMtls: false
 patches:
   - target:
-      kind: MutatingWebhookConfiguration
-      name: istio-sidecar-injector
+      kind: ValidatingWebhookConfiguration
+      name: istio-validator-istio-system
+    patch: |
+      - op: replace
+        path: /webhooks/0/failurePolicy
+        value: Ignore
+  - target:
+      kind: ValidatingWebhookConfiguration
+      name: istiod-default-validator
     patch: |
       - op: replace
         path: /webhooks/0/failurePolicy
