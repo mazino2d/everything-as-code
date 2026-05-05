@@ -133,7 +133,7 @@ resource "infisical_secret" "secrets" {
       ) : data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output]
     ) : each.value.value
   )
-  value_wo_version = 1
+  value_wo_version = try(tonumber(each.value.generate.version), 1)
   env_slug         = each.value.env_slug
   workspace_id     = var.project_id
   folder_path      = infisical_secret_folder.folders_sub[each.value.folder_ref].path
