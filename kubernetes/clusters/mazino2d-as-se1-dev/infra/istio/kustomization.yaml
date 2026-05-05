@@ -22,14 +22,14 @@ patches:
     patch: |
       - op: replace
         path: /webhooks/0/failurePolicy
-        value: Ignore
+        value: Fail
   - target:
       kind: ValidatingWebhookConfiguration
       name: istiod-default-validator
     patch: |
       - op: replace
         path: /webhooks/0/failurePolicy
-        value: Ignore
+        value: Fail
 
 resources:
   - namespace.yaml
