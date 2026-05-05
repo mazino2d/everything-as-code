@@ -18,6 +18,34 @@ alloy:
         forward_to = [prometheus.remote_write.grafana_cloud.receiver]
       }
 
+      discovery.kubernetes "nodes" {
+        role = "node"
+      }
+
+      discovery.relabel "kubelet_cadvisor" {
+        targets = discovery.kubernetes.nodes.targets
+        rule {
+          target_label = "__address__"
+          replacement  = "kubernetes.default.svc.cluster.local:443"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_node_name"]
+          regex         = "(.+)"
+          target_label  = "__metrics_path__"
+          replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+        }
+      }
+
+      prometheus.scrape "kubelet_cadvisor" {
+        targets   = discovery.relabel.kubelet_cadvisor.output
+        scheme    = "https"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        tls_config {
+          insecure_skip_verify = true
+        }
+        forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+      }
+
       discovery.kubernetes "pods" {
         role = "pod"
       }
