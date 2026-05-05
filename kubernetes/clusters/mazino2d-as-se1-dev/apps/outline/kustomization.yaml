@@ -7,4 +7,3 @@ helmCharts:
     releaseName: outline
     namespace: apps
     valuesFile: values.yaml
-      

@@ -1,58 +1,73 @@
-# Cluster-wide Infisical defaults (can be overridden per instance under infisical:)
+# Global Infisical defaults — inherited by all instances unless overridden per instance.
+# projectSlug must be set here or under each instance's auth.password.infisical.
 infisical:
-  projectSlug: ""
-  envSlug: dev
-  hostAPI: https://app.infisical.com/api
-  resyncInterval: 60
+  projectSlug: ""                              # required (if using auto password source)
+  envSlug: dev                                 # optional; default: dev
+  hostAPI: https://app.infisical.com/api       # optional
+  resyncInterval: 60                           # optional; seconds between secret syncs
   credentialsRef:
-    secretName: infisical-machine-identity
-    secretNamespace: infisical-operator
+    secretName: infisical-machine-identity     # optional; K8s Secret holding the machine identity
+    secretNamespace: infisical-operator        # optional; namespace of the credentials Secret
 
 instances: []
-# Each entry supports:
-#   name: ""                    (required)
-#   replicaCount: 1              # single instance for now; keep = 1
-#   image:
-#     repository: postgres
-#     tag: "16-alpine"
-#     pullPolicy: IfNotPresent
-#   auth:
-#     adminUsername: postgres
-#     password:
-#       source: auto             # auto | existingSecret
-#       secretName: ""          # optional; default: <instance-name>-auth
-#       existingSecret: ""      # required when source=existingSecret
-#       infisical:
-#         enabled: true
-#         projectSlug: everything-as-code
-#         envSlug: dev
-#         secretsPath: /apps/app-db  # folder path in Infisical
-#         resyncInterval: 60
-#         hostAPI: https://app.infisical.com/api
-#         credentialsRef:
-#           secretName: infisical-machine-identity
-#           secretNamespace: infisical-operator
-#   storage:
-#     size: 1Gi
-#     storageClassName: ""      # empty = cluster default
-#     mountPath: /var/lib/postgresql/data
-#   service:
-#     type: ClusterIP            # ClusterIP | NodePort | LoadBalancer
-#     port: 5432
-#     nodePort: null             # used only when type = NodePort
+# List of PostgreSQL instances to deploy. Each entry supports the following fields:
+#
+# REQUIRED
+#   name: ""                          unique name; used for StatefulSet, Service, and Secret names
 #   resources:
 #     requests:
 #       cpu: 50m
 #       memory: 128Mi
 #     limits:
 #       memory: 512Mi
+#
+# IMAGE (optional)
+#   image:
+#     repository: postgres            default: postgres
+#     tag: "16-alpine"                default: 16-alpine
+#     pullPolicy: IfNotPresent        default: IfNotPresent
+#
+# AUTH
+#   auth:
+#     adminUsername: postgres         optional; default: postgres
+#     password:
+#       source: auto                  optional; auto | existingSecret — default: auto
+#                                       auto:           InfisicalSecret is created; Infisical Operator manages the K8s Secret
+#                                       existingSecret: use a pre-existing K8s Secret (you manage it)
+#       secretName: ""                optional; name of the managed K8s Secret — default: <name>-auth
+#       existingSecret: ""            required when source=existingSecret; name of the pre-existing K8s Secret
+#       infisical:                    optional; overrides global infisical defaults for this instance
+#         projectSlug: ""
+#         envSlug: dev
+#         secretsPath: ""             optional; Infisical folder path — default: /<namespace>/<name>
+#         resyncInterval: 60
+#         hostAPI: https://app.infisical.com/api
+#         credentialsRef:
+#           secretName: infisical-machine-identity
+#           secretNamespace: infisical-operator
+#
+# STORAGE (optional)
+#   storage:
+#     size: 1Gi                       default: 1Gi
+#     storageClassName: ""            default: cluster default StorageClass
+#     mountPath: /var/lib/postgresql/data   default: /var/lib/postgresql/data
+#
+# SERVICE (optional)
+#   service:
+#     type: ClusterIP                 default: ClusterIP; options: ClusterIP | NodePort | LoadBalancer
+#     port: 5432                      default: 5432
+#     nodePort: null                  only used when type=NodePort
+#
+# SECURITY CONTEXT (optional)
 #   securityContext:
-#     runAsUser: 999
-#     runAsGroup: 999
-#     fsGroup: 999
+#     runAsUser: 999                  default: 999
+#     runAsGroup: 999                 default: 999
+#     fsGroup: 999                    default: 999
+#
+# PROBES (optional)
 #   probes:
 #     startup:
-#       enabled: true
+#       enabled: true                 default: true; set false to use tcpSocket instead of pg_isready
 #       initialDelaySeconds: 10
 #       periodSeconds: 10
 #       timeoutSeconds: 5
@@ -67,55 +82,35 @@ instances: []
 #       periodSeconds: 20
 #       timeoutSeconds: 5
 #       failureThreshold: 6
+#
+# POSTGRESQL TUNING (optional)
 #   postgresql:
 #     maxConnections: "100"
 #     sharedBuffers: "128MB"
 #     workMem: "4MB"
 #     maintenanceWorkMem: "64MB"
-#     walLevel: "replica"
+#     walLevel: replica
+#
+# INITDB SCRIPTS (optional)
+#   initdbScripts:                    map of filename → SQL/shell content; mounted into /docker-entrypoint-initdb.d
+#     init.sql: |
+#       CREATE DATABASE mydb;
+#
+# ATLAS SCHEMA MANAGEMENT (optional)
 #   atlas:
-#     enabled: false
-#     name: hotrod-db-schema   # AtlasSchema resource name for this database/app
-#     # New preferred form for multiple AtlasSchema resources per DB instance:
-#     # schemas:
-#     #   - name: hotrod-db-schema
-#     #     schemaConfigMap: hotrod-db-schema
-#     #     schemas: [public]
-#     #     exclude: ["public.httpbin_*"]
-#     #   - name: httpbin-db-schema
-#     #     schemaConfigMap: httpbin-db-schema
-#     #     schemas: [public]
-#     #     exclude: ["public.hotrod_*"]
-#     # The legacy fields below still work for a single AtlasSchema.
-#     # Optional explicit URL inputs. If omitted, the chart derives Atlas credentials
-#     # from the DB instance config and auth secret.
-#     # url: postgres://...
-#     # urlFrom:
-#     #   secretKeyRef:
-#     #     name: app-db-auth
-#     #     key: url
-#     # credentials:
-#     #   scheme: postgres
-#     #   host: app-db.apps.svc.cluster.local
-#     #   port: 5432
-#     #   database: postgres
-#     #   user: postgres
-#     #   passwordFrom:
-#     #     secretKeyRef:
-#     #       name: app-db-auth   # Optional; defaults to auth.password.secretName or <instance>-auth
-#     #       key: POSTGRES_PASSWORD # Optional; defaults to POSTGRES_PASSWORD
-#     schemaConfigMap: hotrod-db-schema # Optional string form; key defaults to schema.hcl
-#     # schemaConfigMap:
-#     #   name: hotrod-db-schema       # Optional object form; defaults to atlas.name
-#     #   key: schema.hcl              # Optional; defaults to schema.hcl
-#     # schemas: [public]              # Optional DB schema scope for this AtlasSchema
-#     # exclude: ["public.audit_*"]   # Optional object exclusion patterns
-#     policy:
-#       lint:
-#         destructive:
-#           error: true        # Reject destructive schema changes
+#     schemas:                        list of AtlasSchema resources to create for this instance
+#       - name: ""                    required; AtlasSchema resource name
+#         schemaConfigMap: ""         required; name of the ConfigMap containing schema.hcl (key defaults to schema.hcl)
+#         schemas: [public]           optional; PostgreSQL schemas to manage (e.g. [public])
+#         exclude: []                 optional; object patterns to exclude (e.g. ["public.audit_*"])
+#         policy:
+#           lint:
+#             destructive:
+#               error: true           optional; reject destructive schema changes
+#
+# METRICS EXPORTER (optional)
 #   exporter:
-#     enabled: false
+#     enabled: false                  default: false; deploys postgres-exporter as a sidecar
 #     image:
 #       repository: quay.io/prometheuscommunity/postgres-exporter
 #       tag: "v0.15.0"
@@ -127,21 +122,24 @@ instances: []
 #         memory: 32Mi
 #       limits:
 #         memory: 64Mi
+#
+# NETWORK POLICY (optional)
 #   networkPolicy:
-#     enabled: false
-#     allowFromNamespaces: []    # e.g. ["apps", "monitoring"]
+#     enabled: false                  default: false
+#     allowFromNamespaces: []         namespaces allowed to reach the instance (e.g. ["apps", "monitoring"])
+#
+# BACKUP CRONJOB (optional)
 #   backup:
-#     enabled: false
-#     schedule: "0 2 * * *"
+#     enabled: false                  default: false; creates a CronJob running pg_dump
+#     schedule: "0 2 * * *"          default: daily at 02:00 UTC
 #     successfulJobsHistoryLimit: 3
 #     failedJobsHistoryLimit: 3
 #     restartPolicy: OnFailure
 #     storage:
-#       enabled: false
-#       existingClaim: ""       # required when storage.enabled = true
-#       mountPath: /backup
-#     # Optional command override, example:
-#     # command:
-#     #   - /bin/sh
-#     #   - -c
-#     #   - pg_dump -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip > /backup/dump.sql.gz
+#       enabled: false                set true to mount a PVC for storing dumps
+#       existingClaim: ""             required when storage.enabled=true; name of the PVC
+#       mountPath: /backup            default: /backup
+#     command:                        optional; override the default pg_dump command
+#       - /bin/sh
+#       - -c
+#       - pg_dump -h "$PGHOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip > /backup/dump.sql.gz
