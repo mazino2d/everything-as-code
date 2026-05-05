@@ -146,9 +146,7 @@ spec:
             defaultMode: 0755
       {{- end }}
   volumeClaimTemplates:
-    - apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
+    - metadata:
         name: data
       spec:
         accessModes:
