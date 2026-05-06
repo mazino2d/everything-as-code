@@ -36,3 +36,13 @@ output "dev_tempo_password" {
   value     = module.grafana_cloud_dev.tempo_password
   sensitive = true
 }
+
+output "grafana_mazino2d_sa_token" {
+  description = "Terraform service account token for the mazino2d stack. Read by the grafana-dashboards workspace via remote state."
+  value       = module.grafana_cloud_dev.grafana_sa_token
+  sensitive   = true
+}
+
+output "grafana_stack_url" {
+  value = module.grafana_cloud_dev.stack_url
+}

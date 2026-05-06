@@ -12,7 +12,7 @@ terraform {
     organization = "mazino2d-everything-as-code"
 
     workspaces {
-      name = "grafana"
+      name = "grafana-stack"
     }
   }
 }
