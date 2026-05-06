@@ -2,6 +2,10 @@ data "grafana_data_source" "prometheus" {
   name = "grafanacloud-mazino2d-prom"
 }
 
+data "grafana_data_source" "loki" {
+  name = "grafanacloud-mazino2d-logs"
+}
+
 resource "grafana_folder" "infrastructure" {
   title = "Infrastructure"
 }
@@ -48,6 +52,18 @@ resource "grafana_dashboard" "redis" {
     file("${path.module}/_dashboards/redis.json"),
     "$${DS_PROM}",
     data.grafana_data_source.prometheus.uid
+  )
+  overwrite = true
+}
+
+# Loki dashboards
+
+resource "grafana_dashboard" "loki" {
+  folder = grafana_folder.infrastructure.uid
+  config_json = replace(
+    file("${path.module}/_dashboards/loki.json"),
+    "$${DS_LOKI}",
+    data.grafana_data_source.loki.uid
   )
   overwrite = true
 }
