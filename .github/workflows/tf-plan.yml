@@ -23,7 +23,8 @@ jobs:
             "terraform/github"
             "terraform/gcp/mazino2d-as-se1-dev"
             "terraform/infisical"
-            "terraform/grafana"
+            "terraform/grafana/stack"
+            "terraform/grafana/dashboard"
             "terraform/k8s"
           )
 
