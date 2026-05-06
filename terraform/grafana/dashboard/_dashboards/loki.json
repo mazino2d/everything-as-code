@@ -63,7 +63,7 @@
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
           "editorMode": "code",
-          "expr": "sum by (namespace) (rate({namespace=~\"$namespace\"}[$__rate_interval]))",
+          "expr": "sum by (namespace) (rate({namespace=~\"$namespace\"}[$__interval]))",
           "legendFormat": "{{namespace}}",
           "queryType": "range",
           "refId": "A"
@@ -116,7 +116,7 @@
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
           "editorMode": "code",
-          "expr": "sum by (namespace) (rate({namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal)\" [$__rate_interval]))",
+          "expr": "sum by (namespace) (rate({namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal)\" [$__interval]))",
           "legendFormat": "{{namespace}}",
           "queryType": "range",
           "refId": "A"
@@ -169,7 +169,7 @@
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
           "editorMode": "code",
-          "expr": "sum by (pod) (rate({namespace=~\"$namespace\", pod=~\"$pod\"}[$__rate_interval]))",
+          "expr": "sum by (pod) (rate({namespace=~\"$namespace\", pod=~\"$pod\"}[$__interval]))",
           "legendFormat": "{{pod}}",
           "queryType": "range",
           "refId": "A"
