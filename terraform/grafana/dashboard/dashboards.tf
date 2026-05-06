@@ -1,6 +1,5 @@
-locals {
-  create_prom_dashboards = var.grafana_prometheus_datasource_uid != null
-  prom_uid               = var.grafana_prometheus_datasource_uid != null ? var.grafana_prometheus_datasource_uid : ""
+data "grafana_data_source" "prometheus" {
+  name = "grafanacloud-mazino2d-prom"
 }
 
 resource "grafana_folder" "infrastructure" {
@@ -21,37 +20,34 @@ resource "grafana_dashboard" "cert_manager" {
   overwrite   = true
 }
 
-# Dashboards that use ${DS_PROMETHEUS} / ${DS_PROM} static inputs — requires Prometheus datasource UID
+# Dashboards that use ${DS_PROMETHEUS} / ${DS_PROM} static inputs
 
 resource "grafana_dashboard" "cadvisor" {
-  count  = local.create_prom_dashboards ? 1 : 0
   folder = grafana_folder.infrastructure.uid
   config_json = replace(
     file("${path.module}/_dashboards/cadvisor.json"),
     "$${DS_PROMETHEUS}",
-    local.prom_uid
+    data.grafana_data_source.prometheus.uid
   )
   overwrite = true
 }
 
 resource "grafana_dashboard" "postgresql" {
-  count  = local.create_prom_dashboards ? 1 : 0
   folder = grafana_folder.infrastructure.uid
   config_json = replace(
     file("${path.module}/_dashboards/postgresql.json"),
     "$${DS_PROMETHEUS}",
-    local.prom_uid
+    data.grafana_data_source.prometheus.uid
   )
   overwrite = true
 }
 
 resource "grafana_dashboard" "redis" {
-  count  = local.create_prom_dashboards ? 1 : 0
   folder = grafana_folder.infrastructure.uid
   config_json = replace(
     file("${path.module}/_dashboards/redis.json"),
     "$${DS_PROM}",
-    local.prom_uid
+    data.grafana_data_source.prometheus.uid
   )
   overwrite = true
 }
