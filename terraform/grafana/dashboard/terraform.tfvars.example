@@ -1,3 +1,0 @@
-# Optional: set when deploying dashboards that embed a specific Prometheus datasource UID.
-# Find the UID in Connections > Data Sources > Prometheus > UID field in the Grafana UI.
-# grafana_prometheus_datasource_uid = "your-prometheus-uid"
