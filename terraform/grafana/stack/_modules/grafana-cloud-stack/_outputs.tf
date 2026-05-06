@@ -36,3 +36,12 @@ output "tempo_password" {
   value     = grafana_cloud_access_policy_token.alloy.token
   sensitive = true
 }
+
+output "stack_url" {
+  value = local.stack.url
+}
+
+output "grafana_sa_token" {
+  value     = grafana_cloud_stack_service_account_token.terraform.key
+  sensitive = true
+}

@@ -42,3 +42,15 @@ resource "grafana_cloud_access_policy_token" "alloy" {
   name             = "${var.stack_slug}-alloy"
   display_name     = "${var.stack_slug} Alloy token"
 }
+
+resource "grafana_cloud_stack_service_account" "terraform" {
+  stack_slug = var.stack_slug
+  name       = "terraform"
+  role       = "Admin"
+}
+
+resource "grafana_cloud_stack_service_account_token" "terraform" {
+  stack_slug         = var.stack_slug
+  name               = "terraform"
+  service_account_id = grafana_cloud_stack_service_account.terraform.id
+}

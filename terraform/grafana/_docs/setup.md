@@ -4,7 +4,7 @@
 
 1. Log in at grafana.com
 2. My Account → Security → Access Policies
-3. Create access policy with scopes: `stacks:read stacks:write accesspolicies:read accesspolicies:write accesspolicies:delete`
+3. Create access policy with scopes: `stacks:read stacks:write accesspolicies:read accesspolicies:write accesspolicies:delete stack-service-accounts:write`
 4. Copy the token immediately — shown only once
 
 ## 2. Create TF Cloud Workspace
