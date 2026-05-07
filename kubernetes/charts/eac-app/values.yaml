@@ -25,7 +25,7 @@ ingress:
   tls:
     enabled: true         # optional; default: true — provisions a TLS certificate via cert-manager
     secretName: ""        # optional; default: <name>-tls
-    clusterIssuer: letsencrypt-staging  # optional; default: letsencrypt-staging
+    clusterIssuer: letsencrypt-prod  # optional; default: letsencrypt-prod
 
 # ENVIRONMENT VARIABLES
 # Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
