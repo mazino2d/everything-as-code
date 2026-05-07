@@ -84,11 +84,3 @@ module "staged_recipes" {
   visibility  = "public"
   topics      = ["conda", "conda-forge", "data-science"]
 }
-
-module "test" {
-  source      = "./_modules/github-repository"
-  name        = "test"
-  description = "Hello Vinh"
-  visibility  = "public"
-  topics      = ["hihi", "haha"]
-}
