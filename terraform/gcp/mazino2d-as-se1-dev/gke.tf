@@ -3,12 +3,6 @@ resource "google_container_cluster" "this" {
   location = "asia-southeast1-c"
   project  = module.project.project_id
 
-  node_locations = [
-    "asia-southeast1-c", 
-    "asia-southeast1-b",
-    "asia-southeast1-a"
-  ]
-
   deletion_protection = false
 
   addons_config {
