@@ -40,14 +40,16 @@ resource "google_service_account_key" "k8s_tf" {
 }
 
 resource "google_container_node_pool" "spot" {
-  name     = "spot-pool"
-  location = "asia-southeast1-b"
-  cluster  = google_container_cluster.this.name
-  project  = module.project.project_id
+  name           = "spot-pool"
+  location       = "asia-southeast1-b"
+  cluster        = google_container_cluster.this.name
+  project        = module.project.project_id
+  node_locations = ["asia-southeast1-a", "asia-southeast1-b", "asia-southeast1-c"]
 
   autoscaling {
-    min_node_count = 0
-    max_node_count = 1
+    total_min_node_count = 0
+    total_max_node_count = 1
+    location_policy      = "ANY"
   }
 
   management {
@@ -56,7 +58,7 @@ resource "google_container_node_pool" "spot" {
   }
 
   node_config {
-    machine_type = "e2-standard-2"
+    machine_type = "t2d-standard-2"
     spot         = true
     disk_size_gb = 20
     disk_type    = "pd-standard"
