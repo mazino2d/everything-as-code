@@ -3,5 +3,12 @@ module "project" {
   name               = "mazino2d-as-se1-dev"
   project_id         = "mazino2d-as-se1-dev"
   billing_account_id = "016BA1-3DBFBB-1B7972"
-  services           = ["compute.googleapis.com", "iam.googleapis.com", "cloudresourcemanager.googleapis.com", "storage.googleapis.com", "monitoring.googleapis.com"]
+  services = [
+    "iam.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "storage.googleapis.com",
+    "monitoring.googleapis.com",
+  ]
 }

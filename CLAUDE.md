@@ -28,7 +28,7 @@ Valid `STACK` values:
 - `terraform/infisical`
 - `terraform/grafana/stack`
 - `terraform/grafana/dashboard`
-- `terraform/k8s`
+- `terraform/k8s/mazino2d-as-se1-dev`
 
 ### Kubernetes (manual validation)
 
@@ -67,11 +67,11 @@ Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 | Stack | Workspace | Primary scope |
 |-------|-----------|---------------|
 | `terraform/github` | `github` | GitHub repos/settings/branch protection |
-| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP VM/networking for K3S |
+| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP VM/networking for K3S + GKE learning cluster |
 | `terraform/infisical` | `infisical` | Infisical projects, identities, folders |
 | `terraform/grafana/stack` | `grafana-stack` | Grafana Cloud stack, access policies, service accounts |
 | `terraform/grafana/dashboard` | `grafana-dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
-| `terraform/k8s` | `k8s` | Kubernetes provider-managed resources |
+| `terraform/k8s/mazino2d-as-se1-dev` | `k8s-mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
 
 Reusable modules live under each stack's `_modules/`. The GCP stack includes `_scripts/install_k3s.sh`, the startup script that installs K3S and updates DuckDNS to the VM external IP.
 
@@ -146,3 +146,4 @@ Notes:
 ## Coding Style
 
 - Write all code, comments, variable names, and documentation in British English.
+- Do not reformat or auto-fix code that is unrelated to the current task. If an issue is spotted, mention it and wait for instruction.
