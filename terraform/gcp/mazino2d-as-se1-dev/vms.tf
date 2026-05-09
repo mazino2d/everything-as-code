@@ -1,14 +1,15 @@
-module "vm-dev" {
-  source           = "./_modules/gcp-vm-k3s"
-  name             = "vm-dev"
+module "vm-free" {
+  source           = "./_modules/gcp-vm"
+  name             = "vm-free"
   project_id       = module.project.project_id
-  zone             = "asia-southeast1-b"
-  machine_type     = "e2-standard-2"
-  disk_size_gb     = 20
-  spot             = true
+  zone             = "us-central1-a"
+  machine_type     = "e2-micro"
+  disk_size_gb     = 30
+  spot             = false
   external_ip_type = "ephemeral"
-  duckdns_domain   = "mazino2d-k3s"
-  extra_ports      = ["6443", "80", "443", "30379"]
-  tags             = ["k8s", "dev"]
+  extra_ports      = ["80"]
   ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqUrfB0oPmolyXRYtA9kHDWYy5D2GhhaGb9odfQYvAu"
+  tags             = ["free"]
+  duckdns_domain   = "mazino2d-free"
+  startup_script   = file("${path.module}/_scripts/fortune_server.sh")
 }
