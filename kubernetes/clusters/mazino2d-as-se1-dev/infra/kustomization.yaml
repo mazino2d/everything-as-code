@@ -6,3 +6,4 @@ resources:
   - atlas-operator
   - infisical-operator
   - velero
+  - dnsync

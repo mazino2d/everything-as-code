@@ -59,7 +59,7 @@ resource "google_service_account" "k8s_tf" {
 
 resource "google_project_iam_member" "k8s_tf_container_developer" {
   project = module.project.project_id
-  role    = "roles/container.developer"
+  role    = "roles/container.admin"
   member  = "serviceAccount:${google_service_account.k8s_tf.email}"
 }
 

@@ -35,7 +35,7 @@ jobs:
             "terraform/infisical"
             "terraform/grafana/stack"
             "terraform/grafana/dashboard"
-            "terraform/k8s"
+            "terraform/k8s/mazino2d-as-se1-dev"
           )
 
           changed_stacks=()

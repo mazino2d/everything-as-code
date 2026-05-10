@@ -1,0 +1,50 @@
+# REQUIRED
+name: ""              # used for all resource names
+
+# SCHEDULE
+schedule: ""          # required; cron expression e.g. "*/5 * * * *"
+
+# IMAGE
+image:
+  repository: ""      # required
+  tag: latest         # optional; default: latest
+
+# CONTAINER COMMAND
+command: []           # optional; override container entrypoint
+args: []              # optional; override container args
+
+# ENVIRONMENT VARIABLES
+# Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
+env: {}
+
+# ENVIRONMENT FROM SECRETS
+# Three formats supported:
+#   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
+#   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
+#   - "ENV_NAME=literal-value"                 inject a literal string as an env var
+envFromSecrets: []
+
+# INFISICAL SECRET SYNC
+# Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret.
+infisical:
+  enabled: false
+  projectSlug: ""
+  envSlug: dev
+  hostAPI: https://app.infisical.com/api
+  resyncInterval: 60
+  secretsPath: ""         # default: /<namespace>/<name>
+  managedSecretName: ""   # default: <name>-env
+  credentialsRef:
+    secretName: infisical-machine-identity
+    secretNamespace: infisical-operator
+
+# RESOURCES
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+
+# JOB SETTINGS
+restartPolicy: OnFailure
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 3
