@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
+  {{- if .Values.ingress.enabled }}
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+  {{- end }}
 spec:
   {{- if .Values.service.type }}
   type: {{ .Values.service.type }}
