@@ -1,16 +1,18 @@
 name: dnsync
 schedule: "*/5 * * * *"
 
+serviceAccountName: dnsync
+
 image:
-  repository: alpine/curl
-  tag: latest
+  repository: alpine/k8s
+  tag: "1.31.4"
 
 command: ["/bin/sh", "-c"]
 args:
   - |
-    IP=$(curl -sf -H "Metadata-Flavor: Google" \
-      http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip)
-    [ -z "$IP" ] && echo "No external IP found" && exit 1
+    IP=$(kubectl get ingress -A -o jsonpath='{.items[*].status.loadBalancer.ingress[0].ip}' \
+      | tr ' ' '\n' | grep -v '^$' | head -1)
+    [ -z "$IP" ] && echo "No ingress IP found" && exit 1
     RESULT=$(curl -sf "https://www.duckdns.org/update?domains=mazino2d-k3s&token=${DUCKDNS_TOKEN}&ip=${IP}")
     echo "dnsync: $IP -> $RESULT"
 

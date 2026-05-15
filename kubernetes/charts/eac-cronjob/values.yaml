@@ -44,6 +44,9 @@ resources:
     cpu: 10m
     memory: 16Mi
 
+# SERVICE ACCOUNT
+serviceAccountName: ""  # optional; if set, the pod runs with this ServiceAccount
+
 # JOB SETTINGS
 restartPolicy: OnFailure
 successfulJobsHistoryLimit: 3
