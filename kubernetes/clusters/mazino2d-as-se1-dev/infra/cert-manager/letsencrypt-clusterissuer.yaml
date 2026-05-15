@@ -13,7 +13,11 @@ spec:
     solvers:
       - http01:
           ingress:
-            ingressClassName: traefik
+            ingressClassName: gce
+            ingressTemplate:
+              metadata:
+                annotations:
+                  networking.gke.io/ingress-group: eac
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -30,4 +34,8 @@ spec:
     solvers:
       - http01:
           ingress:
-            ingressClassName: traefik
+            ingressClassName: gce
+            ingressTemplate:
+              metadata:
+                annotations:
+                  networking.gke.io/ingress-group: eac

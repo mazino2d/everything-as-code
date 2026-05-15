@@ -19,7 +19,8 @@ service:
 # INGRESS
 ingress:
   enabled: false          # optional; default: false
-  className: traefik      # optional; default: traefik
+  className: gce          # optional; default: gce
+  group: eac              # optional; networking.gke.io/ingress-group — all apps share one GCE LB
   host: ""                # required when enabled; e.g. app.example.com
   annotations: {}         # optional; extra Ingress annotations
   tls:
