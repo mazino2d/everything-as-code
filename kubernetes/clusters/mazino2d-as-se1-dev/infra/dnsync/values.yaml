@@ -23,6 +23,10 @@ infisical:
 envFromSecrets:
   - DUCKDNS_TOKEN=dnsync-env:DUCKDNS_TOKEN
 
+dnsConfig:
+  nameservers:
+    - 8.8.8.8
+
 resources:
   requests:
     cpu: 10m
