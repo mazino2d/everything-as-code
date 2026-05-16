@@ -5,10 +5,12 @@ helmCharts:
     repo: https://argoproj.github.io/argo-helm
     version: 2.37.7
     releaseName: argo-rollouts
-    namespace: argo-rollouts
+    namespace: argocd
     includeCRDs: true
     valuesInline:
       dashboard:
         enabled: true
 resources:
   - namespace.yaml
+  - argocd-httproute.yaml
+  - argo-rollouts-httproute.yaml
