@@ -49,7 +49,7 @@ spec:
               {{- if and (eq (len $mappingParts) 2) (ne (trim (index $mappingParts 0)) "") (ne (trim (index $mappingParts 1)) "") }}
               {{- $_ := set $parsedEnvEntries "items" (append (index $parsedEnvEntries "items") (dict "mode" "secret" "name" $envName "secretName" (trim (index $mappingParts 0)) "key" (trim (index $mappingParts 1)))) }}
               {{- else }}
-              {{- $_ := set $parsedEnvEntries "items" (append (index $parsedEnvEntries "items") (dict "mode" "literal" "name" $envName "value" $envValue)) }}
+              {{- fail (printf "invalid envFromSecrets entry %q: expected ENV_NAME=secretName:key — for plain config use env:" .) }}
               {{- end }}
               {{- else if and (kindIs "string" .) . }}
               {{- $_ := set $secretEnvFromRefs "enabled" true }}
@@ -59,14 +59,10 @@ spec:
               env:
                 {{- range (index $parsedEnvEntries "items") }}
                 - name: {{ .name }}
-                  {{- if eq .mode "secret" }}
                   valueFrom:
                     secretKeyRef:
                       name: {{ .secretName }}
                       key: {{ .key }}
-                  {{- else }}
-                  value: {{ .value | quote }}
-                  {{- end }}
                 {{- end }}
               {{- end }}
               {{- if or .Values.env (index $secretEnvFromRefs "enabled") }}

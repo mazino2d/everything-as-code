@@ -21,6 +21,6 @@ spec:
         - group: ""
           kind: Service
           name: {{ .Values.name }}
-          port: {{ .Values.service.port }}
+          port: {{ (index .Values.service.ports 0).port }}
           weight: 1
 {{- end }}
