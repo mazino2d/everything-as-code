@@ -6,7 +6,7 @@ replicaCount: 1
 service:
   port: 8080
   containerPort: 8080
-ingress:
+httpRoute:
   enabled: true
   host: hotrod.mazino2d-k3s.duckdns.org
 env:
