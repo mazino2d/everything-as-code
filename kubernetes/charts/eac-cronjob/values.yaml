@@ -18,10 +18,9 @@ args: []              # optional; override container args
 env: {}
 
 # ENVIRONMENT FROM SECRETS
-# Three formats supported:
+# Two formats supported:
 #   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
 #   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
-#   - "ENV_NAME=literal-value"                 inject a literal string as an env var
 envFromSecrets: []
 
 # INFISICAL SECRET SYNC
@@ -45,7 +44,16 @@ resources:
     memory: 16Mi
 
 # SERVICE ACCOUNT
-serviceAccountName: ""  # optional; if set, the pod runs with this ServiceAccount
+serviceAccountName: ""  # optional; name of the ServiceAccount the pod runs as
+
+# DNS CONFIGURATION
+dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided
+# e.g.
+# dnsConfig:
+#   nameservers:
+#     - 8.8.8.8
+#   searches:
+#     - default.svc.cluster.local
 
 # JOB SETTINGS
 restartPolicy: OnFailure

@@ -5,8 +5,9 @@ image:
   tag: 4.8.1-standalone
 service:
   type: ClusterIP
-  port: 8080
-  containerPort: 8080
+  ports:
+    - port: 8080
+      containerPort: 8080
 httpRoute:
   enabled: true
   host: adminer.mazino2d-k3s.duckdns.org

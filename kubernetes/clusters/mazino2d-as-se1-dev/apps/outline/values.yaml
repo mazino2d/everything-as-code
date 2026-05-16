@@ -4,8 +4,9 @@ image:
   tag: "1.7.1"
 replicaCount: 1
 service:
-  port: 3000
-  containerPort: 3000
+  ports:
+    - port: 3000
+      containerPort: 3000
 httpRoute:
   enabled: true
   host: outline.mazino2d-k3s.duckdns.org
@@ -24,7 +25,9 @@ envFromSecrets:
   - SECRET_KEY=outline-env:SECRET_KEY
   - UTILS_SECRET=outline-env:UTILS_SECRET
   - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
-  - DATABASE_URL=postgres://postgres:$(OUTLINE_DB_PASSWORD)@outline-db-1.apps.svc.cluster.local:5432/postgres
+envExpand:
+  - name: DATABASE_URL
+    value: "postgres://postgres:$(OUTLINE_DB_PASSWORD)@outline-db-1.apps.svc.cluster.local:5432/postgres"
 resources:
   requests:
     cpu: 150m

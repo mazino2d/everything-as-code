@@ -3,10 +3,6 @@ kind: Service
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
-  {{- if .Values.ingress.enabled }}
-  annotations:
-    cloud.google.com/neg: '{"ingress": true}'
-  {{- end }}
 spec:
   {{- if .Values.service.type }}
   type: {{ .Values.service.type }}
@@ -14,8 +10,13 @@ spec:
   selector:
     app: {{ .Values.name }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.containerPort }}
-      {{- if .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
+    {{- range .Values.service.ports }}
+    - port: {{ .port }}
+      targetPort: {{ .containerPort }}
+      {{- if .name }}
+      name: {{ .name }}
       {{- end }}
+      {{- if .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
