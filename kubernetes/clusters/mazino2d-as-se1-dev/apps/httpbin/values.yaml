@@ -2,7 +2,16 @@ name: httpbin
 image:
   repository: kong/httpbin
   tag: "0.2.3"
-replicaCount: 1
+replicaCount: 4
+rollout:
+  strategy: ReplicaCanary
+  steps:
+    - setWeight: 25
+    - pause: {}
+    - setWeight: 50
+    - pause: {}
+    - setWeight: 75
+    - pause: {}
 service:
   ports:
     - port: 80

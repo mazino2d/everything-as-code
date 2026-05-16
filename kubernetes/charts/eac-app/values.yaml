@@ -11,9 +11,10 @@ replicaCount: 1           # optional; default: 1
 
 # ROLLOUT STRATEGY
 # Controls how updates are rolled out. Ignored when statefulset.enabled is true.
-# BlueGreen requires Argo Rollouts controller installed in the cluster (infra/argo-rollouts).
+# BlueGreen | ReplicaCanary | MeshTrafficCanary require Argo Rollouts (infra/argo-rollouts).
+# MeshTrafficCanary requires Istio sidecar injection enabled on the namespace.
 rollout:
-  strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen — default: RollingUpdate
+  strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen | ReplicaCanary | MeshTrafficCanary — default: RollingUpdate
   # RollingUpdate params:
   maxSurge: 1                  # optional; max extra pods during update — default: 1
   maxUnavailable: 0            # optional; max pods unavailable during update — default: 0
@@ -21,6 +22,13 @@ rollout:
   autoPromotionEnabled: false  # optional; default: false — manual promote via: kubectl argo rollouts promote <name>
   previewReplicaCount: 1       # optional; replicas for the inactive (preview) version — default: 1
   scaleDownDelaySeconds: 30    # optional; seconds to keep old version after promotion — default: 30
+  # ReplicaCanary | MeshTrafficCanary params:
+  steps: []                    # optional; list of canary steps — see example below
+  # steps:
+  #   - setWeight: 25
+  #   - pause: {}              # manual gate — resume via: kubectl argo rollouts promote <name>
+  #   - setWeight: 75
+  #   - pause: {}
 
 # RESOURCES
 resources:                # required; always set limits to avoid unbounded resource usage

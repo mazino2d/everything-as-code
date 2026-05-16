@@ -1,0 +1,19 @@
+{{- if and (not .Values.statefulset.enabled) (eq .Values.rollout.strategy "MeshTrafficCanary") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}-canary
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: {{ .Values.name }}
+  ports:
+    {{- range .Values.service.ports }}
+    - port: {{ .port }}
+      targetPort: {{ .containerPort }}
+      protocol: TCP
+      {{- if .name }}
+      name: {{ .name }}
+      {{- end }}
+    {{- end }}
+{{- end }}
