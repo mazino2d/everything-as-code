@@ -9,6 +9,23 @@ image:
 # WORKLOAD
 replicaCount: 1           # optional; default: 1
 
+# ROLLOUT STRATEGY
+# Controls how the Deployment rolls out updates. Ignored when statefulset.enabled is true.
+rollout:
+  strategy: RollingUpdate  # optional; RollingUpdate | Recreate — default: RollingUpdate
+  maxSurge: 1              # optional; max extra pods created during update — default: 1 (RollingUpdate only)
+  maxUnavailable: 0        # optional; max pods unavailable during update — default: 0 (RollingUpdate only)
+
+# BLUE/GREEN (Argo Rollouts)
+# When enabled, deploys an Argo Rollout instead of a Deployment.
+# Requires Argo Rollouts controller installed in the cluster (infra/argo-rollouts).
+# Mutually exclusive with statefulset.enabled and rollout.strategy.
+blueGreen:
+  enabled: false               # optional; default: false
+  autoPromotionEnabled: false  # optional; default: false — require manual kubectl argo rollouts promote
+  previewReplicaCount: 1       # optional; replicas for the preview (inactive) version — default: 1
+  scaleDownDelaySeconds: 30    # optional; seconds to keep old version after promotion — default: 30
+
 # RESOURCES
 resources:                # required; always set limits to avoid unbounded resource usage
   requests:
