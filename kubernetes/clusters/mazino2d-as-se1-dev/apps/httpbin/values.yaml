@@ -2,7 +2,7 @@ name: httpbin
 image:
   repository: kong/httpbin
   tag: "0.2.3"
-replicaCount: 4
+replicaCount: 2
 rollout:
   strategy: ReplicaCanary
   steps:
