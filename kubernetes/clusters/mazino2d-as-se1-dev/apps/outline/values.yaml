@@ -30,10 +30,10 @@ envExpand:
     value: "postgres://postgres:$(OUTLINE_DB_PASSWORD)@outline-db-1.apps.svc.cluster.local:5432/postgres"
 resources:
   requests:
-    cpu: 150m
+    cpu: 20m
     memory: 512Mi
   limits:
-    memory: 1Gi
+    memory: 768Mi
 statefulset:
   enabled: true
   storage:

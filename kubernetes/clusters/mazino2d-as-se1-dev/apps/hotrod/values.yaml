@@ -16,5 +16,7 @@ env:
   OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4318
 resources:
   requests:
-    cpu: 50m
+    cpu: 10m
+    memory: 48Mi
+  limits:
     memory: 64Mi
