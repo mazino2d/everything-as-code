@@ -76,6 +76,14 @@ resource "helm_release" "argocd" {
         ingressClassName: traefik
         hostname: argocd.mazino2d-k3s.duckdns.org
         tls: false
+    repoServer:
+      extensions:
+        enabled: true
+        extensionList:
+          - name: rollout-extension
+            env:
+              - name: EXTENSION_URL
+                value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.6/extension.tar
   YAML
   ]
 }
