@@ -21,3 +21,4 @@ spec:
           kind: Service
           name: argo-rollouts-dashboard
           port: 3100
+          weight: 1
