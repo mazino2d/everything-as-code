@@ -1,5 +1,5 @@
 # REQUIRED
-name: ""                  # used for all resource names (Deployment/StatefulSet, Service, Ingress, ConfigMap)
+name: ""                  # used for all resource names (Deployment/StatefulSet, Service, ConfigMap)
 
 # IMAGE
 image:
@@ -9,12 +9,22 @@ image:
 # WORKLOAD
 replicaCount: 1           # optional; default: 1
 
+# RESOURCES
+resources:                # required; always set limits to avoid unbounded resource usage
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  # limits:
+  #   memory: 128Mi
+
 # SERVICE
 service:
   type: ""                # optional; ClusterIP | NodePort | LoadBalancer — omit to use K8s default (ClusterIP)
-  port: 80                # optional; port exposed by the Service — default: 80
-  containerPort: 80       # optional; port the container listens on — default: 80
-  nodePort: null          # optional; only used when type=NodePort
+  ports:
+    - port: 80            # optional; port exposed by the Service — default: 80
+      containerPort: 80   # optional; port the container listens on — default: 80
+      # name: http        # optional; required by K8s when multiple ports are defined
+      # nodePort: null    # optional; only when type=NodePort
 
 # HTTP ROUTE (GKE Gateway API)
 httpRoute:
@@ -23,17 +33,9 @@ httpRoute:
   gatewayNamespace: apps  # optional; namespace of the Gateway resource
   host: ""                # required when enabled; e.g. app.example.com
 
-# INGRESS (legacy; use httpRoute for GKE clusters)
-ingress:
-  enabled: false          # optional; default: false
-  className: gce          # optional; default: gce
-  group: eac              # optional; networking.gke.io/ingress-group — all apps share one GCE LB
-  host: ""                # required when enabled; e.g. app.example.com
-  annotations: {}         # optional; extra Ingress annotations
-  tls:
-    enabled: true         # optional; default: true — provisions a TLS certificate via cert-manager
-    secretName: ""        # optional; default: <name>-tls
-    clusterIssuer: letsencrypt-prod  # optional; default: letsencrypt-prod
+# CONTAINER COMMAND
+command: []               # optional; override container entrypoint
+args: []                  # optional; override container args
 
 # ENVIRONMENT VARIABLES
 # Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
@@ -44,16 +46,24 @@ env: {}
 #   PORT: "8080"
 
 # ENVIRONMENT FROM SECRETS
-# Three formats supported:
+# Two formats supported:
 #   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
 #   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
-#   - "ENV_NAME=literal-value"                 inject a literal string as an env var
 envFromSecrets: []
 # e.g.
 # envFromSecrets:
 #   - my-app-env                               # bulk: all keys from Secret "my-app-env"
 #   - DATABASE_URL=app-db-auth:DATABASE_URL    # single key from Secret
-#   - FEATURE_FLAG=true                        # literal value
+
+# ENVIRONMENT WITH KUBERNETES VARIABLE EXPANSION
+# Rendered as env[].value entries — supports $(VAR_NAME) substitution from earlier env vars.
+# Use when a value needs to reference a var injected via envFromSecrets (e.g. a URL built from a password).
+# For plain non-secret config that needs no expansion, use env: instead.
+envExpand: []
+# e.g.
+# envExpand:
+#   - name: DATABASE_URL
+#     value: "postgres://user:$(DB_PASSWORD)@host:5432/db"
 
 # INFISICAL SECRET SYNC
 # Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret
@@ -70,16 +80,31 @@ infisical:
     secretName: infisical-machine-identity   # optional
     secretNamespace: infisical-operator      # optional
 
-# RESOURCES
-resources:                # required; always set limits to avoid unbounded resource usage
-  requests:
-    cpu: 10m
-    memory: 64Mi
-  # limits:
-  #   memory: 128Mi
-
 # POD ANNOTATIONS
 podAnnotations: {}        # optional; extra annotations added to the pod template
+
+# SERVICE ACCOUNT
+serviceAccountName: ""    # optional; name of the ServiceAccount the pod runs as
+
+# DNS CONFIGURATION
+dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided
+# e.g.
+# dnsConfig:
+#   nameservers:
+#     - 8.8.8.8
+#   searches:
+#     - default.svc.cluster.local
+
+# STATEFULSET MODE
+# When enabled, deploys a StatefulSet instead of a Deployment.
+# Also creates a headless Service (<name>-headless) for stable pod DNS.
+statefulset:
+  enabled: false          # optional; default: false
+  storage:
+    enabled: false        # optional; default: false — provisions a PVC per replica
+    size: 1Gi             # optional; default: 1Gi
+    mountPath: /data      # optional; default: /data
+    storageClassName: ""  # optional; default: cluster default StorageClass
 
 # OPENTELEMETRY INSTRUMENTATION
 # Creates an Instrumentation CRD and adds the OTel inject annotation to the pod.
@@ -87,16 +112,3 @@ podAnnotations: {}        # optional; extra annotations added to the pod templat
 instrumentation:
   enabled: false          # optional; default: false
   endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318  # optional
-
-# STATEFULSET MODE
-# When enabled, deploys a StatefulSet instead of a Deployment.
-# Also creates a headless Service (<name>-headless) for stable pod DNS.
-statefulset:
-  enabled: false          # optional; default: false
-  command: []             # optional; override container entrypoint
-  args: []                # optional; override container args
-  storage:
-    enabled: false        # optional; default: false — provisions a PVC per replica
-    size: 1Gi             # optional; default: 1Gi
-    mountPath: /data      # optional; default: /data
-    storageClassName: ""  # optional; default: cluster default StorageClass

@@ -4,8 +4,9 @@ image:
   tag: 2.17.0
 replicaCount: 1
 service:
-  port: 8080
-  containerPort: 8080
+  ports:
+    - port: 8080
+      containerPort: 8080
 httpRoute:
   enabled: true
   host: hotrod.mazino2d-k3s.duckdns.org

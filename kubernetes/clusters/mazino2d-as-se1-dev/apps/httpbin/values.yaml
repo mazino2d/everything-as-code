@@ -4,8 +4,9 @@ image:
   tag: "0.2.3"
 replicaCount: 1
 service:
-  port: 80
-  containerPort: 80
+  ports:
+    - port: 80
+      containerPort: 80
 httpRoute:
   enabled: true
   host: httpbin.mazino2d-k3s.duckdns.org
