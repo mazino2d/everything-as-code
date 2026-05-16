@@ -1,0 +1,21 @@
+{{- if and (not .Values.statefulset.enabled) (eq .Values.rollout.strategy "MeshTrafficCanary") }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  hosts:
+    - {{ .Values.name }}
+  gateways:
+    - mesh
+  http:
+    - name: primary
+      route:
+        - destination:
+            host: {{ .Values.name }}
+          weight: 100
+        - destination:
+            host: {{ .Values.name }}-canary
+          weight: 0
+{{- end }}
