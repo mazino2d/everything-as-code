@@ -10,7 +10,7 @@ httpRoute:
   enabled: true
   host: outline.mazino2d-k3s.duckdns.org
 env:
-  URL: https://outline.mazino2d-k3s.duckdns.org
+  URL: http://outline.mazino2d-k3s.duckdns.org
   FORCE_HTTPS: "false"
   FILE_STORAGE: local
   FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
