@@ -18,6 +18,11 @@ spec:
           {{- if .Values.serviceAccountName }}
           serviceAccountName: {{ .Values.serviceAccountName }}
           {{- end }}
+          {{- if .Values.dnsConfig }}
+          dnsPolicy: None
+          dnsConfig:
+            {{- toYaml .Values.dnsConfig | nindent 12 }}
+          {{- end }}
           containers:
             - name: {{ .Values.name }}
               image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
