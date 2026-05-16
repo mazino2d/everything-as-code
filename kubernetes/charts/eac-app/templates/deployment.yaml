@@ -1,4 +1,5 @@
-{{- if and (not .Values.statefulset.enabled) (ne .Values.rollout.strategy "BlueGreen") }}
+{{- $argoStrategies := list "BlueGreen" "ReplicaCanary" "MeshTrafficCanary" }}
+{{- if and (not .Values.statefulset.enabled) (not (has .Values.rollout.strategy $argoStrategies)) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
