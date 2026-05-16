@@ -70,12 +70,6 @@ resource "helm_release" "argocd" {
         kustomize.buildOptions: "--enable-helm"
       params:
         server.insecure: true
-    server:
-      ingress:
-        enabled: true
-        ingressClassName: traefik
-        hostname: argocd.mazino2d-k3s.duckdns.org
-        tls: false
     repoServer:
       extensions:
         enabled: true
