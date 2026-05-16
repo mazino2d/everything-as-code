@@ -9,6 +9,13 @@ image:
 # WORKLOAD
 replicaCount: 1           # optional; default: 1
 
+# ROLLOUT STRATEGY
+# Controls how the Deployment rolls out updates. Ignored when statefulset.enabled is true.
+rollout:
+  strategy: RollingUpdate  # optional; RollingUpdate | Recreate — default: RollingUpdate
+  maxSurge: 1              # optional; max extra pods created during update — default: 1 (RollingUpdate only)
+  maxUnavailable: 0        # optional; max pods unavailable during update — default: 0 (RollingUpdate only)
+
 # RESOURCES
 resources:                # required; always set limits to avoid unbounded resource usage
   requests:

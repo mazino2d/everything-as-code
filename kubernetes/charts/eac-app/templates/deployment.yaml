@@ -6,6 +6,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: {{ .Values.rollout.strategy | default "RollingUpdate" }}
+    {{- if eq (.Values.rollout.strategy | default "RollingUpdate") "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.rollout.maxSurge | default 1 }}
+      maxUnavailable: {{ .Values.rollout.maxUnavailable | default 0 }}
+    {{- end }}
   selector:
     matchLabels:
       app: {{ .Values.name }}
