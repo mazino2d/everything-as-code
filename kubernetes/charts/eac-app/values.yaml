@@ -16,7 +16,14 @@ service:
   containerPort: 80       # optional; port the container listens on — default: 80
   nodePort: null          # optional; only used when type=NodePort
 
-# INGRESS
+# HTTP ROUTE (GKE Gateway API)
+httpRoute:
+  enabled: false          # optional; default: false
+  gatewayName: eac        # optional; name of the Gateway resource
+  gatewayNamespace: apps  # optional; namespace of the Gateway resource
+  host: ""                # required when enabled; e.g. app.example.com
+
+# INGRESS (legacy; use httpRoute for GKE clusters)
 ingress:
   enabled: false          # optional; default: false
   className: gce          # optional; default: gce
