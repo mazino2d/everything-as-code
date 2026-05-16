@@ -12,12 +12,12 @@ spec:
       name: letsencrypt-staging-account-key
     solvers:
       - http01:
-          ingress:
-            ingressClassName: gce
-            ingressTemplate:
-              metadata:
-                annotations:
-                  networking.gke.io/ingress-group: eac
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: eac
+                namespace: apps
+                kind: Gateway
+                group: gateway.networking.k8s.io
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -33,9 +33,9 @@ spec:
       name: letsencrypt-prod-account-key
     solvers:
       - http01:
-          ingress:
-            ingressClassName: gce
-            ingressTemplate:
-              metadata:
-                annotations:
-                  networking.gke.io/ingress-group: eac
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: eac
+                namespace: apps
+                kind: Gateway
+                group: gateway.networking.k8s.io

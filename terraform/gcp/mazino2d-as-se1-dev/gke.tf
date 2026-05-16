@@ -14,6 +14,10 @@ resource "google_container_cluster" "this" {
     }
   }
 
+  gateway_api_config {
+    channel = "CHANNEL_STANDARD"
+  }
+
   logging_service    = "none"
   monitoring_service = "none"
 
