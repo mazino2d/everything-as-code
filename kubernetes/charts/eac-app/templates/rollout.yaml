@@ -1,4 +1,4 @@
-{{- if and (not .Values.statefulset.enabled) .Values.blueGreen.enabled }}
+{{- if and (not .Values.statefulset.enabled) (eq .Values.rollout.strategy "BlueGreen") }}
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
@@ -28,11 +28,7 @@ spec:
     blueGreen:
       activeService: {{ .Values.name }}
       previewService: {{ .Values.name }}-preview
-      autoPromotionEnabled: {{ .Values.blueGreen.autoPromotionEnabled }}
-      {{- if .Values.blueGreen.scaleDownDelaySeconds }}
-      scaleDownDelaySeconds: {{ .Values.blueGreen.scaleDownDelaySeconds }}
-      {{- end }}
-      {{- if .Values.blueGreen.previewReplicaCount }}
-      previewReplicaCount: {{ .Values.blueGreen.previewReplicaCount }}
-      {{- end }}
+      autoPromotionEnabled: {{ .Values.rollout.autoPromotionEnabled }}
+      scaleDownDelaySeconds: {{ .Values.rollout.scaleDownDelaySeconds }}
+      previewReplicaCount: {{ .Values.rollout.previewReplicaCount }}
 {{- end }}
