@@ -14,10 +14,10 @@ instances:
       size: 2Gi
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: 20m
+        memory: 64Mi
       limits:
-        memory: 512Mi
+        memory: 256Mi
     postgresql:
       maxConnections: "100"
       sharedBuffers: "128MB"

@@ -8,8 +8,8 @@ instances:
       mountPath: /data
     resources:
       requests:
-        cpu: 20m
-        memory: 64Mi
+        cpu: 10m
+        memory: 16Mi
       limits:
         memory: 128Mi
     redis:
