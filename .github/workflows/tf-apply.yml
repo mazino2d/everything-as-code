@@ -8,6 +8,20 @@ on:
       - "terraform/**"
       - ".github/workflows/tf-apply.yml"
   workflow_dispatch:
+    inputs:
+      stack:
+        description: Terraform stack to apply
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - terraform/github
+          - terraform/gcp/mazino2d-as-se1-dev
+          - terraform/infisical
+          - terraform/grafana/stack
+          - terraform/grafana/dashboard
+          - terraform/k8s/mazino2d-as-se1-dev
 
 jobs:
   detect-changes:
@@ -23,6 +37,8 @@ jobs:
       - name: Detect terraform changes
         id: filter
         run: |
+          selected_stack="${{ inputs.stack || 'all' }}"
+
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             changed_files=""
           else
@@ -40,7 +56,11 @@ jobs:
 
           changed_stacks=()
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            changed_stacks=("${all_stacks[@]}")
+            if [[ "$selected_stack" == "all" ]]; then
+              changed_stacks=("${all_stacks[@]}")
+            else
+              changed_stacks=("$selected_stack")
+            fi
           else
             for stack in "${all_stacks[@]}"; do
               if echo "$changed_files" | grep -qE "^${stack}/"; then
