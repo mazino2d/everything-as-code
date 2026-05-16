@@ -11,6 +11,7 @@ spec:
     {{- range .Values.service.ports }}
     - port: {{ .port }}
       targetPort: {{ .containerPort }}
+      protocol: TCP
       {{- if .name }}
       name: {{ .name }}
       {{- end }}

@@ -46,6 +46,7 @@ containers:
     ports:
       {{- range .Values.service.ports }}
       - containerPort: {{ .containerPort }}
+        protocol: TCP
         {{- if .name }}
         name: {{ .name }}
         {{- end }}
