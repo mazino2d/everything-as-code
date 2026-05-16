@@ -8,3 +8,4 @@ resources:
   - infisical-operator
   - velero
   - dnsync
+  - argo-rollouts
