@@ -23,5 +23,5 @@ instrumentation:
   enabled: true
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 10m
+    memory: 64Mi
