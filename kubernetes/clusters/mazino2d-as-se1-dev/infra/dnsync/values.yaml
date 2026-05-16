@@ -10,9 +10,8 @@ image:
 command: ["/bin/sh", "-c"]
 args:
   - |
-    IP=$(kubectl get ingress -A -o jsonpath='{.items[*].status.loadBalancer.ingress[0].ip}' \
-      | tr ' ' '\n' | grep -v '^$' | head -1)
-    [ -z "$IP" ] && echo "No ingress IP found" && exit 1
+    IP=$(kubectl get gateway eac -n apps -o jsonpath='{.status.addresses[0].value}')
+    [ -z "$IP" ] && echo "No gateway IP found" && exit 1
     RESULT=$(curl -sf "https://www.duckdns.org/update?domains=mazino2d-k3s&token=${DUCKDNS_TOKEN}&ip=${IP}")
     echo "dnsync: $IP -> $RESULT"
 
