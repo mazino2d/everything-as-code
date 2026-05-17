@@ -6,7 +6,9 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   strategy:
     type: {{ .Values.rollout.strategy | default "RollingUpdate" }}
     {{- if eq (.Values.rollout.strategy | default "RollingUpdate") "RollingUpdate" }}

@@ -1,0 +1,40 @@
+{{- if .Values.autoscaling.enabled }}
+{{- $argoStrategies := list "BlueGreen" "ReplicaCanary" "MeshTrafficCanary" }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    {{- if .Values.statefulset.enabled }}
+    apiVersion: apps/v1
+    kind: StatefulSet
+    {{- else if has .Values.rollout.strategy $argoStrategies }}
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    {{- else }}
+    apiVersion: apps/v1
+    kind: Deployment
+    {{- end }}
+    name: {{ .Values.name }}
+  minReplicas: {{ .Values.autoscaling.minReplicas | default 1 }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas | default 3 }}
+  metrics:
+    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

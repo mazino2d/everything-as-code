@@ -1,0 +1,16 @@
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: argo-rollouts-dashboard
+  namespace: argocd
+spec:
+  default:
+    config:
+      type: HTTP
+      httpHealthCheck:
+        port: 3100
+        requestPath: /rollouts/
+  targetRef:
+    group: ""
+    kind: Service
+    name: argo-rollouts-dashboard

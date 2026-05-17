@@ -6,7 +6,9 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: {{ .Values.name }}
