@@ -20,7 +20,7 @@ infisical:
   projectSlug: everything-as-code
   envSlug: dev
 
-envFromSecrets:
+secrets:
   - DUCKDNS_TOKEN=dnsync-env:DUCKDNS_TOKEN
 
 dnsConfig:

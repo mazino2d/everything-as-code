@@ -6,45 +6,46 @@ schedule: ""          # required; cron expression e.g. "*/5 * * * *"
 
 # IMAGE
 image:
-  repository: ""      # required
-  tag: latest         # optional; default: latest
+  repository: ""      # required; container image (e.g. ghcr.io/org/app)
+  tag: latest         # optional; default: latest — pin to a specific tag in production
 
 # CONTAINER COMMAND
 command: []           # optional; override container entrypoint
 args: []              # optional; override container args
 
-# ENVIRONMENT VARIABLES
-# Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
-env: {}
+# POD ANNOTATIONS
+podAnnotations: {}    # optional; extra annotations added to the pod template
 
-# ENVIRONMENT FROM SECRETS
-# Two formats supported:
-#   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
-#   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
-envFromSecrets: []
-
-# INFISICAL SECRET SYNC
-# Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret.
-infisical:
-  enabled: false
-  projectSlug: ""
-  envSlug: dev
-  hostAPI: https://app.infisical.com/api
-  resyncInterval: 60
-  secretsPath: ""         # default: /<namespace>/<name>
-  managedSecretName: ""   # default: <name>-env
-  credentialsRef:
-    secretName: infisical-machine-identity
-    secretNamespace: infisical-operator
+# POD LABELS
+podLabels: {}         # optional; extra labels added to the pod template
 
 # RESOURCES
-resources:
+resources:            # required; always set limits to avoid unbounded resource usage
   requests:
     cpu: 10m
     memory: 16Mi
+  # limits:
+  #   memory: 64Mi
 
-# SERVICE ACCOUNT
-serviceAccountName: ""  # optional; name of the ServiceAccount the pod runs as
+# SECRETS
+# Injected before env — secret values can be referenced in env via $(VAR_NAME) expansion.
+# Two formats supported:
+#   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
+#   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
+secrets: []
+# e.g.
+# secrets:
+#   - my-app-env                               # bulk: all keys from Secret "my-app-env"
+#   - DB_PASSWORD=app-db-auth:POSTGRES_PASSWORD
+
+# ENVIRONMENT VARIABLES
+# Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
+# Secrets are available here via $(VAR_NAME) expansion (e.g. DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host/db").
+env: {}
+# e.g.
+# env:
+#   LOG_LEVEL: info
+#   DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host:5432/db"
 
 # DNS CONFIGURATION
 dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided
@@ -54,6 +55,24 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 #     - 8.8.8.8
 #   searches:
 #     - default.svc.cluster.local
+
+# SERVICE ACCOUNT
+serviceAccountName: ""    # optional; name of the ServiceAccount the pod runs as
+
+# INFISICAL SECRET SYNC
+# Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret
+# which is then injected into the pod via secrets (using bulk format).
+infisical:
+  enabled: false          # optional; default: false — requires Infisical Operator in cluster
+  projectSlug: ""         # required when enabled
+  envSlug: dev            # optional; default: dev
+  hostAPI: https://app.infisical.com/api  # optional
+  resyncInterval: 60      # optional; seconds between secret syncs — default: 60
+  secretsPath: ""         # optional; Infisical folder path — default: /<namespace>/<name>
+  managedSecretName: ""   # optional; name of the managed K8s Secret — default: <name>-env
+  credentialsRef:
+    secretName: infisical-machine-identity   # optional
+    secretNamespace: infisical-operator      # optional
 
 # JOB SETTINGS
 restartPolicy: OnFailure
