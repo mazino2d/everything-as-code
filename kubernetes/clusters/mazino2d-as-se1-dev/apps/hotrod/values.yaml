@@ -7,6 +7,14 @@ deployment:
   replicaCount: 1
   rollout:
     strategy: BlueGreen
+resources:
+  requests:
+    cpu: 10m
+    memory: 48Mi
+  limits:
+    memory: 64Mi
+env:
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4318
 service:
   ports:
     - port: 8080
@@ -14,14 +22,6 @@ service:
 httpRoute:
   enabled: true
   host: hotrod.mazino2d-k3s.duckdns.org
-env:
-  OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4318
 nacl:
   egress:
     - monitoring/grafana-alloy:4318
-resources:
-  requests:
-    cpu: 10m
-    memory: 48Mi
-  limits:
-    memory: 64Mi

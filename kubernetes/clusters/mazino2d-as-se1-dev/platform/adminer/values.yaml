@@ -3,6 +3,14 @@ replicaCount: 1
 image:
   repository: adminer
   tag: 4.8.1-standalone
+resources:
+  requests:
+    cpu: 5m
+    memory: 48Mi
+  limits:
+    memory: 64Mi
+env:
+  ADMINER_DEFAULT_SERVER: app-db.apps.svc.cluster.local
 service:
   type: ClusterIP
   ports:
@@ -11,11 +19,3 @@ service:
 httpRoute:
   enabled: true
   host: adminer.mazino2d-k3s.duckdns.org
-env:
-  ADMINER_DEFAULT_SERVER: app-db.apps.svc.cluster.local
-resources:
-  requests:
-    cpu: 5m
-    memory: 48Mi
-  limits:
-    memory: 64Mi
