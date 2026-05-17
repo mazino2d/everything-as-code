@@ -16,6 +16,9 @@ httpRoute:
   host: hotrod.mazino2d-k3s.duckdns.org
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-alloy.monitoring.svc.cluster.local:4318
+nacl:
+  egress:
+    - monitoring/grafana-alloy:4318
 resources:
   requests:
     cpu: 10m
