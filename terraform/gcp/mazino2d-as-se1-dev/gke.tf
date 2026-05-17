@@ -14,6 +14,8 @@ resource "google_container_cluster" "this" {
     }
   }
 
+  datapath_provider = "ADVANCED_DATAPATH"
+
   gateway_api_config {
     channel = "CHANNEL_STANDARD"
   }

@@ -150,3 +150,12 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 instrumentation:
   enabled: false          # optional; default: false
   endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318  # optional
+
+# NETWORK ACCESS CONTROL LIST
+# Creates a CiliumNetworkPolicy that denies all ingress and egress by default.
+# DNS egress (port 53 to kube-dns) is always permitted.
+# Apps with httpRoute.enabled=true automatically allow external ingress on service ports.
+# Requires GKE Dataplane V2 (ADVANCED_DATAPATH) for enforcement.
+nacl:
+  ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]
+  egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]

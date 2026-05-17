@@ -32,6 +32,10 @@ secrets:
   - SECRET_KEY=outline-env:SECRET_KEY
   - UTILS_SECRET=outline-env:UTILS_SECRET
   - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
+nacl:
+  egress:
+    - apps/outline-db-1:5432
+    - apps/outline-cache-1:6379
 resources:
   requests:
     cpu: 20m

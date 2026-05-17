@@ -1,0 +1,82 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app: {{ .Values.name }}
+  {{- $hasIngress := or .Values.httpRoute.enabled (gt (len .Values.nacl.ingress) 0) }}
+  {{- if $hasIngress }}
+  ingress:
+    {{- if .Values.httpRoute.enabled }}
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+            {{- range .Values.service.ports }}
+            - port: "{{ .containerPort }}"
+            {{- end }}
+    {{- end }}
+    {{- range .Values.nacl.ingress }}
+    {{- $nsParts := splitList "/" . }}
+    {{- $ns := index $nsParts 0 }}
+    {{- $rest := index $nsParts 1 }}
+    {{- if contains ":" $rest }}
+    {{- $nameParts := splitList ":" $rest }}
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ $ns }}
+            app: {{ index $nameParts 0 }}
+      toPorts:
+        - ports:
+            - port: "{{ index $nameParts 1 }}"
+    {{- else }}
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ $ns }}
+            app: {{ $rest }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    {{- range .Values.nacl.egress }}
+    {{- if contains "/" . }}
+    {{- $nsParts := splitList "/" . }}
+    {{- $ns := index $nsParts 0 }}
+    {{- $rest := index $nsParts 1 }}
+    {{- if contains ":" $rest }}
+    {{- $nameParts := splitList ":" $rest }}
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ $ns }}
+            app: {{ index $nameParts 0 }}
+      toPorts:
+        - ports:
+            - port: "{{ index $nameParts 1 }}"
+    {{- else }}
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ $ns }}
+            app: {{ $rest }}
+    {{- end }}
+    {{- else if contains ":" . }}
+    {{- $hostPort := splitList ":" . }}
+    - toFQDNs:
+        - matchName: {{ index $hostPort 0 }}
+      toPorts:
+        - ports:
+            - port: "{{ index $hostPort 1 }}"
+    {{- end }}
+    {{- end }}
