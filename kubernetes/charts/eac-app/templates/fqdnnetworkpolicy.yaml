@@ -1,0 +1,26 @@
+{{- $fqdnEgress := list }}
+{{- range .Values.nacl.egress }}
+{{- if and (contains ":" .) (not (contains "/" .)) }}
+{{- $fqdnEgress = append $fqdnEgress . }}
+{{- end }}
+{{- end }}
+{{- if gt (len $fqdnEgress) 0 }}
+apiVersion: networking.gke.io/v1alpha1
+kind: FQDNNetworkPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.name }}
+  egress:
+    {{- range $fqdnEgress }}
+    {{- $hostPort := splitList ":" . }}
+    - matches:
+        - name: {{ index $hostPort 0 }}
+      ports:
+        - port: {{ index $hostPort 1 | int }}
+          protocol: TCP
+    {{- end }}
+{{- end }}
