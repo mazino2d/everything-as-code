@@ -1,4 +1,4 @@
-{{- if and (not .Values.statefulset.enabled) (eq .Values.rollout.strategy "BlueGreen") }}
+{{- if and (eq .Values.workload "deployment") (eq .Values.deployment.rollout.strategy "BlueGreen") }}
 apiVersion: v1
 kind: Service
 metadata:

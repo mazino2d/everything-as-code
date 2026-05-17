@@ -2,9 +2,11 @@ name: hotrod
 image:
   repository: jaegertracing/example-hotrod
   tag: 2.18.0
-replicaCount: 1
-rollout:
-  strategy: BlueGreen
+workload: deployment
+deployment:
+  replicaCount: 1
+  rollout:
+    strategy: BlueGreen
 service:
   ports:
     - port: 8080

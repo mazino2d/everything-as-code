@@ -2,7 +2,13 @@ name: outline
 image:
   repository: outlinewiki/outline
   tag: "1.7.1"
-replicaCount: 1
+workload: statefulset
+statefulset:
+  replicaCount: 1
+  storage:
+    enabled: true
+    size: 2Gi
+    mountPath: /var/lib/outline/data
 service:
   ports:
     - port: 3000
@@ -34,9 +40,3 @@ resources:
     memory: 512Mi
   limits:
     memory: 768Mi
-statefulset:
-  enabled: true
-  storage:
-    enabled: true
-    size: 2Gi
-    mountPath: /var/lib/outline/data
