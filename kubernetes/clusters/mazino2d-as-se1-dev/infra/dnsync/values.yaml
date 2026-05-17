@@ -1,12 +1,8 @@
 name: dnsync
 schedule: "*/5 * * * *"
-
-serviceAccountName: dnsync
-
 image:
   repository: alpine/k8s
   tag: "1.31.4"
-
 command: ["/bin/sh", "-c"]
 args:
   - |
@@ -14,20 +10,17 @@ args:
     [ -z "$IP" ] && echo "No gateway IP found" && exit 1
     RESULT=$(curl -sf "https://www.duckdns.org/update?domains=mazino2d-k3s&token=${DUCKDNS_TOKEN}&ip=${IP}")
     echo "dnsync: $IP -> $RESULT"
-
-infisical:
-  enabled: true
-  projectSlug: everything-as-code
-  envSlug: dev
-
-secrets:
-  - DUCKDNS_TOKEN=dnsync-env:DUCKDNS_TOKEN
-
-dnsConfig:
-  nameservers:
-    - 8.8.8.8
-
 resources:
   requests:
     cpu: 10m
     memory: 16Mi
+secrets:
+  - DUCKDNS_TOKEN=dnsync-env:DUCKDNS_TOKEN
+dnsConfig:
+  nameservers:
+    - 8.8.8.8
+serviceAccountName: dnsync
+infisical:
+  enabled: true
+  projectSlug: everything-as-code
+  envSlug: dev

@@ -9,13 +9,16 @@ statefulset:
     enabled: true
     size: 2Gi
     mountPath: /var/lib/outline/data
-service:
-  ports:
-    - port: 3000
-      containerPort: 3000
-httpRoute:
-  enabled: true
-  host: outline.mazino2d-k3s.duckdns.org
+resources:
+  requests:
+    cpu: 20m
+    memory: 512Mi
+  limits:
+    memory: 768Mi
+secrets:
+  - SECRET_KEY=outline-env:SECRET_KEY
+  - UTILS_SECRET=outline-env:UTILS_SECRET
+  - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
 env:
   URL: http://outline.mazino2d-k3s.duckdns.org
   FORCE_HTTPS: "false"
@@ -24,21 +27,18 @@ env:
   REDIS_URL: redis://outline-cache-1.apps.svc.cluster.local:6379
   PGSSLMODE: disable
   DATABASE_URL: "postgres://postgres:$(OUTLINE_DB_PASSWORD)@outline-db-1.apps.svc.cluster.local:5432/postgres"
-infisical:
+service:
+  ports:
+    - port: 3000
+      containerPort: 3000
+httpRoute:
   enabled: true
-  projectSlug: everything-as-code
-  envSlug: dev
-secrets:
-  - SECRET_KEY=outline-env:SECRET_KEY
-  - UTILS_SECRET=outline-env:UTILS_SECRET
-  - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
+  host: outline.mazino2d-k3s.duckdns.org
 nacl:
   egress:
     - apps/outline-db-1:5432
     - apps/outline-cache-1:6379
-resources:
-  requests:
-    cpu: 20m
-    memory: 512Mi
-  limits:
-    memory: 768Mi
+infisical:
+  enabled: true
+  projectSlug: everything-as-code
+  envSlug: dev
