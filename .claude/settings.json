@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(echo *)",
+      "Bash(pwd)",
+      "Bash(which *)",
+      "Bash(file *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git status *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(kubectl get *)",
+      "Bash(kubectl logs *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl top *)",
+      "Bash(kubectl api-resources *)",
+      "Bash(kubectl rollout status *)",
+      "Bash(helm lint *)",
+      "Bash(helm template *)",
+      "Bash(helm list *)",
+      "Bash(helm get *)",
+      "Bash(helm status *)",
+      "Bash(helm search *)",
+      "Bash(kustomize build *)"
+    ]
+  }
+}
