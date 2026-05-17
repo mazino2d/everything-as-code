@@ -1,4 +1,15 @@
 {{/*
+Validates that workload is one of the recognised types.
+Call from any template to surface a clear error on misconfiguration.
+*/}}
+{{- define "eac-app.validateWorkload" -}}
+{{- $valid := list "deployment" "statefulset" -}}
+{{- if not (has .Values.workload $valid) -}}
+{{- fail (printf "workload must be one of: deployment, statefulset — got %q" .Values.workload) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Pod spec contents (inside spec: of the pod template).
 Shared between Deployment and Argo Rollout templates.
 */}}

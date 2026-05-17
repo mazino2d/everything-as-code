@@ -6,40 +6,65 @@ image:
   repository: ""          # required; container image (e.g. ghcr.io/org/app)
   tag: latest             # optional; default: latest — pin to a specific tag in production
 
-# WORKLOAD
-replicaCount: 1           # optional; default: 1 — ignored when autoscaling.enabled is true
+# WORKLOAD TYPE
+# Configure exactly one. Specifying an unrecognised value is an error.
+workload: deployment      # required; deployment | statefulset
 
-# AUTOSCALING (Horizontal Pod Autoscaler)
-# When enabled, an HPA is created targeting the active workload (Deployment, Rollout, or StatefulSet).
-# replicaCount is ignored when autoscaling is enabled — the HPA has sole authority over replica counts.
-# Note: not recommended for StatefulSets with local persistent volumes (e.g. outline).
-autoscaling:
-  enabled: false                          # optional; default: false
-  minReplicas: 1                          # optional; default: 1
-  maxReplicas: 3                          # optional; default: 3
-  targetCPUUtilizationPercentage: 80      # optional; omit or leave empty to disable CPU scaling
-  targetMemoryUtilizationPercentage: ""   # optional; omit or leave empty to disable memory scaling
+# DEPLOYMENT MODE
+# autoscaling and rollout only apply when workload is deployment.
+deployment:
+  replicaCount: 1         # optional; default: 1 — ignored when autoscaling.enabled is true
 
-# ROLLOUT STRATEGY
-# Controls how updates are rolled out. Ignored when statefulset.enabled is true.
-# BlueGreen | ReplicaCanary | MeshTrafficCanary require Argo Rollouts (infra/argo-rollouts).
-# MeshTrafficCanary requires Istio sidecar injection enabled on the namespace.
-rollout:
-  strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen | ReplicaCanary | MeshTrafficCanary — default: RollingUpdate
-  # RollingUpdate params:
-  maxSurge: 1                  # optional; max extra pods during update — default: 1
-  maxUnavailable: 0            # optional; max pods unavailable during update — default: 0
-  # BlueGreen params:
-  autoPromotionEnabled: false  # optional; default: false — manual promote via: kubectl argo rollouts promote <name>
-  previewReplicaCount: 1       # optional; replicas for the inactive (preview) version — default: 1
-  scaleDownDelaySeconds: 30    # optional; seconds to keep old version after promotion — default: 30
-  # ReplicaCanary | MeshTrafficCanary params:
-  steps: []                    # optional; list of canary steps — see example below
-  # steps:
-  #   - setWeight: 25
-  #   - pause: {}              # manual gate — resume via: kubectl argo rollouts promote <name>
-  #   - setWeight: 75
-  #   - pause: {}
+  # AUTOSCALING (Horizontal Pod Autoscaler)
+  # When enabled, an HPA is created targeting the active workload (Deployment or Rollout).
+  # replicaCount is ignored when autoscaling is enabled — the HPA has sole authority over replica counts.
+  autoscaling:
+    enabled: false                          # optional; default: false
+    minReplicas: 1                          # optional; default: 1
+    maxReplicas: 3                          # optional; default: 3
+    targetCPUUtilizationPercentage: 80      # optional; omit or leave empty to disable CPU scaling
+    targetMemoryUtilizationPercentage: ""   # optional; omit or leave empty to disable memory scaling
+
+  # ROLLOUT STRATEGY
+  # BlueGreen | ReplicaCanary | MeshTrafficCanary require Argo Rollouts (infra/argo-rollouts).
+  # MeshTrafficCanary requires Istio sidecar injection enabled on the namespace.
+  rollout:
+    strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen | ReplicaCanary | MeshTrafficCanary — default: RollingUpdate
+    # RollingUpdate params:
+    maxSurge: 1                  # optional; max extra pods during update — default: 1
+    maxUnavailable: 0            # optional; max pods unavailable during update — default: 0
+    # BlueGreen params:
+    autoPromotionEnabled: false  # optional; default: false — manual promote via: kubectl argo rollouts promote <name>
+    previewReplicaCount: 1       # optional; replicas for the inactive (preview) version — default: 1
+    scaleDownDelaySeconds: 30    # optional; seconds to keep old version after promotion — default: 30
+    # ReplicaCanary | MeshTrafficCanary params:
+    steps: []                    # optional; list of canary steps — see example below
+    # steps:
+    #   - setWeight: 25
+    #   - pause: {}              # manual gate — resume via: kubectl argo rollouts promote <name>
+    #   - setWeight: 75
+    #   - pause: {}
+
+# STATEFULSET MODE
+# updateStrategy and storage only apply when workload is statefulset.
+statefulset:
+  replicaCount: 1         # optional; default: 1
+
+  # UPDATE STRATEGY
+  updateStrategy:
+    type: RollingUpdate   # optional; RollingUpdate | OnDelete — default: RollingUpdate
+    # RollingUpdate params:
+    partition: 0          # optional; only update pods with ordinal >= partition — default: 0 (update all)
+
+  # PERSISTENT STORAGE
+  # When enabled, a PVC is provisioned per replica via volumeClaimTemplates.
+  # volumeClaimTemplates is immutable — changing this after first deploy requires deleting the StatefulSet.
+  # Disabling storage after enabling will leave orphaned PVCs that must be deleted manually.
+  storage:
+    enabled: false        # optional; default: false — provisions a PVC per replica
+    size: 1Gi             # optional; default: 1Gi
+    mountPath: /data      # optional; default: /data
+    storageClassName: ""  # optional; default: cluster default StorageClass
 
 # RESOURCES
 resources:                # required; always set limits to avoid unbounded resource usage
@@ -126,17 +151,6 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 #     - 8.8.8.8
 #   searches:
 #     - default.svc.cluster.local
-
-# STATEFULSET MODE
-# When enabled, deploys a StatefulSet instead of a Deployment.
-# Also creates a headless Service (<name>-headless) for stable pod DNS.
-statefulset:
-  enabled: false          # optional; default: false
-  storage:
-    enabled: false        # optional; default: false — provisions a PVC per replica
-    size: 1Gi             # optional; default: 1Gi
-    mountPath: /data      # optional; default: /data
-    storageClassName: ""  # optional; default: cluster default StorageClass
 
 # OPENTELEMETRY INSTRUMENTATION
 # Creates an Instrumentation CRD and adds the OTel inject annotation to the pod.

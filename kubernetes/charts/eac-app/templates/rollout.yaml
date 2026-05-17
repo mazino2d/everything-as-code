@@ -1,13 +1,13 @@
 {{- $argoStrategies := list "BlueGreen" "ReplicaCanary" "MeshTrafficCanary" }}
-{{- if and (not .Values.statefulset.enabled) (has .Values.rollout.strategy $argoStrategies) }}
+{{- if and (eq .Values.workload "deployment") (has .Values.deployment.rollout.strategy $argoStrategies) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.deployment.autoscaling.enabled }}
+  replicas: {{ .Values.deployment.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
@@ -28,18 +28,18 @@ spec:
     spec:
       {{- include "eac-app.podSpec" . | nindent 6 }}
   strategy:
-    {{- if eq .Values.rollout.strategy "BlueGreen" }}
+    {{- if eq .Values.deployment.rollout.strategy "BlueGreen" }}
     blueGreen:
       activeService: {{ .Values.name }}
       previewService: {{ .Values.name }}-preview
-      autoPromotionEnabled: {{ .Values.rollout.autoPromotionEnabled }}
-      scaleDownDelaySeconds: {{ .Values.rollout.scaleDownDelaySeconds }}
-      previewReplicaCount: {{ .Values.rollout.previewReplicaCount }}
-    {{- else if eq .Values.rollout.strategy "ReplicaCanary" }}
+      autoPromotionEnabled: {{ .Values.deployment.rollout.autoPromotionEnabled }}
+      scaleDownDelaySeconds: {{ .Values.deployment.rollout.scaleDownDelaySeconds }}
+      previewReplicaCount: {{ .Values.deployment.rollout.previewReplicaCount }}
+    {{- else if eq .Values.deployment.rollout.strategy "ReplicaCanary" }}
     canary:
       steps:
-        {{- toYaml .Values.rollout.steps | nindent 8 }}
-    {{- else if eq .Values.rollout.strategy "MeshTrafficCanary" }}
+        {{- toYaml .Values.deployment.rollout.steps | nindent 8 }}
+    {{- else if eq .Values.deployment.rollout.strategy "MeshTrafficCanary" }}
     canary:
       stableService: {{ .Values.name }}
       canaryService: {{ .Values.name }}-canary
@@ -50,6 +50,6 @@ spec:
               routes:
                 - primary
       steps:
-        {{- toYaml .Values.rollout.steps | nindent 8 }}
+        {{- toYaml .Values.deployment.rollout.steps | nindent 8 }}
     {{- end }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.autoscaling.enabled }}
+{{- if and (eq .Values.workload "deployment") .Values.deployment.autoscaling.enabled }}
 {{- $argoStrategies := list "BlueGreen" "ReplicaCanary" "MeshTrafficCanary" }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -7,10 +7,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   scaleTargetRef:
-    {{- if .Values.statefulset.enabled }}
-    apiVersion: apps/v1
-    kind: StatefulSet
-    {{- else if has .Values.rollout.strategy $argoStrategies }}
+    {{- if has .Values.deployment.rollout.strategy $argoStrategies }}
     apiVersion: argoproj.io/v1alpha1
     kind: Rollout
     {{- else }}
@@ -18,23 +15,23 @@ spec:
     kind: Deployment
     {{- end }}
     name: {{ .Values.name }}
-  minReplicas: {{ .Values.autoscaling.minReplicas | default 1 }}
-  maxReplicas: {{ .Values.autoscaling.maxReplicas | default 3 }}
+  minReplicas: {{ .Values.deployment.autoscaling.minReplicas | default 1 }}
+  maxReplicas: {{ .Values.deployment.autoscaling.maxReplicas | default 3 }}
   metrics:
-    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- if .Values.deployment.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ .Values.deployment.autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if .Values.deployment.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ .Values.deployment.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}
