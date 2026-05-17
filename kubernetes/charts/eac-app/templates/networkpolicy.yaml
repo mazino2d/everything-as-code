@@ -1,0 +1,83 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  {{- $hasIngress := or .Values.httpRoute.enabled (gt (len .Values.nacl.ingress) 0) }}
+  {{- if $hasIngress }}
+  ingress:
+    {{- if .Values.httpRoute.enabled }}
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        {{- range .Values.service.ports }}
+        - port: {{ .containerPort }}
+        {{- end }}
+    {{- end }}
+    {{- range .Values.nacl.ingress }}
+    {{- $nsParts := splitList "/" . }}
+    {{- $ns := index $nsParts 0 }}
+    {{- $rest := index $nsParts 1 }}
+    {{- if contains ":" $rest }}
+    {{- $nameParts := splitList ":" $rest }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $ns }}
+          podSelector:
+            matchLabels:
+              app: {{ index $nameParts 0 }}
+      ports:
+        - port: {{ index $nameParts 1 | int }}
+    {{- else }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $ns }}
+          podSelector:
+            matchLabels:
+              app: {{ $rest }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+  egress:
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    {{- range .Values.nacl.egress }}
+    {{- if contains "/" . }}
+    {{- $nsParts := splitList "/" . }}
+    {{- $ns := index $nsParts 0 }}
+    {{- $rest := index $nsParts 1 }}
+    {{- if contains ":" $rest }}
+    {{- $nameParts := splitList ":" $rest }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $ns }}
+          podSelector:
+            matchLabels:
+              app: {{ index $nameParts 0 }}
+      ports:
+        - port: {{ index $nameParts 1 | int }}
+    {{- else }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $ns }}
+          podSelector:
+            matchLabels:
+              app: {{ $rest }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
