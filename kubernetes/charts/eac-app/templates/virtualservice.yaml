@@ -1,4 +1,4 @@
-{{- if and (not .Values.statefulset.enabled) (eq .Values.rollout.strategy "MeshTrafficCanary") }}
+{{- if and (eq .Values.workload "deployment") (eq .Values.deployment.rollout.strategy "MeshTrafficCanary") }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:

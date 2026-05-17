@@ -1,4 +1,4 @@
-{{- if .Values.statefulset.enabled }}
+{{- if eq .Values.workload "statefulset" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -6,9 +6,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   serviceName: {{ .Values.name }}-headless
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.statefulset.replicaCount | default 1 }}
+  updateStrategy:
+    type: {{ .Values.statefulset.updateStrategy.type | default "RollingUpdate" }}
+    {{- if eq (.Values.statefulset.updateStrategy.type | default "RollingUpdate") "RollingUpdate" }}
+    rollingUpdate:
+      partition: {{ .Values.statefulset.updateStrategy.partition | default 0 }}
+    {{- end }}
   selector:
     matchLabels:
       app: {{ .Values.name }}

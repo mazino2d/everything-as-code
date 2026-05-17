@@ -1,4 +1,4 @@
-{{- if .Values.statefulset.enabled }}
+{{- if eq .Values.workload "statefulset" }}
 apiVersion: v1
 kind: Service
 metadata:
