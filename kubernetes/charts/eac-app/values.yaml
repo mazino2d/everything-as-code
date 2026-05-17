@@ -7,7 +7,18 @@ image:
   tag: latest             # optional; default: latest — pin to a specific tag in production
 
 # WORKLOAD
-replicaCount: 1           # optional; default: 1
+replicaCount: 1           # optional; default: 1 — ignored when autoscaling.enabled is true
+
+# AUTOSCALING (Horizontal Pod Autoscaler)
+# When enabled, an HPA is created targeting the active workload (Deployment, Rollout, or StatefulSet).
+# replicaCount is ignored when autoscaling is enabled — the HPA has sole authority over replica counts.
+# Note: not recommended for StatefulSets with local persistent volumes (e.g. outline).
+autoscaling:
+  enabled: false                          # optional; default: false
+  minReplicas: 1                          # optional; default: 1
+  maxReplicas: 3                          # optional; default: 3
+  targetCPUUtilizationPercentage: 80      # optional; omit or leave empty to disable CPU scaling
+  targetMemoryUtilizationPercentage: ""   # optional; omit or leave empty to disable memory scaling
 
 # ROLLOUT STRATEGY
 # Controls how updates are rolled out. Ignored when statefulset.enabled is true.
