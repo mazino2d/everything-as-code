@@ -6,6 +6,16 @@ image:
   repository: ""          # required; container image (e.g. ghcr.io/org/app)
   tag: latest             # optional; default: latest — pin to a specific tag in production
 
+# CONTAINER COMMAND
+command: []               # optional; override container entrypoint
+args: []                  # optional; override container args
+
+# POD ANNOTATIONS
+podAnnotations: {}        # optional; extra annotations added to the pod template
+
+# POD LABELS
+podLabels: {}             # optional; extra labels added to the pod template
+
 # WORKLOAD TYPE
 # Configure exactly one. Specifying an unrecognised value is an error.
 workload: deployment      # required; deployment | statefulset
@@ -74,26 +84,6 @@ resources:                # required; always set limits to avoid unbounded resou
   # limits:
   #   memory: 128Mi
 
-# SERVICE
-service:
-  type: ""                # optional; ClusterIP | NodePort | LoadBalancer — omit to use K8s default (ClusterIP)
-  ports:
-    - port: 80            # optional; port exposed by the Service — default: 80
-      containerPort: 80   # optional; port the container listens on — default: 80
-      # name: http        # optional; required by K8s when multiple ports are defined
-      # nodePort: null    # optional; only when type=NodePort
-
-# HTTP ROUTE (GKE Gateway API)
-httpRoute:
-  enabled: false          # optional; default: false
-  gatewayName: eac        # optional; name of the Gateway resource
-  gatewayNamespace: apps  # optional; namespace of the Gateway resource
-  host: ""                # required when enabled; e.g. app.example.com
-
-# CONTAINER COMMAND
-command: []               # optional; override container entrypoint
-args: []                  # optional; override container args
-
 # SECRETS
 # Injected before env — secret values can be referenced in env via $(VAR_NAME) expansion.
 # Two formats supported:
@@ -114,6 +104,50 @@ env: {}
 #   LOG_LEVEL: info
 #   DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host:5432/db"
 
+# SERVICE
+service:
+  type: ""                # optional; ClusterIP | NodePort | LoadBalancer — omit to use K8s default (ClusterIP)
+  ports:
+    - port: 80            # optional; port exposed by the Service — default: 80
+      containerPort: 80   # optional; port the container listens on — default: 80
+      # name: http        # optional; required by K8s when multiple ports are defined
+      # nodePort: null    # optional; only when type=NodePort
+
+# HTTP ROUTE (GKE Gateway API)
+httpRoute:
+  enabled: false          # optional; default: false
+  gatewayName: eac        # optional; name of the Gateway resource
+  gatewayNamespace: apps  # optional; namespace of the Gateway resource
+  host: ""                # required when enabled; e.g. app.example.com
+
+# DNS CONFIGURATION
+dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided
+# e.g.
+# dnsConfig:
+#   nameservers:
+#     - 8.8.8.8
+#   searches:
+#     - default.svc.cluster.local
+
+# NETWORK ACCESS CONTROL LIST
+# Creates a CiliumNetworkPolicy that denies all ingress and egress by default.
+# DNS egress (port 53 to kube-dns) is always permitted.
+# Apps with httpRoute.enabled=true automatically allow external ingress on service ports.
+# Requires GKE Dataplane V2 (ADVANCED_DATAPATH) for enforcement.
+nacl:
+  ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]
+  egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]
+
+# SERVICE ACCOUNT
+serviceAccountName: ""    # optional; name of the ServiceAccount the pod runs as
+
+# OPENTELEMETRY INSTRUMENTATION
+# Creates an Instrumentation CRD and adds the OTel inject annotation to the pod.
+# Requires the OpenTelemetry Operator in the cluster. Currently targets Python apps.
+instrumentation:
+  enabled: false          # optional; default: false
+  endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318  # optional
+
 # INFISICAL SECRET SYNC
 # Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret
 # which is then injected into the pod via secrets (using bulk format).
@@ -128,34 +162,3 @@ infisical:
   credentialsRef:
     secretName: infisical-machine-identity   # optional
     secretNamespace: infisical-operator      # optional
-
-# POD ANNOTATIONS
-podAnnotations: {}        # optional; extra annotations added to the pod template
-
-# SERVICE ACCOUNT
-serviceAccountName: ""    # optional; name of the ServiceAccount the pod runs as
-
-# DNS CONFIGURATION
-dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided
-# e.g.
-# dnsConfig:
-#   nameservers:
-#     - 8.8.8.8
-#   searches:
-#     - default.svc.cluster.local
-
-# OPENTELEMETRY INSTRUMENTATION
-# Creates an Instrumentation CRD and adds the OTel inject annotation to the pod.
-# Requires the OpenTelemetry Operator in the cluster. Currently targets Python apps.
-instrumentation:
-  enabled: false          # optional; default: false
-  endpoint: http://grafana-alloy.monitoring.svc.cluster.local:4318  # optional
-
-# NETWORK ACCESS CONTROL LIST
-# Creates a CiliumNetworkPolicy that denies all ingress and egress by default.
-# DNS egress (port 53 to kube-dns) is always permitted.
-# Apps with httpRoute.enabled=true automatically allow external ingress on service ports.
-# Requires GKE Dataplane V2 (ADVANCED_DATAPATH) for enforcement.
-nacl:
-  ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]
-  egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]
