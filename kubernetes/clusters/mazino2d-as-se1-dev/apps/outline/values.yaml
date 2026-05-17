@@ -23,17 +23,15 @@ env:
   FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
   REDIS_URL: redis://outline-cache-1.apps.svc.cluster.local:6379
   PGSSLMODE: disable
+  DATABASE_URL: "postgres://postgres:$(OUTLINE_DB_PASSWORD)@outline-db-1.apps.svc.cluster.local:5432/postgres"
 infisical:
   enabled: true
   projectSlug: everything-as-code
   envSlug: dev
-envFromSecrets:
+secrets:
   - SECRET_KEY=outline-env:SECRET_KEY
   - UTILS_SECRET=outline-env:UTILS_SECRET
   - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
-envExpand:
-  - name: DATABASE_URL
-    value: "postgres://postgres:$(OUTLINE_DB_PASSWORD)@outline-db-1.apps.svc.cluster.local:5432/postgres"
 resources:
   requests:
     cpu: 20m
