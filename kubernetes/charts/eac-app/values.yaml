@@ -94,37 +94,29 @@ httpRoute:
 command: []               # optional; override container entrypoint
 args: []                  # optional; override container args
 
+# SECRETS
+# Injected before env — secret values can be referenced in env via $(VAR_NAME) expansion.
+# Two formats supported:
+#   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
+#   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
+secrets: []
+# e.g.
+# secrets:
+#   - my-app-env                               # bulk: all keys from Secret "my-app-env"
+#   - DB_PASSWORD=app-db-auth:POSTGRES_PASSWORD
+
 # ENVIRONMENT VARIABLES
 # Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
+# Secrets are available here via $(VAR_NAME) expansion (e.g. DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host/db").
 env: {}
 # e.g.
 # env:
 #   LOG_LEVEL: info
-#   PORT: "8080"
-
-# ENVIRONMENT FROM SECRETS
-# Two formats supported:
-#   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
-#   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
-envFromSecrets: []
-# e.g.
-# envFromSecrets:
-#   - my-app-env                               # bulk: all keys from Secret "my-app-env"
-#   - DATABASE_URL=app-db-auth:DATABASE_URL    # single key from Secret
-
-# ENVIRONMENT WITH KUBERNETES VARIABLE EXPANSION
-# Rendered as env[].value entries — supports $(VAR_NAME) substitution from earlier env vars.
-# Use when a value needs to reference a var injected via envFromSecrets (e.g. a URL built from a password).
-# For plain non-secret config that needs no expansion, use env: instead.
-envExpand: []
-# e.g.
-# envExpand:
-#   - name: DATABASE_URL
-#     value: "postgres://user:$(DB_PASSWORD)@host:5432/db"
+#   DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host:5432/db"
 
 # INFISICAL SECRET SYNC
 # Creates an InfisicalSecret CRD; the Infisical Operator syncs secrets into a K8s Secret
-# which is then injected into the pod via envFromSecrets (using bulk format).
+# which is then injected into the pod via secrets (using bulk format).
 infisical:
   enabled: false          # optional; default: false — requires Infisical Operator in cluster
   projectSlug: ""         # required when enabled

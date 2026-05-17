@@ -38,24 +38,24 @@ spec:
           {{- if .Values.args }}
           args: {{ toYaml .Values.args | nindent 12 }}
           {{- end }}
-          {{- $parsedEnvEntries := dict "items" (list) }}
+          {{- $parsedSecretEnvEntries := dict "items" (list) }}
           {{- $secretEnvFromRefs := dict "enabled" false }}
-          {{- range .Values.envFromSecrets }}
+          {{- range .Values.secrets }}
           {{- if and (kindIs "string" .) (contains "=" .) }}
           {{- $parts := splitList "=" . }}
           {{- if lt (len $parts) 2 }}
-          {{- fail (printf "invalid envFromSecrets entry %q: expected ENV_NAME=secretName:key" .) }}
+          {{- fail (printf "invalid secrets entry %q: expected ENV_NAME=secretName:key" .) }}
           {{- end }}
           {{- $envName := trim (index $parts 0) }}
           {{- if eq $envName "" }}
-          {{- fail (printf "invalid envFromSecrets entry %q: empty ENV_NAME" .) }}
+          {{- fail (printf "invalid secrets entry %q: empty ENV_NAME" .) }}
           {{- end }}
           {{- $envValue := trim (join "=" (slice $parts 1)) }}
           {{- $mappingParts := splitList ":" $envValue }}
           {{- if and (eq (len $mappingParts) 2) (ne (trim (index $mappingParts 0)) "") (ne (trim (index $mappingParts 1)) "") }}
-          {{- $_ := set $parsedEnvEntries "items" (append (index $parsedEnvEntries "items") (dict "mode" "secret" "name" $envName "secretName" (trim (index $mappingParts 0)) "key" (trim (index $mappingParts 1)))) }}
+          {{- $_ := set $parsedSecretEnvEntries "items" (append (index $parsedSecretEnvEntries "items") (dict "name" $envName "secretName" (trim (index $mappingParts 0)) "key" (trim (index $mappingParts 1)))) }}
           {{- else }}
-          {{- fail (printf "invalid envFromSecrets entry %q: expected ENV_NAME=secretName:key — for plain config use env:, for $(VAR) expansion use envExpand:" .) }}
+          {{- fail (printf "invalid secrets entry %q: expected ENV_NAME=secretName:key — for plain config use env:" .) }}
           {{- end }}
           {{- else if and (kindIs "string" .) . }}
           {{- $_ := set $secretEnvFromRefs "enabled" true }}
@@ -68,18 +68,18 @@ spec:
               name: {{ .name }}
               {{- end }}
             {{- end }}
-          {{- if or (gt (len (index $parsedEnvEntries "items")) 0) .Values.envExpand }}
+          {{- if or .Values.env (gt (len (index $parsedSecretEnvEntries "items")) 0) }}
           env:
-            {{- range (index $parsedEnvEntries "items") }}
+            {{- range $k, $v := .Values.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            {{- range (index $parsedSecretEnvEntries "items") }}
             - name: {{ .name }}
               valueFrom:
                 secretKeyRef:
                   name: {{ .secretName }}
                   key: {{ .key }}
-            {{- end }}
-            {{- range .Values.envExpand }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
             {{- end }}
           {{- end }}
           {{- if or .Values.env (index $secretEnvFromRefs "enabled") }}
@@ -88,7 +88,7 @@ spec:
             - configMapRef:
                 name: {{ .Values.name }}
             {{- end }}
-            {{- range .Values.envFromSecrets }}
+            {{- range .Values.secrets }}
             {{- if not (contains "=" .) }}
             - secretRef:
                 name: {{ . }}
