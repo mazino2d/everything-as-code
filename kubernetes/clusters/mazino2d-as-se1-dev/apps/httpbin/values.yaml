@@ -23,6 +23,9 @@ httpRoute:
   host: httpbin.mazino2d-k3s.duckdns.org
 instrumentation:
   enabled: true
+nacl:
+  egress:
+    - monitoring/grafana-alloy:4318
 resources:
   requests:
     cpu: 10m
