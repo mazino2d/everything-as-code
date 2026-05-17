@@ -14,7 +14,8 @@ resource "google_container_cluster" "this" {
     }
   }
 
-  datapath_provider = "ADVANCED_DATAPATH"
+  datapath_provider            = "ADVANCED_DATAPATH"
+  enable_fqdn_network_policy   = true
 
   gateway_api_config {
     channel = "CHANNEL_STANDARD"
