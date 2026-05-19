@@ -69,6 +69,7 @@ nav:
       - "17 · Helm": posts/kubernetes/17-kubernetes-helm.md
       - "18 · Kustomize": posts/kubernetes/18-kubernetes-kustomize.md
       - "19 · Argo CD": posts/kubernetes/19-kubernetes-argocd.md
+      - "20 · Rollout Strategies": posts/kubernetes/20-kubernetes-rollout-strategies.md
   - Terraform Series:
     - "Chapter 1 — The Mental Model":
       - "01 · State, Plan, Apply": posts/terraform/01-terraform-state-plan-apply.md
