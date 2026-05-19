@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working in this
 
 A GitOps monorepo managing personal infrastructure and platform assets:
 - Terraform for cloud/services provisioning and external platform config
-- Kubernetes (K3S) workloads on a GCP spot VM
+- Kubernetes (GKE) workloads on GCP
 - GitHub Actions for validation and deployment automation
 - MkDocs blog content and publishing
 
@@ -67,13 +67,13 @@ Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 | Stack | Workspace | Primary scope |
 |-------|-----------|---------------|
 | `terraform/github` | `github` | GitHub repos/settings/branch protection |
-| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP VM/networking for K3S + GKE learning cluster |
+| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
 | `terraform/infisical` | `infisical` | Infisical projects, identities, folders |
 | `terraform/grafana/stack` | `grafana-stack` | Grafana Cloud stack, access policies, service accounts |
 | `terraform/grafana/dashboard` | `grafana-dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
 | `terraform/k8s/mazino2d-as-se1-dev` | `k8s-mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
 
-Reusable modules live under each stack's `_modules/`. The GCP stack includes `_scripts/install_k3s.sh`, the startup script that installs K3S and updates DuckDNS to the VM external IP.
+Reusable modules live under each stack's `_modules/`.
 
 ### Kubernetes Structure
 
@@ -94,8 +94,11 @@ kubernetes/
         │   ├── postgresql/ # PostgreSQL database
         │   └── redis/      # Redis cache
         ├── infra/          # cluster infrastructure components
+        │   ├── argocd/              # Argo CD GitOps engine
         │   ├── atlas-operator/      # DB schema automation
         │   ├── cert-manager/        # TLS certificate management
+        │   ├── dnsync/              # external DNS sync (DuckDNS)
+        │   ├── gce-gateway/         # GCE Gateway for external ingress
         │   ├── infisical-operator/  # secrets operator
         │   ├── istio/               # service mesh
         │   ├── kustomization.yaml
@@ -112,17 +115,16 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 ### Infrastructure Notes
 
 **Compute:**
-- Main K3S cluster runs on a GCP spot VM (`e2-small` in `asia-southeast1-b`). Preemption is expected; recovery is automated.
-- VM startup includes `_scripts/install_k3s.sh`, which installs K3S and updates DuckDNS with the current external IP.
+- GKE cluster `mazino2d-as-se1-dev` in `asia-southeast1-c`, using `t2d-standard-2` spot nodes with scale-to-zero autoscaling (0–1 nodes).
+- ADVANCED_DATAPATH (Cilium) with FQDN network policy and Gateway API (`CHANNEL_STANDARD`) enabled.
 
 **Networking:**
-- DuckDNS domain: `mazino2d-k3s.duckdns.org` (stable DNS for ephemeral public IP)
-- K3S API TLS SANs include both the domain and the active external IP
-- Firewall rules expose: 22 (SSH), 6443 (K3S API), 80/443 (HTTP/S), 30379 (Redis NodePort)
+- External traffic enters via a GCE L7 global external managed Gateway (`gke-l7-global-external-managed`).
+- DuckDNS domain `mazino2d-k3s.duckdns.org` is synced every 5 minutes to the Gateway external IP by the `dnsync` cron job.
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure
-- Kubeconfig stored as base64 in Terraform Cloud workspace `k8s` variable
+- GKE cluster credentials (endpoint, CA cert, SA key) are passed between Terraform workspaces via remote state — no manual kubeconfig management
 - PostgreSQL and Redis are deployed in-cluster for demo/testing
 
 ### PR Status Checks
