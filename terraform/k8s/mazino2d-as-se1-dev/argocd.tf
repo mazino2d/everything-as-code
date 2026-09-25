@@ -68,8 +68,14 @@ resource "helm_release" "argocd" {
     configs:
       cm:
         kustomize.buildOptions: "--enable-helm"
+        # Argo Rollouts injects rollouts-pod-template-hash into Service selectors.
+        resource.customizations.ignoreDifferences.all: |
+          managedFieldsManagers:
+            - rollouts-controller
       params:
         server.insecure: true
+        # Diff via server-side dry-run so API server and Autopilot webhook defaults don't show as drift.
+        controller.diff.server.side: "true"
     repoServer:
       extensions:
         enabled: true
