@@ -12,12 +12,6 @@ resource "grafana_folder" "infrastructure" {
 
 # Dashboards that use Grafana template variables — no UID substitution needed
 
-resource "grafana_dashboard" "node_exporter" {
-  folder      = grafana_folder.infrastructure.uid
-  config_json = file("${path.module}/_dashboards/node_exporter.json")
-  overwrite   = true
-}
-
 resource "grafana_dashboard" "cert_manager" {
   folder      = grafana_folder.infrastructure.uid
   config_json = file("${path.module}/_dashboards/cert_manager.json")
