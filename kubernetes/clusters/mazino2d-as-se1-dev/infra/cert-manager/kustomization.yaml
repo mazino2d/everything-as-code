@@ -8,5 +8,9 @@ helmCharts:
     namespace: cert-manager
     valuesInline:
       installCRDs: true
+      global:
+        # GKE Autopilot denies writes to kube-system (the chart's default lease namespace).
+        leaderElection:
+          namespace: cert-manager
 resources:
   - namespace.yaml
