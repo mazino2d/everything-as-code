@@ -24,9 +24,6 @@ service:
   ports:
     - port: 80
       containerPort: 80
-httpRoute:
-  enabled: true
-  host: httpbin.mazino2d-k3s.duckdns.org
 nacl:
   egress:
     - monitoring/grafana-alloy:4318

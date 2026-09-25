@@ -10,4 +10,3 @@ helmCharts:
       installCRDs: true
 resources:
   - namespace.yaml
-  - letsencrypt-clusterissuer.yaml

@@ -19,9 +19,6 @@ service:
   ports:
     - port: 8080
       containerPort: 8080
-httpRoute:
-  enabled: true
-  host: hotrod.mazino2d-k3s.duckdns.org
 nacl:
   egress:
     - monitoring/grafana-alloy:4318

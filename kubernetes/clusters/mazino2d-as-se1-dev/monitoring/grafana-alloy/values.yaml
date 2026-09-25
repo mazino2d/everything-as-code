@@ -13,11 +13,6 @@ alloy:
       protocol: TCP
   configMap:
     content: |
-      prometheus.scrape "node_exporter" {
-        targets = [{"__address__" = "node-exporter.monitoring.svc.cluster.local:9100"}]
-        forward_to = [prometheus.remote_write.grafana_cloud.receiver]
-      }
-
       discovery.kubernetes "nodes" {
         role = "node"
       }
