@@ -143,3 +143,5 @@ alloy:
           auth     = otelcol.auth.basic.grafana_cloud.handler
         }
       }
+controller:
+  priorityClassName: grafana-alloy

@@ -1,0 +1,10 @@
+# Lets the Alloy DaemonSet pod preempt regular workloads on a full Autopilot node,
+# so every node gets a collector.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: grafana-alloy
+value: 1000000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: Priority for the Grafana Alloy node collector DaemonSet.

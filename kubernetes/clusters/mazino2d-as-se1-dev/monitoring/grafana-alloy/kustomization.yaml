@@ -10,3 +10,4 @@ helmCharts:
 resources:
   - infisical-secret.yaml
   - cadvisor-rbac.yaml
+  - priority-class.yaml

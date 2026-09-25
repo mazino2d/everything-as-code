@@ -64,16 +64,16 @@ containers:
       {{- end }}
     {{- if or .Values.env (gt (len (index $parsedSecretEnvEntries "items")) 0) }}
     env:
-      {{- range $k, $v := .Values.env }}
-      - name: {{ $k }}
-        value: {{ $v | quote }}
-      {{- end }}
       {{- range (index $parsedSecretEnvEntries "items") }}
       - name: {{ .name }}
         valueFrom:
           secretKeyRef:
             name: {{ .secretName }}
             key: {{ .key }}
+      {{- end }}
+      {{- range $k, $v := .Values.env }}
+      - name: {{ $k }}
+        value: {{ $v | quote }}
       {{- end }}
     {{- end }}
     {{- if or .Values.env (index $secretEnvFromRefs "enabled") }}
