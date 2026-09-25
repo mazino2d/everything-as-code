@@ -6,11 +6,11 @@ This document describes how to prepare cluster access for local administration.
 
 ## 1. GKE cluster access
 
-The active cluster is a GKE cluster (`mazino2d-as-se1-dev`) in `asia-southeast1-c`. Use `gcloud` to configure kubectl access:
+The active cluster is a GKE cluster (`mazino2d-as-se1-dev`) (Autopilot, regional) in `asia-southeast1`. Use `gcloud` to configure kubectl access:
 
 ```bash
 gcloud container clusters get-credentials mazino2d-as-se1-dev \
-  --zone asia-southeast1-c \
+  --region asia-southeast1 \
   --project mazino2d-as-se1-dev
 ```
 
@@ -18,7 +18,7 @@ Rename the context to avoid conflicts with other clusters:
 
 ```bash
 kubectl config rename-context \
-  gke_mazino2d-as-se1-dev_asia-southeast1-c_mazino2d-as-se1-dev \
+  gke_mazino2d-as-se1-dev_asia-southeast1_mazino2d-as-se1-dev \
   gke-mazino2d
 kubectl config use-context gke-mazino2d
 kubectl get nodes

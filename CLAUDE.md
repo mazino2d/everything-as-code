@@ -100,7 +100,6 @@ kubernetes/
         │   ├── dnsync/              # external DNS sync (DuckDNS)
         │   ├── gce-gateway/         # GCE Gateway for external ingress
         │   ├── infisical-operator/  # secrets operator
-        │   ├── istio/               # service mesh
         │   ├── kustomization.yaml
         │   └── velero/              # cluster backup solution
         ├── monitoring/     # observability stack
@@ -115,8 +114,8 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 ### Infrastructure Notes
 
 **Compute:**
-- GKE cluster `mazino2d-as-se1-dev` in `asia-southeast1-c`, using `t2d-standard-2` spot nodes with scale-to-zero autoscaling (0–1 nodes).
-- ADVANCED_DATAPATH (Cilium) with FQDN network policy and Gateway API (`CHANNEL_STANDARD`) enabled.
+- GKE Autopilot cluster `mazino2d-as-se1-dev` (regional, `asia-southeast1`); all Pods run on Spot capacity via the cluster-wide `default` ComputeClass (`terraform/k8s/mazino2d-as-se1-dev/compute_class.tf`), with no on-demand fallback.
+- Dataplane V2 (Autopilot default) with FQDN network policy and Gateway API (`CHANNEL_STANDARD`) enabled.
 
 **Networking:**
 - External traffic enters via a GCE L7 global external managed Gateway (`gke-l7-global-external-managed`).

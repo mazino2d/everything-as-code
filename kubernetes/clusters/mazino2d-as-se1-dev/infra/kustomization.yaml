@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - gce-gateway
   - argocd
-  - istio
   - cert-manager
   - atlas-operator
   - infisical-operator

@@ -80,6 +80,8 @@ resource "helm_release" "argocd" {
                 value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.6/extension.tar
   YAML
   ]
+
+  depends_on = [kubectl_manifest.compute_class_default]
 }
 
 resource "kubectl_manifest" "argocd_application" {
