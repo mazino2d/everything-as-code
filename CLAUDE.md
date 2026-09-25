@@ -96,9 +96,7 @@ kubernetes/
         ├── infra/          # cluster infrastructure components
         │   ├── argocd/              # Argo CD GitOps engine
         │   ├── atlas-operator/      # DB schema automation
-        │   ├── cert-manager/        # TLS certificate management
-        │   ├── dnsync/              # external DNS sync (DuckDNS)
-        │   ├── gce-gateway/         # GCE Gateway for external ingress
+        │   ├── cert-manager/        # certificates (OpenTelemetry operator webhook)
         │   ├── infisical-operator/  # secrets operator
         │   ├── kustomization.yaml
         │   └── velero/              # cluster backup solution
@@ -118,8 +116,7 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 - Dataplane V2 (Autopilot default) with FQDN network policy and Gateway API (`CHANNEL_STANDARD`) enabled.
 
 **Networking:**
-- External traffic enters via a GCE L7 global external managed Gateway (`gke-l7-global-external-managed`).
-- DuckDNS domain `mazino2d-k3s.duckdns.org` is synced every 5 minutes to the Gateway external IP by the `dnsync` cron job.
+- No external ingress (no load balancer): cluster UIs and apps are reached with `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure

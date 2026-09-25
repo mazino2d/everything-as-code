@@ -12,6 +12,3 @@ helmCharts:
         enabled: true
 resources:
   - namespace.yaml
-  - argocd-httproute.yaml
-  - argo-rollouts-httproute.yaml
-  - argo-rollouts-backend-policy.yaml

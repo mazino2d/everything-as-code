@@ -20,7 +20,7 @@ secrets:
   - UTILS_SECRET=outline-env:UTILS_SECRET
   - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
 env:
-  URL: http://outline.mazino2d-k3s.duckdns.org
+  URL: http://localhost:3000
   FORCE_HTTPS: "false"
   FILE_STORAGE: local
   FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
@@ -31,9 +31,6 @@ service:
   ports:
     - port: 3000
       containerPort: 3000
-httpRoute:
-  enabled: true
-  host: outline.mazino2d-k3s.duckdns.org
 nacl:
   egress:
     - apps/outline-db-1:5432
