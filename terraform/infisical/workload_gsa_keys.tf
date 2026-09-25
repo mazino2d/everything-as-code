@@ -72,6 +72,7 @@ resource "infisical_secret_folder" "workload_gsa_root" {
   environment_slug = each.value
   project_id       = module.everything_as_code.id
   folder_path      = "/"
+  force_delete     = true
 }
 
 resource "infisical_secret_folder" "workload_gsa_workspace" {
@@ -80,7 +81,11 @@ resource "infisical_secret_folder" "workload_gsa_workspace" {
   name             = each.value.workspace_slug
   environment_slug = each.value.env_slug
   project_id       = module.everything_as_code.id
-  folder_path      = infisical_secret_folder.workload_gsa_root[each.value.env_slug].path
+  # Static paths below: referencing a parent's computed path forces replacement whenever the parent is updated in place.
+  folder_path  = "/workload-gsa-keys"
+  force_delete = true
+
+  depends_on = [infisical_secret_folder.workload_gsa_root]
 }
 
 resource "infisical_secret_folder" "workload_gsa_sub" {
@@ -89,7 +94,10 @@ resource "infisical_secret_folder" "workload_gsa_sub" {
   name             = each.value.workload_name
   environment_slug = each.value.env_slug
   project_id       = module.everything_as_code.id
-  folder_path      = infisical_secret_folder.workload_gsa_workspace["${each.value.env_slug}:${each.value.workspace_name}"].path
+  folder_path      = "/workload-gsa-keys/${each.value.workspace_slug}"
+  force_delete     = true
+
+  depends_on = [infisical_secret_folder.workload_gsa_workspace]
 }
 
 resource "infisical_secret" "workload_gsa_key" {
@@ -100,5 +108,7 @@ resource "infisical_secret" "workload_gsa_key" {
   value_wo_version = 1
   env_slug         = each.value.env_slug
   workspace_id     = module.everything_as_code.id
-  folder_path      = infisical_secret_folder.workload_gsa_sub[each.key].path
+  folder_path      = "/workload-gsa-keys/${each.value.workspace_slug}/${each.value.workload_name}"
+
+  depends_on = [infisical_secret_folder.workload_gsa_sub]
 }

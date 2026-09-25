@@ -20,6 +20,7 @@ locals {
             env_slug = env
             name     = leaf_name
             top_ref  = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}"
+            path     = "/${top_name}"
           }
         ]
       ]
@@ -36,6 +37,7 @@ locals {
               env_slug    = env
               name        = try(secret.key, null)
               folder_ref  = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
+              folder_path = "/${top_name}/${leaf_name}"
               secret_envs = try(tolist(secret.environments), var.environments)
               value       = try(secret.value, null)
               generate    = try(secret.generate, null)
@@ -92,6 +94,7 @@ resource "infisical_secret_folder" "folders_top" {
   environment_slug = each.value.env_slug
   project_id       = var.project_id
   folder_path      = "/"
+  force_delete     = true
 }
 
 resource "infisical_secret_folder" "folders_sub" {
@@ -100,7 +103,11 @@ resource "infisical_secret_folder" "folders_sub" {
   name             = each.value.name
   environment_slug = each.value.env_slug
   project_id       = var.project_id
-  folder_path      = infisical_secret_folder.folders_top[each.value.top_ref].path
+  # Static path: referencing the parent's computed path forces replacement whenever the parent is updated in place.
+  folder_path  = each.value.path
+  force_delete = true
+
+  depends_on = [infisical_secret_folder.folders_top]
 }
 
 resource "random_password" "generated" {
@@ -136,7 +143,9 @@ resource "infisical_secret" "secrets" {
   value_wo_version = try(tonumber(each.value.generate.version), 1)
   env_slug         = each.value.env_slug
   workspace_id     = var.project_id
-  folder_path      = infisical_secret_folder.folders_sub[each.value.folder_ref].path
+  folder_path      = each.value.folder_path
+
+  depends_on = [infisical_secret_folder.folders_sub]
 
   lifecycle {
     precondition {
