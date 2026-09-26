@@ -8,7 +8,21 @@ helmCharts:
     namespace: argocd
     includeCRDs: true
     valuesInline:
+      controller:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
       dashboard:
         enabled: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
 resources:
   - namespace.yaml

@@ -1,4 +1,11 @@
 alloy:
+  # Steady-state usage is ~135Mi, above the Autopilot DaemonSet default of 100Mi.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 160Mi
+    limits:
+      memory: 512Mi
   envFrom:
     - secretRef:
         name: grafana-alloy

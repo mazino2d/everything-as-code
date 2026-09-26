@@ -76,7 +76,57 @@ resource "helm_release" "argocd" {
         server.insecure: true
         # Diff via server-side dry-run so API server and Autopilot webhook defaults don't show as drift.
         controller.diff.server.side: "true"
+    # Explicit requests: Autopilot otherwise defaults each container to 500m / 2Gi.
+    controller:
+      resources:
+        requests:
+          cpu: 60m
+          memory: 384Mi
+        limits:
+          memory: 768Mi
+    server:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+    applicationSet:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    notifications:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    dex:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    redis:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
     repoServer:
+      # Headroom for kustomize --enable-helm renders.
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 1Gi
       extensions:
         enabled: true
         extensionList:

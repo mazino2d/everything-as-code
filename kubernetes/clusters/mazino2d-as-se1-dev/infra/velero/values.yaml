@@ -1,5 +1,13 @@
 upgradeCRDs: false
 
+# Headroom for backup runs; idle usage is ~35Mi.
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
 configuration:
   backupStorageLocation:
     - name: default
@@ -31,6 +39,12 @@ initContainers:
   - name: velero-plugin-for-gcp
     image: velero/velero-plugin-for-gcp:v1.13.2
     imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
     volumeMounts:
       - mountPath: /target
         name: plugins

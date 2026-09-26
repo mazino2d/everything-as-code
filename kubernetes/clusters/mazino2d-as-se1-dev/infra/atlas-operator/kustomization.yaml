@@ -9,6 +9,13 @@ helmCharts:
     version: 0.7.28
     releaseName: atlas-operator
     namespace: atlas-operator
+    valuesInline:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
 patches:
   - target:
       kind: ServiceAccount
