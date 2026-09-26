@@ -20,5 +20,7 @@ service:
     - port: 8080
       containerPort: 8080
 nacl:
+  ingress:
+    - cloudflared/cloudflared:8080
   egress:
     - monitoring/grafana-alloy:4318

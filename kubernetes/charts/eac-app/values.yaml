@@ -137,6 +137,7 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 nacl:
   ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]
   egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]
+  # FQDN egress entries (host:port) default to TCP; append ":udp" for UDP, e.g. "region1.v2.argotunnel.com:7844:udp".
 
 # SERVICE ACCOUNT
 serviceAccountName: ""    # optional; name of the ServiceAccount the pod runs as

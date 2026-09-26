@@ -20,7 +20,7 @@ secrets:
   - UTILS_SECRET=outline-env:UTILS_SECRET
   - OUTLINE_DB_PASSWORD=outline-db-1-auth:POSTGRES_PASSWORD
 env:
-  URL: http://localhost:3000
+  URL: http://outline.apps.svc.cluster.local:3000
   FORCE_HTTPS: "false"
   FILE_STORAGE: local
   FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
@@ -32,6 +32,8 @@ service:
     - port: 3000
       containerPort: 3000
 nacl:
+  ingress:
+    - cloudflared/cloudflared:3000
   egress:
     - apps/outline-db-1:5432
     - apps/outline-cache-1:6379

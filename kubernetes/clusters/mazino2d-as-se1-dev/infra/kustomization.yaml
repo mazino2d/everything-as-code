@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - argocd
   - cert-manager
+  - cloudflared
   - atlas-operator
   - infisical-operator
   - velero

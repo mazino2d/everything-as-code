@@ -83,6 +83,7 @@ Reusable modules live under each stack's `_modules/`.
 kubernetes/
 ├── _docs/                   # cluster documentation
 │   ├── setup.md            # kubeconfig setup for local access
+│   ├── access-warp.md      # private access via Cloudflare Tunnel + WARP
 │   └── backup-velero.md    # Velero backup procedures
 ├── charts/                 # reusable Helm charts
 │   ├── eac-app/            # generic application chart template
@@ -118,7 +119,7 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 - Dataplane V2 (Autopilot default) with FQDN network policy and Gateway API (`CHANNEL_STANDARD`) enabled.
 
 **Networking:**
-- No external ingress (no load balancer): cluster UIs and apps are reached with `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
+- No external ingress (no load balancer). Selected Services are reachable privately from WARP-enrolled devices via Cloudflare Tunnel (`infra/cloudflared`, `terraform/cloudflare`, see `kubernetes/_docs/access-warp.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure

@@ -21,6 +21,6 @@ spec:
         - name: {{ index $hostPort 0 }}
       ports:
         - port: {{ index $hostPort 1 | int }}
-          protocol: TCP
+          protocol: {{ if gt (len $hostPort) 2 }}{{ index $hostPort 2 | upper }}{{ else }}TCP{{ end }}
     {{- end }}
 {{- end }}

@@ -1,0 +1,47 @@
+# Connector for the remotely managed Cloudflare Tunnel (terraform/cloudflare).
+# WARP-enrolled devices reach in-cluster Services through it; nacl.egress is the allowlist of exposed Services.
+name: cloudflared
+image:
+  repository: cloudflare/cloudflared
+  tag: "2026.9.3"
+args:
+  - tunnel
+  - --no-autoupdate
+  - --metrics
+  - 0.0.0.0:2000
+  - run
+workload: deployment
+deployment:
+  # Two connectors so a Spot preemption does not drop access.
+  replicaCount: 2
+resources:
+  requests:
+    cpu: 10m
+    memory: 48Mi
+  limits:
+    memory: 128Mi
+secrets:
+  - TUNNEL_TOKEN=cloudflared-env:TUNNEL_TOKEN
+service:
+  ports:
+    - name: metrics
+      port: 2000
+      containerPort: 2000
+nacl:
+  egress:
+    # Cloudflare edge: QUIC (UDP) is required to proxy UDP such as DNS; TCP is the http2 fallback.
+    - region1.v2.argotunnel.com:7844:udp
+    - region2.v2.argotunnel.com:7844:udp
+    - region1.v2.argotunnel.com:7844
+    - region2.v2.argotunnel.com:7844
+    - api.cloudflare.com:443
+    # Exposed Services (container ports, as policies apply after Service DNAT).
+    # argocd-server is allowed separately in networkpolicy-argocd.yaml as it lacks the `app` label.
+    - apps/httpbin:80
+    - apps/hotrod:8080
+    - apps/outline:3000
+    - platform/adminer:8080
+infisical:
+  enabled: true
+  projectSlug: everything-as-code
+  envSlug: dev
