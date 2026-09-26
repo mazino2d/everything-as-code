@@ -48,3 +48,13 @@ output "workload_gsa" {
   }
   sensitive = true
 }
+
+output "gke_services_ipv4_cidr" {
+  description = "GKE Service (ClusterIP) CIDR, routed through the Cloudflare Tunnel private network."
+  value       = google_container_cluster.this.ip_allocation_policy[0].services_ipv4_cidr_block
+}
+
+output "gke_kube_dns_ip" {
+  description = "ClusterIP of kube-dns (10th address of the Service CIDR), used for WARP local domain fallback."
+  value       = cidrhost(google_container_cluster.this.ip_allocation_policy[0].services_ipv4_cidr_block, 10)
+}
