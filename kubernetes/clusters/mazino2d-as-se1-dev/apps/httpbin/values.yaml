@@ -4,7 +4,7 @@ image:
   tag: "0.2.3"
 workload: deployment
 deployment:
-  replicaCount: 4
+  replicaCount: 1
   rollout:
     strategy: ReplicaCanary
     steps:
