@@ -1,0 +1,57 @@
+name: Kubernetes Power
+
+# Sleep scales every non-system workload to zero so GKE Autopilot bills (almost) nothing;
+# wake restores the recorded replica counts and lets Argo CD reconcile the rest.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Power action
+        required: true
+        default: wake
+        type: choice
+        options:
+          - sleep
+          - wake
+  schedule:
+    # Nightly auto-sleep at 00:00 Asia/Ho_Chi_Minh; waking is always manual.
+    - cron: "0 17 * * *"
+
+concurrency:
+  group: k8s-power
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  power:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Keyless auth via Workload Identity Federation (terraform/gcp/mazino2d-as-se1-dev/github_actions.tf).
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/238020767329/locations/global/workloadIdentityPools/github/providers/everything-as-code
+          service_account: gha-k8s-power@mazino2d-as-se1-dev.iam.gserviceaccount.com
+
+      - uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: mazino2d-as-se1-dev
+          location: asia-southeast1
+          project_id: mazino2d-as-se1-dev
+
+      - name: Run ${{ inputs.action || 'sleep' }}
+        run: kubernetes/_scripts/power.sh "${{ inputs.action || 'sleep' }}"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Cluster ${{ inputs.action || 'sleep' }}"
+            echo '```'
+            kubectl get deployments.apps,statefulsets.apps,rollouts.argoproj.io -A --no-headers |
+              grep -vE '^(default|kube-|gke-|gmp-)' || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

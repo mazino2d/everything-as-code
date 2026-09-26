@@ -58,3 +58,13 @@ output "gke_kube_dns_ip" {
   description = "ClusterIP of kube-dns (10th address of the Service CIDR), used for WARP local domain fallback."
   value       = cidrhost(google_container_cluster.this.ip_allocation_policy[0].services_ipv4_cidr_block, 10)
 }
+
+output "github_actions_wif_provider" {
+  description = "Workload Identity Federation provider for GitHub Actions (google-github-actions/auth)."
+  value       = google_iam_workload_identity_pool_provider.github.name
+}
+
+output "gha_k8s_power_sa_email" {
+  description = "Service account impersonated by the k8s-power workflow."
+  value       = google_service_account.gha_k8s_power.email
+}
