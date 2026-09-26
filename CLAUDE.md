@@ -118,6 +118,9 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 - GKE Autopilot cluster `mazino2d-as-se1-dev` (regional, `asia-southeast1`); all Pods run on Spot capacity via the cluster-wide `default` ComputeClass (`terraform/k8s/mazino2d-as-se1-dev/compute_class.tf`), with no on-demand fallback.
 - Dataplane V2 (Autopilot default) with FQDN network policy and Gateway API (`CHANNEL_STANDARD`) enabled.
 
+**Cost / power:**
+- `.github/workflows/k8s-power.yml` (`workflow_dispatch` sleep/wake, nightly auto-sleep at 00:00 ICT) runs `kubernetes/_scripts/power.sh`: sleep records replica counts in an annotation and scales all non-system workloads to zero (Argo CD application controller first); wake restores them (controller last). Auth is keyless via Workload Identity Federation (`terraform/gcp/mazino2d-as-se1-dev/github_actions.tf`).
+
 **Networking:**
 - No external ingress (no load balancer). Selected Services are reachable privately from WARP-enrolled devices via Cloudflare Tunnel (`infra/cloudflared`, `terraform/cloudflare`, see `kubernetes/_docs/access-warp.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
