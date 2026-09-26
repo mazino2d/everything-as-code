@@ -1,6 +1,5 @@
-# Cluster-wide default ComputeClass: every Pod without an explicit class runs on Spot only.
-# `podFamily` keeps Autopilot pod-based billing (pay per Pod request); without it GKE
-# provisions plain Compute Engine nodes and bills the whole VM and boot disk.
+# Cluster-wide default ComputeClass: Pods without an explicit class run on Spot only.
+# `podFamily` (requires `autopilot.enabled`) keeps pod-based billing instead of per-node VM billing.
 resource "kubectl_manifest" "compute_class_default" {
   yaml_body = yamlencode({
     apiVersion = "cloud.google.com/v1"
@@ -9,6 +8,9 @@ resource "kubectl_manifest" "compute_class_default" {
       name = "default"
     }
     spec = {
+      autopilot = {
+        enabled = true
+      }
       priorities = [
         { podFamily = "general-purpose", spot = true },
       ]
