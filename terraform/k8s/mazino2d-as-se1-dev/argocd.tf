@@ -91,27 +91,13 @@ resource "helm_release" "argocd" {
           memory: 64Mi
         limits:
           memory: 256Mi
+    # Unused components: no ApplicationSets, notification config or SSO.
     applicationSet:
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          memory: 128Mi
+      replicas: 0
     notifications:
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          memory: 128Mi
+      enabled: false
     dex:
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          memory: 128Mi
+      enabled: false
     redis:
       resources:
         requests:
