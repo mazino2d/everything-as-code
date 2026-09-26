@@ -10,5 +10,15 @@ module "project" {
     "container.googleapis.com",
     "storage.googleapis.com",
     "monitoring.googleapis.com",
+    # Gemini Cloud Assist (console chat): required APIs
+    "geminicloudassist.googleapis.com",
+    "cloudaicompanion.googleapis.com",
+    "designcenter.googleapis.com",
+    "cloudasset.googleapis.com",
+    "appoptimize.googleapis.com",
+    "apphub.googleapis.com",
+    # Gemini Cloud Assist: recommended APIs for fuller answers
+    "apptopology.googleapis.com",
+    "recommender.googleapis.com",
   ]
 }
