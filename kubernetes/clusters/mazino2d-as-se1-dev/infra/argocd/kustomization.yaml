@@ -16,13 +16,8 @@ helmCharts:
             memory: 64Mi
           limits:
             memory: 128Mi
+      # Rollouts are viewed through the Argo CD rollout-extension instead.
       dashboard:
-        enabled: true
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            memory: 128Mi
+        enabled: false
 resources:
   - namespace.yaml
