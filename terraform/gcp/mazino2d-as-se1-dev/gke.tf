@@ -10,6 +10,9 @@ resource "google_container_cluster" "this" {
 
   # The project has no default Compute Engine service account, so nodes use a dedicated one.
   cluster_autoscaling {
+    # Apply the ComputeClass named `default` (Spot-only, terraform/k8s) to Pods without an explicit class.
+    default_compute_class_enabled = true
+
     auto_provisioning_defaults {
       service_account = google_service_account.gke_node.email
       oauth_scopes    = ["https://www.googleapis.com/auth/cloud-platform"]
