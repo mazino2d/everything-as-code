@@ -29,15 +29,15 @@ jobs:
   power:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Keyless auth via Workload Identity Federation (terraform/gcp/mazino2d-as-se1-dev/github_actions.tf).
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: projects/238020767329/locations/global/workloadIdentityPools/github/providers/everything-as-code
           service_account: gha-k8s-power@mazino2d-as-se1-dev.iam.gserviceaccount.com
 
-      - uses: google-github-actions/get-gke-credentials@v2
+      - uses: google-github-actions/get-gke-credentials@v3
         with:
           cluster_name: mazino2d-as-se1-dev
           location: asia-southeast1
@@ -51,7 +51,7 @@ jobs:
           {
             echo "### Cluster ${{ inputs.action || 'sleep' }}"
             echo '```'
-            kubectl get deployments.apps,statefulsets.apps,rollouts.argoproj.io -A --no-headers |
+            kubectl get deployments.apps,statefulsets.apps,rollouts.argoproj.io,daemonsets.apps -A --no-headers |
               grep -vE '^(default|kube-|gke-|gmp-)' || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

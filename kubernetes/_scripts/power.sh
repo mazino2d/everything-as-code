@@ -2,9 +2,10 @@
 # Sleep or wake the cluster by scaling workloads to zero and back.
 #
 # sleep: records each workload's replica count in an annotation, then scales it to zero.
-#        The Argo CD application controller goes first so self-heal cannot undo the scaling.
-# wake:  restores the recorded replica counts, application controller last; Argo CD then
-#        reconciles anything else back to Git.
+#        DaemonSets get a nodeSelector that matches no node, which evicts their Pods.
+#        The Argo CD application controller goes first so self-heal cannot undo the changes.
+# wake:  restores the recorded replica counts and removes the DaemonSet nodeSelector,
+#        application controller last; Argo CD then reconciles anything else back to Git.
 #
 # Usage: power.sh sleep|wake
 set -euo pipefail
@@ -13,6 +14,11 @@ action="${1:-}"
 annotation="eac.mazino2d.dev/replicas-before-sleep"
 kinds="deployments.apps,statefulsets.apps,rollouts.argoproj.io"
 controller="statefulset.apps/argocd-application-controller"
+# Autopilot (GKE Warden) only allows well-known nodeSelector keys, so DaemonSets are pinned to a
+# zone that does not exist. Server-side apply keeps the extra field out of Argo CD's diff, so wake
+# removes it explicitly; if Git sets the same key, Argo CD self-heal restores it afterwards.
+sleep_selector="topology.kubernetes.io/zone"
+sleep_zone="sleeping"
 # System namespaces are managed (and not billed) by GKE Autopilot.
 system_namespaces='^(default|kube-.*|gke-.*|gmp-.*)$'
 
@@ -31,6 +37,12 @@ scale_down() {
   kubectl -n "$namespace" scale "$workload" --replicas=0
 }
 
+sleep_daemonset() {
+  local namespace="$1" daemonset="$2"
+  kubectl -n "$namespace" patch "$daemonset" --type merge \
+    -p "{\"spec\":{\"template\":{\"spec\":{\"nodeSelector\":{\"$sleep_selector\":\"$sleep_zone\"}}}}}"
+}
+
 sleep_cluster() {
   scale_down argocd "$controller"
 
@@ -38,6 +50,9 @@ sleep_cluster() {
   for namespace in $(workload_namespaces | sort | awk '$0 != "argocd"') argocd; do
     for workload in $(kubectl -n "$namespace" get "$kinds" -o name); do
       scale_down "$namespace" "$workload"
+    done
+    for workload in $(kubectl -n "$namespace" get daemonsets.apps -o name); do
+      sleep_daemonset "$namespace" "$workload"
     done
   done
 }
@@ -57,9 +72,31 @@ scale_up() {
   kubectl -n "$namespace" annotate "$workload" "$annotation-" >/dev/null
 }
 
+sleeping_daemonsets() {
+  # Prints "<namespace> daemonset.apps/<name>" for every DaemonSet carrying the sleep nodeSelector.
+  kubectl get daemonsets.apps -A -o json |
+    jq -r --arg s "$sleep_selector" --arg z "$sleep_zone" '
+      .items[]
+      | select(.spec.template.spec.nodeSelector[$s] == $z)
+      | "\(.metadata.namespace) daemonset.apps/\(.metadata.name)"'
+}
+
+wake_daemonset() {
+  local namespace="$1" daemonset="$2"
+  # JSON Pointer form of $sleep_selector ("/" escaped as "~1").
+  kubectl -n "$namespace" patch "$daemonset" --type json \
+    -p '[{"op":"remove","path":"/spec/template/spec/nodeSelector/topology.kubernetes.io~1zone"}]'
+}
+
 wake_cluster() {
-  local workloads namespace workload replicas
+  local workloads daemonsets namespace workload replicas
   workloads="$(sleeping_workloads)"
+  daemonsets="$(sleeping_daemonsets)"
+
+  while read -r namespace workload; do
+    [[ -z "$workload" ]] && continue
+    wake_daemonset "$namespace" "$workload"
+  done <<<"$daemonsets"
 
   while read -r namespace workload replicas; do
     [[ -z "$workload" || "$workload" == "$controller" ]] && continue
