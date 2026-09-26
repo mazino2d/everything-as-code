@@ -29,6 +29,7 @@ Valid `STACK` values:
 - `terraform/grafana/stack`
 - `terraform/grafana/dashboard`
 - `terraform/k8s/mazino2d-as-se1-dev`
+- `terraform/cloudflare`
 
 ### Kubernetes (manual validation)
 
@@ -72,6 +73,7 @@ Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 | `terraform/grafana/stack` | `grafana-stack` | Grafana Cloud stack, access policies, service accounts |
 | `terraform/grafana/dashboard` | `grafana-dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
 | `terraform/k8s/mazino2d-as-se1-dev` | `k8s-mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
+| `terraform/cloudflare` | `cloudflare` | Cloudflare Tunnel, private network route to the GKE Service CIDR, WARP device settings and enrolment (reads CIDR from `gcp-mazino2d-as-se1-dev` remote state) |
 
 Reusable modules live under each stack's `_modules/`.
 

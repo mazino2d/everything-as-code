@@ -1,0 +1,3 @@
+cloudflare_api_token  = "your-cloudflare-api-token"
+cloudflare_account_id = "your-cloudflare-account-id"
+warp_allowed_emails   = ["you@example.com"]
