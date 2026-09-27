@@ -74,8 +74,8 @@ resource "github_actions_variable" "eac_deployer_app_id" {
 }
 
 resource "github_actions_secret" "eac_deployer_private_key" {
-  count           = var.auto_deploy ? 1 : 0
-  repository      = github_repository.this.name
-  secret_name     = "EAC_DEPLOYER_PRIVATE_KEY"
-  plaintext_value = var.deployer_app.private_key
+  count       = var.auto_deploy ? 1 : 0
+  repository  = github_repository.this.name
+  secret_name = "EAC_DEPLOYER_PRIVATE_KEY"
+  value       = var.deployer_app.private_key
 }
