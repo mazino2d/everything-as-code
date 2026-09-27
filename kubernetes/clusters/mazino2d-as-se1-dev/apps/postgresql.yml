@@ -33,3 +33,35 @@ instances:
         enabled: false
         existingClaim: ""
         mountPath: /backup
+  - name: dagster-db-1
+    replicaCount: 1
+    image:
+      repository: postgres
+      tag: "16-alpine"
+    auth:
+      adminUsername: postgres
+      password:
+        source: auto
+        infisical:
+          enabled: true
+    storage:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+    postgresql:
+      maxConnections: "100"
+      sharedBuffers: "128MB"
+      workMem: "4MB"
+      maintenanceWorkMem: "64MB"
+      walLevel: "replica"
+    initdbScripts:
+      init.sql: |
+        CREATE DATABASE dagster;
+    exporter:
+      enabled: true
+    backup:
+      enabled: false

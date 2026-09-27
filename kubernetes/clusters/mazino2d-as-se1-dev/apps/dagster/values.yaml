@@ -1,0 +1,70 @@
+# External metadata store: dagster-db-1 (eac-postgresql, see ../postgresql.yml).
+postgresql:
+  enabled: false
+  postgresqlHost: dagster-db-1.apps.svc.cluster.local
+  postgresqlUsername: postgres
+  postgresqlDatabase: dagster
+  postgresqlParams:
+    sslmode: disable
+generatePostgresqlPasswordSecret: false
+global:
+  postgresqlSecretName: dagster-postgresql-secret
+
+# Runs execute in the code server Pod rather than one Pod per run, so no RBAC is needed.
+rbacEnabled: false
+runLauncher:
+  type: CustomRunLauncher
+  config:
+    customRunLauncher:
+      module: dagster._core.launcher
+      class: DefaultRunLauncher
+      config: {}
+
+telemetry:
+  enabled: false
+
+dagsterWebserver:
+  # Service and Deployment are named dagster-webserver rather than dagster-dagster-webserver.
+  nameOverride: webserver
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+dagsterDaemon:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+dagster-user-deployments:
+  enabled: true
+  enableSubchart: true
+  rbacEnabled: false
+  deployments:
+    - name: jaffle-shop
+      image:
+        repository: ghcr.io/mazino2d/jaffle-shop
+        # Bump to the sha-<short> tag published by jaffle-shop's docker-image workflow.
+        tag: sha-8aef142
+        pullPolicy: IfNotPresent
+      dagsterApiGrpcArgs:
+        - "-m"
+        - "dag"
+      port: 3030
+      envSecrets:
+        - name: jaffle-shop-env
+      env:
+        - name: DBT_TARGET
+          value: cloud
+      # dlt and dbt run in-process with DefaultRunLauncher.
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 1536Mi
