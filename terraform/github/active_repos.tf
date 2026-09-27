@@ -67,6 +67,8 @@ module "jaffle_shop" {
   pages = {
     build_type = "workflow"
   }
+
+  deploy_app = local.eac_deploy_app
 }
 
 module "sim_split" {

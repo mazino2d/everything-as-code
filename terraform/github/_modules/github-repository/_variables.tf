@@ -102,3 +102,12 @@ variable "branch_protection" {
   })
   default = {}
 }
+
+variable "deploy_app" {
+  type = object({
+    app_id      = string
+    private_key = string
+  })
+  default     = null
+  description = "eac-deployer GitHub App credentials; when set, this repo's CI can open image-bump PRs against everything-as-code"
+}
