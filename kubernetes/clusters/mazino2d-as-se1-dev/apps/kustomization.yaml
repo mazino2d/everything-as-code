@@ -20,3 +20,11 @@ helmCharts:
       infisical:
         projectSlug: everything-as-code
         envSlug: dev
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+configMapGenerator:
+  - name: outline-db-schema
+    files:
+      - schema.hcl=outline/schema.hcl
