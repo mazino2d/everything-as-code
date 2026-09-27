@@ -102,3 +102,23 @@ variable "branch_protection" {
   })
   default = {}
 }
+
+variable "auto_deploy" {
+  type        = bool
+  default     = false
+  description = "Give this repo's CI the eac-deployer App credentials to open image-bump PRs against everything-as-code"
+}
+
+variable "deployer_app" {
+  type = object({
+    app_id      = string
+    private_key = string
+  })
+  default     = null
+  description = "eac-deployer GitHub App credentials, required when auto_deploy is true"
+
+  validation {
+    condition     = !var.auto_deploy || var.deployer_app != null
+    error_message = "deployer_app must be set when auto_deploy is true."
+  }
+}

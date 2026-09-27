@@ -87,7 +87,7 @@ Go to workspace `github` → **Variables** → Add variable:
 
 Delete the local `.pem` once saved.
 
-**Allow a repo to deploy:** add its name to `local.eac_deployer_repos` in `deployer_app.tf`. The repo then receives `vars.EAC_DEPLOYER_APP_ID` and `secrets.EAC_DEPLOYER_PRIVATE_KEY`, and mints a token in its workflow:
+**Allow a repo to deploy:** set `auto_deploy = true` and `deployer_app = local.eac_deployer_app` on its module in `active_repos.tf`. The repo then receives `vars.EAC_DEPLOYER_APP_ID` and `secrets.EAC_DEPLOYER_PRIVATE_KEY`, and mints a token in its workflow:
 
 ```yaml
 - uses: actions/create-github-app-token@v2
