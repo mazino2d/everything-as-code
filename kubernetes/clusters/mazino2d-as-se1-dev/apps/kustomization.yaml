@@ -7,12 +7,8 @@ resources:
   - namespace.yaml
   - hotrod
   - httpbin
-  - outline
   - dagster
 helmCharts:
-  - name: eac-redis
-    releaseName: redis
-    valuesFile: redis.yml
   - name: eac-postgresql
     releaseName: postgresql
     valuesFile: postgresql.yml

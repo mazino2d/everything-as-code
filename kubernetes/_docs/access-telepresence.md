@@ -21,7 +21,6 @@ telepresence connect
 telepresence status
 
 curl http://httpbin.apps/get
-open http://outline.apps:3000
 open http://dagster-webserver.apps
 open http://argocd-server.argocd
 ```
@@ -34,7 +33,6 @@ Disconnect with `telepresence quit`.
 |---------|-----|
 | httpbin | `http://httpbin.apps` |
 | hotrod | `http://hotrod.apps:8080` |
-| Outline | `http://outline.apps:3000` |
 | Dagster | `http://dagster-webserver.apps` |
 | Adminer | `http://adminer.platform:8080` |
 | Argo CD | `http://argocd-server.argocd` |
