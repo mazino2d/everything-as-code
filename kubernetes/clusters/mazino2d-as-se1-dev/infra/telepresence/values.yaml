@@ -1,0 +1,3 @@
+agentInjector:
+  certificate:
+    method: certmanager

@@ -16,3 +16,6 @@ service:
   ports:
     - port: 8080
       containerPort: 8080
+nacl:
+  ingress:
+    - ambassador/traffic-manager:8080

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmCharts:
+  - name: telepresence-oss
+    repo: oci://ghcr.io/telepresenceio
+    version: 2.32.1
+    releaseName: traffic-manager
+    namespace: ambassador
+    valuesFile: values.yaml
+    skipHooks: true
+resources:
+  - namespace.yaml

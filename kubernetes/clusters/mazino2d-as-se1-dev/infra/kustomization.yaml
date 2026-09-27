@@ -5,6 +5,7 @@ resources:
   - cert-manager
   - atlas-operator
   - infisical-operator
+  - telepresence
   - velero
 patches:
   - target:
