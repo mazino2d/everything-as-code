@@ -67,14 +67,14 @@ resource "github_branch_protection" "this" {
 }
 
 resource "github_actions_variable" "eac_deployer_app_id" {
-  count         = var.auto_deploy ? 1 : 0
+  count         = var.deployer_app != null ? 1 : 0
   repository    = github_repository.this.name
   variable_name = "EAC_DEPLOYER_APP_ID"
   value         = var.deployer_app.app_id
 }
 
 resource "github_actions_secret" "eac_deployer_private_key" {
-  count       = var.auto_deploy ? 1 : 0
+  count       = var.deployer_app != null ? 1 : 0
   repository  = github_repository.this.name
   secret_name = "EAC_DEPLOYER_PRIVATE_KEY"
   value       = var.deployer_app.private_key

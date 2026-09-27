@@ -68,7 +68,6 @@ module "jaffle_shop" {
     build_type = "workflow"
   }
 
-  auto_deploy  = true
   deployer_app = local.eac_deployer_app
 }
 
