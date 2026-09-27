@@ -9,3 +9,12 @@ helmCharts:
     releaseName: dagster
     namespace: apps
     valuesFile: values.yaml
+# The upstream chart does not set metadata.namespace, and the namespace
+# transformer skips its rendered output, so set it explicitly.
+patches:
+  - target:
+      kind: ServiceAccount|ConfigMap|Service|Deployment
+    patch: |-
+      - op: add
+        path: /metadata/namespace
+        value: apps
