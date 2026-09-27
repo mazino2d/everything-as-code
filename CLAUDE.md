@@ -81,6 +81,7 @@ Reusable modules live under each stack's `_modules/`.
 kubernetes/
 ├── _docs/                   # cluster documentation
 │   ├── setup.md            # kubeconfig setup for local access
+│   ├── access-telepresence.md # private access via Telepresence
 │   └── backup-velero.md    # Velero backup procedures
 ├── charts/                 # reusable Helm charts
 │   ├── eac-app/            # generic application chart template
@@ -98,6 +99,7 @@ kubernetes/
         │   ├── atlas-operator/      # DB schema automation
         │   ├── cert-manager/        # certificates (OpenTelemetry operator webhook)
         │   ├── infisical-operator/  # secrets operator
+│   ├── telepresence/        # Telepresence traffic-manager (private access)
         │   ├── kustomization.yaml
         │   └── velero/              # cluster backup solution
         ├── monitoring/     # observability stack
@@ -119,7 +121,7 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 - `.github/workflows/k8s-power.yml` (`workflow_dispatch` sleep/wake, nightly auto-sleep at 00:00 ICT) runs `kubernetes/_scripts/power.sh`: sleep records replica counts in an annotation and scales all non-system workloads to zero and evicts DaemonSet Pods via a non-matching nodeSelector (Argo CD application controller first); wake restores them (controller last). Auth is keyless via Workload Identity Federation (`terraform/gcp/mazino2d-as-se1-dev/github_actions.tf`).
 
 **Networking:**
-- No external ingress (no load balancer): cluster UIs and apps are reached with `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
+- No external ingress (no load balancer). Services are reachable privately with Telepresence (`telepresence connect`, then `http://<service>.<namespace>`; `infra/telepresence`, see `kubernetes/_docs/access-telepresence.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure
