@@ -8,6 +8,7 @@ resources:
   - hotrod
   - httpbin
   - outline
+  - dagster
 helmCharts:
   - name: eac-redis
     releaseName: redis
