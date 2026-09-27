@@ -103,7 +103,7 @@ variable "branch_protection" {
   default = {}
 }
 
-variable "deployer_app" {
+variable "deploy_app" {
   type = object({
     app_id      = string
     private_key = string

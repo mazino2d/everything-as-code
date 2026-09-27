@@ -57,7 +57,7 @@ Go to workspace `github` → **Settings → General**:
 
 ## 5. eac-deployer GitHub App
 
-Lets other repos' CI open image-bump PRs against `everything-as-code`. GitHub has no API to create Apps, so this is a one-off manual step; Terraform then distributes the credentials (`deployer_app.tf`).
+Lets other repos' CI open image-bump PRs against `everything-as-code`. GitHub has no API to create Apps, so this is a one-off manual step; Terraform then distributes the credentials (`deploy_apps.tf`).
 
 **Create the App:** [github.com/settings/apps/new](https://github.com/settings/apps/new)
 
@@ -87,7 +87,7 @@ Go to workspace `github` → **Variables** → Add variable:
 
 Delete the local `.pem` once saved.
 
-**Allow a repo to deploy:** set `deployer_app = local.eac_deployer_app` on its module in `active_repos.tf`. The repo then receives `vars.EAC_DEPLOYER_APP_ID` and `secrets.EAC_DEPLOYER_PRIVATE_KEY`, and mints a token in its workflow:
+**Allow a repo to deploy:** set `deploy_app = local.eac_deploy_app` on its module in `active_repos.tf`. The repo then receives `vars.EAC_DEPLOYER_APP_ID` and `secrets.EAC_DEPLOYER_PRIVATE_KEY`, and mints a token in its workflow:
 
 ```yaml
 - uses: actions/create-github-app-token@v2
