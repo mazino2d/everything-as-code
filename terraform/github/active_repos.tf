@@ -16,7 +16,7 @@ module "everything_as_code" {
   branch_protection = {
     required_status_checks = {
       strict   = true
-      contexts = ["check-terraform", "check-k8s", "check-blog"]
+      contexts = ["check-terraform", "check-k8s", "check-blog", "check-docker"]
     }
   }
 }

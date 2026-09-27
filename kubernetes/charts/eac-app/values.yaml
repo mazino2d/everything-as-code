@@ -135,11 +135,19 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 # Apps with httpRoute.enabled=true automatically allow external ingress on service ports.
 # Requires GKE Dataplane V2 (ADVANCED_DATAPATH) for enforcement.
 nacl:
-  ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]
-  egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]
+  ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]; "*" allows all ingress
+  egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]; "*" allows all egress
 
 # SERVICE ACCOUNT
 serviceAccountName: ""    # optional; name of the ServiceAccount the pod runs as
+
+# POD SECURITY CONTEXT
+podSecurityContext: {}    # optional; pod-level securityContext
+# e.g. (non-root image writing to a PVC)
+# podSecurityContext:
+#   runAsUser: 1000
+#   runAsGroup: 1000
+#   fsGroup: 1000
 
 # OPENTELEMETRY INSTRUMENTATION
 # Creates an Instrumentation CRD and adds the OTel inject annotation to the pod.

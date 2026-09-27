@@ -1,0 +1,170 @@
+name: Docker Build
+
+# Every docker/<name>/ directory containing a Dockerfile is built as
+# ghcr.io/<owner>/<name>. PRs build only; pushes to main also publish.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "docker/**"
+      - ".github/workflows/docker-build.yml"
+  workflow_dispatch:
+    inputs:
+      images:
+        description: "Space-separated image names under docker/ (empty = all)"
+        required: false
+        default: ""
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docker: ${{ steps.filter.outputs.docker }}
+      matrix: ${{ steps.filter.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect image changes
+        id: filter
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+          INPUT_IMAGES: ${{ inputs.images }}
+        run: |
+          all_images=()
+          for dockerfile in docker/*/Dockerfile; do
+            [ -f "$dockerfile" ] && all_images+=("$(basename "$(dirname "$dockerfile")")")
+          done
+
+          case "$EVENT" in
+            workflow_dispatch)
+              if [ -n "$INPUT_IMAGES" ]; then
+                read -ra candidates <<< "$INPUT_IMAGES"
+              else
+                candidates=("${all_images[@]}")
+              fi
+              ;;
+            *)
+              if [ "$EVENT" = "pull_request" ]; then
+                changed_files="$(git diff --name-only "origin/${BASE_REF}...HEAD")"
+              elif [[ "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+                changed_files="$(git diff --name-only HEAD~1...HEAD)"
+              else
+                changed_files="$(git diff --name-only "${BEFORE}...HEAD")"
+              fi
+
+              candidates=()
+              if echo "$changed_files" | grep -qx ".github/workflows/docker-build.yml"; then
+                candidates=("${all_images[@]}")
+              else
+                for image in "${all_images[@]}"; do
+                  if echo "$changed_files" | grep -qE "^docker/${image}/"; then
+                    candidates+=("$image")
+                  fi
+                done
+              fi
+              ;;
+          esac
+
+          images=()
+          for image in "${candidates[@]}"; do
+            if [ -f "docker/${image}/Dockerfile" ]; then
+              images+=("$image")
+            else
+              echo "⚠️ docker/${image}/Dockerfile not found, skipping"
+            fi
+          done
+
+          if [ ${#images[@]} -gt 0 ]; then
+            echo "docker=true" >> $GITHUB_OUTPUT
+            echo "🐳 Images to build: ${images[*]}"
+            matrix_json="$(printf '%s\n' "${images[@]}" | jq -R . | jq -cs '{image: .}')"
+          else
+            echo "docker=false" >> $GITHUB_OUTPUT
+            echo "✅ No image changes detected"
+            matrix_json='{"image":[]}'
+          fi
+
+          echo "matrix=${matrix_json}" >> $GITHUB_OUTPUT
+
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docker == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve image metadata
+        id: meta
+        run: |
+          owner="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/${{ matrix.image }}"
+          sha="$(git rev-parse --short HEAD)"
+
+          tags="${image}:sha-${sha}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            tags="${tags},${image}:latest"
+          fi
+
+          platforms="linux/amd64"
+          if [ -f "docker/${{ matrix.image }}/.platforms" ]; then
+            platforms="$(tr -d '[:space:]' < "docker/${{ matrix.image }}/.platforms")"
+          fi
+
+          echo "tags=${tags}" >> $GITHUB_OUTPUT
+          echo "platforms=${platforms}" >> $GITHUB_OUTPUT
+          echo "push=${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+
+      - uses: docker/setup-qemu-action@v3
+        if: contains(steps.meta.outputs.platforms, ',')
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        if: steps.meta.outputs.push == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: docker/${{ matrix.image }}
+          platforms: ${{ steps.meta.outputs.platforms }}
+          push: ${{ steps.meta.outputs.push == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+  check-docker:
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - build
+    if: always()
+    steps:
+      - name: Verify all build jobs passed
+        run: |
+          if [[ "${{ needs.detect-changes.outputs.docker }}" != "true" ]]; then
+            echo "No image changes, skipping build check"
+            exit 0
+          fi
+          if [[ "${{ needs.build.result }}" != "success" ]]; then
+            echo "build result: ${{ needs.build.result }}"
+            exit 1
+          fi

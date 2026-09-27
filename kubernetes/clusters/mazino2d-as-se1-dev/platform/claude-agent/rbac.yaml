@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: claude-agent
+  namespace: platform
+---
+# Cluster-wide read access for debugging. Secrets are deliberately excluded;
+# every change goes through a pull request and Argo CD.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: claude-agent-read
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - endpoints
+      - events
+      - limitranges
+      - namespaces
+      - nodes
+      - persistentvolumeclaims
+      - persistentvolumes
+      - pods
+      - pods/log
+      - resourcequotas
+      - serviceaccounts
+      - services
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - apps
+      - autoscaling
+      - batch
+      - policy
+      - networking.k8s.io
+      - networking.gke.io
+      - gateway.networking.k8s.io
+      - discovery.k8s.io
+      - storage.k8s.io
+      - scheduling.k8s.io
+      - cloud.google.com
+      - rbac.authorization.k8s.io
+      - apiextensions.k8s.io
+      - admissionregistration.k8s.io
+      - events.k8s.io
+      - metrics.k8s.io
+      - argoproj.io
+      - secrets.infisical.com
+      - db.atlasgo.io
+      - cert-manager.io
+      - opentelemetry.io
+      - velero.io
+      - getambassador.io
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: claude-agent-read
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: claude-agent-read
+subjects:
+  - kind: ServiceAccount
+    name: claude-agent
+    namespace: platform
