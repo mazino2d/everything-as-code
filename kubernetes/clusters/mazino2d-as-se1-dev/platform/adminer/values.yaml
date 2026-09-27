@@ -16,6 +16,3 @@ service:
   ports:
     - port: 8080
       containerPort: 8080
-nacl:
-  ingress:
-    - cloudflared/cloudflared:8080

@@ -22,7 +22,6 @@ on:
           - terraform/grafana/stack
           - terraform/grafana/dashboard
           - terraform/k8s/mazino2d-as-se1-dev
-          - terraform/cloudflare
 
 jobs:
   detect-changes:
@@ -53,7 +52,6 @@ jobs:
             "terraform/grafana/stack"
             "terraform/grafana/dashboard"
             "terraform/k8s/mazino2d-as-se1-dev"
-            "terraform/cloudflare"
           )
 
           changed_stacks=()

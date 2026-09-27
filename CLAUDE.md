@@ -29,7 +29,6 @@ Valid `STACK` values:
 - `terraform/grafana/stack`
 - `terraform/grafana/dashboard`
 - `terraform/k8s/mazino2d-as-se1-dev`
-- `terraform/cloudflare`
 
 ### Kubernetes (manual validation)
 
@@ -73,7 +72,6 @@ Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 | `terraform/grafana/stack` | `grafana-stack` | Grafana Cloud stack, access policies, service accounts |
 | `terraform/grafana/dashboard` | `grafana-dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
 | `terraform/k8s/mazino2d-as-se1-dev` | `k8s-mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
-| `terraform/cloudflare` | `cloudflare` | Cloudflare Tunnel, private network route to the GKE Service CIDR, WARP device settings and enrolment (reads CIDR from `gcp-mazino2d-as-se1-dev` remote state) |
 
 Reusable modules live under each stack's `_modules/`.
 
@@ -83,7 +81,6 @@ Reusable modules live under each stack's `_modules/`.
 kubernetes/
 ├── _docs/                   # cluster documentation
 │   ├── setup.md            # kubeconfig setup for local access
-│   ├── access-warp.md      # private access via Cloudflare Tunnel + WARP
 │   └── backup-velero.md    # Velero backup procedures
 ├── charts/                 # reusable Helm charts
 │   ├── eac-app/            # generic application chart template
@@ -122,7 +119,7 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 - `.github/workflows/k8s-power.yml` (`workflow_dispatch` sleep/wake, nightly auto-sleep at 00:00 ICT) runs `kubernetes/_scripts/power.sh`: sleep records replica counts in an annotation and scales all non-system workloads to zero and evicts DaemonSet Pods via a non-matching nodeSelector (Argo CD application controller first); wake restores them (controller last). Auth is keyless via Workload Identity Federation (`terraform/gcp/mazino2d-as-se1-dev/github_actions.tf`).
 
 **Networking:**
-- No external ingress (no load balancer). Selected Services are reachable privately from WARP-enrolled devices via Cloudflare Tunnel (`infra/cloudflared`, `terraform/cloudflare`, see `kubernetes/_docs/access-warp.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
+- No external ingress (no load balancer): cluster UIs and apps are reached with `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure
