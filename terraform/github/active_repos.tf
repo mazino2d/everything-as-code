@@ -86,3 +86,13 @@ module "staged_recipes" {
   visibility  = "public"
   topics      = ["conda", "conda-forge", "data-science"]
 }
+
+module "github_workflows" {
+  source       = "./_modules/github-repository"
+  name         = "github-workflows"
+  description  = "Centralised reusable GitHub Actions workflows and composite actions"
+  visibility   = "public"
+  topics       = ["github-actions", "ci-cd", "reusable-workflows"]
+  has_wiki     = false
+  has_projects = false
+}
