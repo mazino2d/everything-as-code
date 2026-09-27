@@ -50,7 +50,7 @@ dagster-user-deployments:
       image:
         repository: ghcr.io/mazino2d/jaffle-shop
         # Bump to the sha-<short> tag published by jaffle-shop's docker-image workflow.
-        tag: sha-d10a657
+        tag: sha-51685e8
         pullPolicy: IfNotPresent
       dagsterApiGrpcArgs:
         - "-m"
