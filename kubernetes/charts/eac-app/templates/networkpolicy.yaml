@@ -22,7 +22,11 @@ spec:
         - port: {{ .containerPort }}
         {{- end }}
     {{- end }}
+    {{- if has "*" .Values.nacl.ingress }}
+    - {}
+    {{- end }}
     {{- range .Values.nacl.ingress }}
+    {{- if ne . "*" }}
     {{- $nsParts := splitList "/" . }}
     {{- $ns := index $nsParts 0 }}
     {{- $rest := index $nsParts 1 }}
@@ -47,6 +51,7 @@ spec:
               app: {{ $rest }}
     {{- end }}
     {{- end }}
+    {{- end }}
   {{- end }}
   egress:
     - ports:
@@ -54,6 +59,9 @@ spec:
           protocol: UDP
         - port: 53
           protocol: TCP
+    {{- if has "*" .Values.nacl.egress }}
+    - {}
+    {{- end }}
     {{- range .Values.nacl.egress }}
     {{- if contains "/" . }}
     {{- $nsParts := splitList "/" . }}

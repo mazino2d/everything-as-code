@@ -1,0 +1,40 @@
+name: claude-agent
+image:
+  repository: ghcr.io/mazino2d/claude-agent
+  tag: latest
+workload: statefulset
+statefulset:
+  replicaCount: 1
+  storage:
+    enabled: true
+    size: 5Gi
+    # Holds the Claude login (~/.claude), the repo checkout and Terraform plugin cache.
+    mountPath: /home/agent
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    memory: 2Gi
+serviceAccountName: claude-agent
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+# GH_TOKEN and TF_API_TOKEN from Infisical /platform/claude-agent.
+secrets:
+  - claude-agent-env
+env:
+  SESSION_NAME: eac-agent
+  PERMISSION_MODE: acceptEdits
+  TF_PLUGIN_CACHE_DIR: /home/agent/.terraform.d/plugin-cache
+  ENABLE_CLAUDEAI_MCP_SERVERS: "false"
+nacl:
+  # Unrestricted egress: Anthropic, GitHub, Terraform, Helm repos and the kube-apiserver.
+  egress:
+    - "*"
+infisical:
+  enabled: true
+  projectSlug: everything-as-code
+  envSlug: dev

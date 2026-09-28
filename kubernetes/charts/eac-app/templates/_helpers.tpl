@@ -17,6 +17,10 @@ Shared between Deployment and Argo Rollout templates.
 {{- if .Values.serviceAccountName }}
 serviceAccountName: {{ .Values.serviceAccountName }}
 {{- end }}
+{{- with .Values.podSecurityContext }}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
 {{- if .Values.dnsConfig }}
 dnsPolicy: None
 dnsConfig:

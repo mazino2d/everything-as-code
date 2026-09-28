@@ -53,6 +53,7 @@ mkdocs build --strict
 PRs run validation-only pipelines (no mutations):
 - Terraform: `.github/workflows/tf-plan.yml`
 - Kubernetes: `.github/workflows/k8s-validate.yml`
+- Docker images: `.github/workflows/docker-build.yml` (build only)
 - Blog: `.github/workflows/blog-check.yml`
 
 Pushes to `main` trigger deployment/apply pipelines:
@@ -82,7 +83,8 @@ kubernetes/
 ├── _docs/                   # cluster documentation
 │   ├── setup.md            # kubeconfig setup for local access
 │   ├── access-telepresence.md # private access via Telepresence
-│   └── backup-velero.md    # Velero backup procedures
+│   ├── backup-velero.md    # Velero backup procedures
+│   └── claude-agent.md     # Claude Code Remote Control agent
 ├── charts/                 # reusable Helm charts
 │   ├── eac-app/            # generic application chart template
 │   ├── eac-postgresql/     # PostgreSQL deployment chart
@@ -106,10 +108,15 @@ kubernetes/
         │   └── [observability components]
         └── platform/       # platform utilities
             ├── adminer/    # database admin UI
+            ├── claude-agent/ # Claude Code Remote Control agent (read-only kubectl, terraform plan, PRs)
             └── [other tools]
 ```
 
 Local reusable charts are defined in `kubernetes/charts/`. Cluster components use local charts via Kustomize `helmCharts`, and also consume external Helm charts directly from upstream repositories.
+
+### Container Images
+
+Each `docker/<name>/Dockerfile` is built by `.github/workflows/docker-build.yml` into `ghcr.io/mazino2d/<name>` (build-only on PRs; `sha-<short>` and `latest` pushed from `main`). Adding an image needs no workflow change; see `docker/README.md`.
 
 ### Infrastructure Notes
 
@@ -123,6 +130,9 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 **Networking:**
 - No external ingress (no load balancer). Services are reachable privately with Telepresence (`telepresence connect`, then `http://<service>.<namespace>`; `infra/telepresence`, see `kubernetes/_docs/access-telepresence.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
+**Claude agent:**
+- `platform/claude-agent` runs `claude remote-control`, steered from claude.ai/code or the Claude app. It has read-only cluster RBAC (no Secrets), a plan-only TFC token and a repo-scoped GitHub PAT, so it can only propose changes via PRs. The claude.ai login is a one-off `kubectl exec ... claude auth login`, persisted on its PVC (`kubernetes/_docs/claude-agent.md`).
+
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure
 - GKE cluster credentials (endpoint, CA cert, SA key) are passed between Terraform workspaces via remote state — no manual kubeconfig management
@@ -134,6 +144,7 @@ Validation workflows expose these gate jobs:
 - `check-terraform`
 - `check-k8s`
 - `check-blog`
+- `check-docker`
 
 ### Required GitHub Secrets
 
