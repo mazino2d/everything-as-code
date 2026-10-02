@@ -58,3 +58,11 @@ output "gha_k8s_power_sa_email" {
   description = "Service account impersonated by the k8s-power workflow."
   value       = google_service_account.gha_k8s_power.email
 }
+
+output "play_publisher" {
+  description = "Values for sim-split's google-github-actions/auth step; invite the email in Play Console."
+  value = {
+    workload_identity_provider = google_iam_workload_identity_pool_provider.sim_split.name
+    service_account            = google_service_account.gha_play_publisher.email
+  }
+}
