@@ -13,6 +13,8 @@ module "project" {
     # Workload Identity Federation for GitHub Actions (k8s-power.yml)
     "sts.googleapis.com",
     "iamcredentials.googleapis.com",
+    # Google Play Developer API: sim-split uploads AABs (github_actions.tf)
+    "androidpublisher.googleapis.com",
     # Gemini Cloud Assist (console chat): required APIs
     "geminicloudassist.googleapis.com",
     "cloudaicompanion.googleapis.com",
