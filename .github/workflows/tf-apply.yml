@@ -18,6 +18,7 @@ on:
           - all
           - terraform/github
           - terraform/gcp/mazino2d-as-se1-dev
+          - terraform/gcp/simsplit-as-se1-prd
           - terraform/infisical
           - terraform/grafana/stack
           - terraform/grafana/dashboard
@@ -48,6 +49,7 @@ jobs:
           all_stacks=(
             "terraform/github"
             "terraform/gcp/mazino2d-as-se1-dev"
+            "terraform/gcp/simsplit-as-se1-prd"
             "terraform/infisical"
             "terraform/grafana/stack"
             "terraform/grafana/dashboard"
