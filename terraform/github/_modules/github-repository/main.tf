@@ -18,9 +18,36 @@ resource "github_repository" "this" {
   archived                    = var.archived
   auto_init                   = false
 
+  dynamic "security_and_analysis" {
+    for_each = var.security.secret_scanning ? [1] : []
+    content {
+      secret_scanning {
+        status = "enabled"
+      }
+      secret_scanning_push_protection {
+        status = "enabled"
+      }
+    }
+  }
+
   lifecycle {
     prevent_destroy = false
   }
+}
+
+resource "github_repository_vulnerability_alerts" "this" {
+  count      = var.security.dependabot_alerts ? 1 : 0
+  repository = github_repository.this.name
+  enabled    = true
+}
+
+# Security updates open PRs for vulnerable dependencies; they need alerts on.
+resource "github_repository_dependabot_security_updates" "this" {
+  count      = var.security.dependabot_security_updates ? 1 : 0
+  repository = github_repository.this.name
+  enabled    = true
+
+  depends_on = [github_repository_vulnerability_alerts.this]
 }
 
 resource "github_repository_pages" "this" {

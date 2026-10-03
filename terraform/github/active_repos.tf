@@ -78,21 +78,22 @@ module "sim_split" {
   visibility  = "public"
   topics      = ["flutter", "dart", "android", "offline-first"]
 
-  # Hosts docs/privacy-policy.html, which the Google Play listing links to.
   pages = {
     branch = "main"
     path   = "/docs"
   }
 
-  # "PR Validation" is the aggregate job of pr_validate.yml: it passes when
-  # format/analyze/test succeed or are skipped (no Dart changes). Requiring a
-  # status check also enables auto-merge in the module. Not strict, so
-  # auto-merge doesn't stall on PRs that are merely behind main.
   branch_protection = {
     required_status_checks = {
       strict   = false
       contexts = ["PR Validation"]
     }
+  }
+
+  security = {
+    dependabot_alerts           = true
+    dependabot_security_updates = true
+    secret_scanning             = true
   }
 }
 

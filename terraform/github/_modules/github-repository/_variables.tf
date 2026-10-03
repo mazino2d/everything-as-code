@@ -103,6 +103,16 @@ variable "branch_protection" {
   default = {}
 }
 
+variable "security" {
+  type = object({
+    dependabot_alerts           = optional(bool, false)
+    dependabot_security_updates = optional(bool, false)
+    secret_scanning             = optional(bool, false)
+  })
+  default     = {}
+  description = "Dependabot alerts and security update PRs, plus secret scanning with push protection (free on public repos)"
+}
+
 variable "deploy_app" {
   type = object({
     app_id      = string
