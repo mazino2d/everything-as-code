@@ -113,13 +113,43 @@ The plan should show one change to `google_firebase_android_app.sim_split` and o
 for `google_identity_platform_default_supported_idp_config.google[0]`. Merging applies
 both. The apply also links billing again, which is expected (see section 5).
 
-### 2.6 Checks after apply
+### 2.6 Android OAuth clients
+
+Google sign-in on Android also needs an Android OAuth client per signing certificate.
+Without one, sign-in fails with `DEVELOPER_ERROR` (code 10). Firebase creates these only
+when fingerprints are added in the Firebase console, not through the API that Terraform
+uses, and there is no public API to create them, so they are made by hand.
+
+In **Google Auth Platform → Clients → Create client**, choose **Android** and create one
+client per row:
+
+| Name | Package name | SHA-1 certificate fingerprint |
+|---|---|---|
+| `SimSplit Android (Play signing)` | `com.mazino2d.simsplit` | `05:D7:3D:DB:AF:E5:B6:BE:EB:2C:11:E0:F2:97:14:E6:DD:90:1E:B3` |
+| `SimSplit Android (upload key)` | `com.mazino2d.simsplit` | `D4:BA:31:1C:4D:85:F5:F0:84:B0:68:39:74:2D:E9:39:0E:23:7F:A5` |
+
+These are the SHA-1 values from `local.android_sha1_hashes` in `firebase.tf`, upper case
+with colons. Android clients have no secret, so nothing goes into the workspace. If a
+certificate changes, update `firebase.tf` and the matching client together.
+
+### 2.7 Checks after apply
 
 - Firebase console → **Authentication → Sign-in method**: Google is **Enabled**.
 - **Project settings → Your apps → SimSplit Android**: all four fingerprints are listed.
-- **Google Auth Platform → Clients**: there is an Android client for
-  `com.mazino2d.simsplit`. If not, create one per SHA-1 (**Create client → Android**,
-  package `com.mazino2d.simsplit`).
+- **Google Auth Platform → Clients**: the Web client from 2.2 and both Android clients
+  from 2.6 are listed.
+
+### 2.8 `google-services.json`
+
+Download it after the Android clients exist: **Project settings → Your apps → SimSplit
+Android → google-services.json**. Put it at `android/app/google-services.json` in
+sim-split. It is not secret, since the API key is restricted to the package and
+certificates, so it is committed there.
+
+Its `oauth_client` list must hold two entries with `client_type: 1` (Android, one per
+SHA-1) and one with `client_type: 3` (the Web client, which the app uses as
+`serverClientId`). A file downloaded before 2.6 lacks the Android entries, so download it
+again whenever a certificate or client changes.
 
 ## 3. Apple sign-in (when the Apple Developer account is active)
 
