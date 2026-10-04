@@ -166,3 +166,13 @@ apply:
   the cause is fixed.
 - **Lag:** budget notifications can arrive hours after the spend, so the cap limits a
   runaway cost but does not guarantee zero.
+
+## 6. Play Integrity API
+
+Play Console uses this project for SimSplit's integrity verdicts. Linking has no API, so
+it is done by hand: **Play Console → SimSplit → Protected with Play → Play Integrity API
+→ Manage → Project configuration → Add project** → `simsplit-as-se1-prd`.
+
+Linking enables `playintegrity.googleapis.com`, which `module.project` also declares.
+Play Console needs at least one linked project at all times, so keep the API enabled and
+link another project first if this one is ever replaced.

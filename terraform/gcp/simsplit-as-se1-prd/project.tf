@@ -12,6 +12,8 @@ module "project" {
     "iamcredentials.googleapis.com",
     # Google Play Developer API: sim-split uploads AABs (github_actions.tf)
     "androidpublisher.googleapis.com",
+    # Play Integrity API: Play Console links this project for integrity verdicts (_docs/setup.md § 6)
+    "playintegrity.googleapis.com",
     # Firebase: Auth (Identity Platform), Firestore, rules and Hosting (firebase.tf, auth.tf)
     "firebase.googleapis.com",
     "identitytoolkit.googleapis.com",
