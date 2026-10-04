@@ -19,11 +19,17 @@ resource "google_firestore_database" "default" {
 }
 
 locals {
-  # Signing certificate fingerprints for Google sign-in on Android: the upload
-  # key (android/app/simsplit.jks in sim-split) and the Play App Signing key
-  # (Play Console → Test and release → App integrity).
-  android_sha1_hashes   = []
-  android_sha256_hashes = []
+  # Signing certificate fingerprints for Google sign-in on Android: the Play App
+  # Signing key and the upload key (Play Console → Protected with Play → Play app
+  # signing). Builds come from CI only, so no debug key is registered.
+  android_sha1_hashes = [
+    "05d73ddbafe5b6beeb2c11e0f29714e6dd901eb3", # Play App Signing
+    "d4ba311c4d85f5f084b06839742de9390e237fa5", # upload key
+  ]
+  android_sha256_hashes = [
+    "b63a2edcede31111bc5eb43e31f7c08636fe4e55ad9b3fa089564ecc65450e4f", # Play App Signing
+    "8ab3bf0adce70fdd609fb0d527eed930b6f829b2f69af45cdcd179b885a89399", # upload key
+  ]
 }
 
 resource "google_firebase_android_app" "sim_split" {
