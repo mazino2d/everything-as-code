@@ -34,23 +34,92 @@ done
 
 ## 2. Google sign-in
 
-1. In **APIs & Services → OAuth consent screen**, set up an **External** app named
-   SimSplit, with your support email and the scopes `email`, `profile` and `openid`.
-   Publish it.
-2. In **APIs & Services → Credentials**, create an OAuth client ID of type **Web
-   application** named `SimSplit Firebase Auth`. Use the redirect URI
-   `https://simsplit-as-se1-prd.firebaseapp.com/__/auth/handler`.
-3. Add these workspace variables:
+### 2.1 OAuth consent screen
 
-   | Key | Value | Sensitive |
-   |---|---|---|
-   | `google_oauth_client_id` | the client ID | no |
-   | `google_oauth_client_secret` | the client secret | ✅ |
+In the [Cloud console](https://console.cloud.google.com), select `simsplit-as-se1-prd` and
+open **Google Auth Platform** (the old **APIs & Services → OAuth consent screen** page
+redirects there).
 
-4. Add the Android signing certificate fingerprints to `local.android_sha1_hashes` and
-   `local.android_sha256_hashes` in `firebase.tf`. You need both the upload key and the
-   Play App Signing key (Play Console → Test and release → App integrity). Without them,
-   Google sign-in fails on Android.
+1. **Get started**:
+   - App name: `SimSplit`
+   - User support email and contact information: `mazino2d@gmail.com`
+   - Audience: **External**
+2. **Branding**:
+   - App home page: `https://mazino2d.github.io/sim-split/`
+   - Privacy policy: `https://mazino2d.github.io/sim-split/privacy-policy.html`
+   - Authorised domains: `mazino2d.github.io` and `simsplit-as-se1-prd.firebaseapp.com`
+
+   Don't upload a logo. A logo makes the app need Google verification, which takes days.
+3. **Data access → Add or remove scopes**: `openid`, `.../auth/userinfo.email` and
+   `.../auth/userinfo.profile`. None of them is sensitive, so no verification is needed.
+4. **Audience → Publish app**. In Testing mode only up to 100 listed test users can sign
+   in, and their sessions expire after seven days.
+
+### 2.2 Web OAuth client
+
+Firebase Auth uses this client, and the Android app sends its ID as `serverClientId`.
+
+In **Google Auth Platform → Clients → Create client**:
+
+- Application type: **Web application**
+- Name: `SimSplit Firebase Auth`
+- Authorised JavaScript origins: `https://simsplit-as-se1-prd.firebaseapp.com`
+- Authorised redirect URIs: `https://simsplit-as-se1-prd.firebaseapp.com/__/auth/handler`
+
+Download the JSON straight after creating it: the console shows the client secret only
+once. Keep the file outside git.
+
+### 2.3 Workspace variables
+
+Add these as **Terraform variables** in the workspace:
+
+| Key | Value | Sensitive |
+|---|---|---|
+| `google_oauth_client_id` | `….apps.googleusercontent.com` | no |
+| `google_oauth_client_secret` | `GOCSPX-…` | ✅ |
+
+Changing a variable does not trigger an apply. The PR in 2.5 applies it together with
+the fingerprints.
+
+### 2.4 Android signing certificate fingerprints
+
+Google sign-in on Android works only with a registered signing certificate. Get the
+SHA-1 and SHA-256 of each:
+
+| Certificate | Signs | Where |
+|---|---|---|
+| App signing key | Builds installed from Play | Play Console → SimSplit → **Protected with Play** → Play app signing → App signing key (copy buttons on the right) |
+| Upload key | AAB artifacts from CI | Same page → Upload key |
+
+Android builds come from CI only, so the debug key is not registered and Google sign-in
+fails in a local `flutter run`. To test it locally, add that machine's debug key
+fingerprints (`keytool -list -v -keystore ~/.android/debug.keystore -alias
+androiddebugkey -storepass android`). Gradle generates this key per machine, so a new
+laptop needs new fingerprints unless you copy the file across.
+
+Terraform wants the hashes in lower case without colons:
+
+```bash
+echo "AB:CD:EF:..." | tr -d ':' | tr 'A-F' 'a-f'
+```
+
+### 2.5 Pull request
+
+Fill in `local.android_sha1_hashes` and `local.android_sha256_hashes` in `firebase.tf`,
+one entry per certificate, in the order Play App Signing, upload key.
+Fingerprints are not secret.
+
+The plan should show one change to `google_firebase_android_app.sim_split` and one add
+for `google_identity_platform_default_supported_idp_config.google[0]`. Merging applies
+both. The apply also links billing again, which is expected (see section 5).
+
+### 2.6 Checks after apply
+
+- Firebase console → **Authentication → Sign-in method**: Google is **Enabled**.
+- **Project settings → Your apps → SimSplit Android**: all four fingerprints are listed.
+- **Google Auth Platform → Clients**: there is an Android client for
+  `com.mazino2d.simsplit`. If not, create one per SHA-1 (**Create client → Android**,
+  package `com.mazino2d.simsplit`).
 
 ## 3. Apple sign-in (when the Apple Developer account is active)
 
