@@ -13,6 +13,14 @@ Follow [terraform/gcp/_docs/setup.md](../../_docs/setup.md) with
 `<project-id>` = `simsplit-as-se1-prd`. The workspace is
 `gcp-simsplit-as-se1-prd`.
 
+The providers bill API quota to this project (`user_project_override`), so the first
+apply fails with `SERVICE_DISABLED` unless these APIs are already enabled:
+
+```bash
+gcloud services enable cloudbilling.googleapis.com serviceusage.googleapis.com \
+  --project=simsplit-as-se1-prd
+```
+
 Then grant the Terraform service account two roles on the billing account. It needs them
 to create the budget and to link billing again after the kill switch has fired:
 
