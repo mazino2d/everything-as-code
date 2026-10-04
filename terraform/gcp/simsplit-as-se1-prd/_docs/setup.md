@@ -139,6 +139,18 @@ certificate changes, update `firebase.tf` and the matching client together.
 - **Google Auth Platform → Clients**: the Web client from 2.2 and both Android clients
   from 2.6 are listed.
 
+### 2.8 `google-services.json`
+
+Download it after the Android clients exist: **Project settings → Your apps → SimSplit
+Android → google-services.json**. Put it at `android/app/google-services.json` in
+sim-split. It is not secret, since the API key is restricted to the package and
+certificates, so it is committed there.
+
+Its `oauth_client` list must hold two entries with `client_type: 1` (Android, one per
+SHA-1) and one with `client_type: 3` (the Web client, which the app uses as
+`serverClientId`). A file downloaded before 2.6 lacks the Android entries, so download it
+again whenever a certificate or client changes.
+
 ## 3. Apple sign-in (when the Apple Developer account is active)
 
 1. In the Apple Developer portal:
