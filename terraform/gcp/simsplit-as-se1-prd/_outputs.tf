@@ -1,10 +1,13 @@
 output "firebase" {
   description = "Firebase app IDs for `flutterfire configure` in sim-split."
   value = {
-    project_id     = google_firebase_project.this.project
-    android_app_id = google_firebase_android_app.sim_split.app_id
-    apple_app_id   = google_firebase_apple_app.sim_split.app_id
-    hosting_url    = "https://${google_firebase_hosting_site.default.site_id}.web.app"
+    project_id      = google_firebase_project.this.project
+    android_app_id  = google_firebase_android_app.sim_split.app_id
+    apple_app_id    = google_firebase_apple_app.sim_split.app_id
+    web_app_id      = google_firebase_web_app.sim_split.app_id
+    web_api_key     = data.google_firebase_web_app_config.sim_split.api_key
+    web_auth_domain = data.google_firebase_web_app_config.sim_split.auth_domain
+    hosting_url     = "https://${google_firebase_hosting_site.default.site_id}.web.app"
   }
 }
 
