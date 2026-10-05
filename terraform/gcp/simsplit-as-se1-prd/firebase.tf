@@ -51,6 +51,21 @@ resource "google_firebase_apple_app" "sim_split" {
   deletion_policy = "DELETE"
 }
 
+# The web build (sim-split R-3 P4). Signs in with a popup through
+# <project>.firebaseapp.com, which the Web OAuth client already allows.
+resource "google_firebase_web_app" "sim_split" {
+  provider        = google-beta
+  project         = google_firebase_project.this.project
+  display_name    = "SimSplit Web"
+  deletion_policy = "DELETE"
+}
+
+data "google_firebase_web_app_config" "sim_split" {
+  provider   = google-beta
+  project    = google_firebase_project.this.project
+  web_app_id = google_firebase_web_app.sim_split.app_id
+}
+
 # Serves the invite join page plus assetlinks.json / apple-app-site-association
 # for App Links and Universal Links.
 resource "google_firebase_hosting_site" "default" {
