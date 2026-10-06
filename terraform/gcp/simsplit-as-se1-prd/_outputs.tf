@@ -26,3 +26,11 @@ output "play_publisher" {
     service_account            = google_service_account.gha_play_publisher.email
   }
 }
+
+output "app_check" {
+  description = "Public App Check values for sim-split; the github stack sets the site key as a repo variable."
+  value = {
+    recaptcha_site_key = google_recaptcha_enterprise_key.web.name
+    enforced           = var.app_check_enforced
+  }
+}

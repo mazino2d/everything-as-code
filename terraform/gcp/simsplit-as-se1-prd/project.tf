@@ -14,6 +14,9 @@ module "project" {
     "androidpublisher.googleapis.com",
     # Play Integrity API: Play Console links this project for integrity verdicts (_docs/setup.md § 6)
     "playintegrity.googleapis.com",
+    # App Check: Play Integrity on Android, reCAPTCHA on web (app_check.tf)
+    "firebaseappcheck.googleapis.com",
+    "recaptchaenterprise.googleapis.com",
     # Firebase: Auth (Identity Platform), Firestore, rules and Hosting (firebase.tf, auth.tf)
     "firebase.googleapis.com",
     "identitytoolkit.googleapis.com",

@@ -206,3 +206,23 @@ it is done by hand: **Play Console → SimSplit → Protected with Play → Play
 Linking enables `playintegrity.googleapis.com`, which `module.project` also declares.
 Play Console needs at least one linked project at all times, so keep the API enabled and
 link another project first if this one is ever replaced.
+
+## 7. App Check
+
+`app_check.tf` registers the Android app with Play Integrity and the web app with a
+score-based reCAPTCHA key (24 h token TTL, so web stays inside reCAPTCHA's 10,000 free
+assessments a month). The github stack copies the site key into sim-split's
+`RECAPTCHA_ENTERPRISE_SITE_KEY` repo variable, which the web release build reads.
+
+1. **Remote state:** the `github` workspace reads this workspace's outputs. In Terraform
+   Cloud, open this workspace → **Settings → General → Remote state sharing** and allow
+   `github`. Until the site key exists, the github stack skips the variable; re-run its
+   apply once this stack has applied.
+2. **Debug token (optional):** generate a UUID (`uuidgen`), set it as the sensitive
+   workspace variable `app_check_debug_token`, and pass the same value to debug builds:
+   `flutter run --dart-define=APP_CHECK_DEBUG_TOKEN=<uuid>`. Keep it private: anyone with
+   it can pass App Check.
+3. **Enforce at v2.0.0:** watch **Firebase console → App Check → APIs** metrics until
+   almost all requests are verified, then set `app_check_enforced = true`. Auth and
+   Firestore then reject requests without a valid token, including old app versions
+   and debug builds without the registered token.
