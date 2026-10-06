@@ -97,6 +97,31 @@ module "sim_split" {
   }
 }
 
+# reCAPTCHA site key for App Check on web, built into sim-split's web release
+# (firebase_deploy.yml). Created by the gcp-simsplit-as-se1-prd workspace; until
+# that workspace has applied, the variable is left out.
+data "terraform_remote_state" "simsplit" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "gcp-simsplit-as-se1-prd"
+    }
+  }
+}
+
+locals {
+  sim_split_recaptcha_site_key = try(data.terraform_remote_state.simsplit.outputs.app_check.recaptcha_site_key, null)
+}
+
+resource "github_actions_variable" "sim_split_recaptcha_site_key" {
+  count         = local.sim_split_recaptcha_site_key != null ? 1 : 0
+  repository    = module.sim_split.name
+  variable_name = "RECAPTCHA_ENTERPRISE_SITE_KEY"
+  value         = local.sim_split_recaptcha_site_key
+}
+
 module "staged_recipes" {
   source      = "./_modules/github-repository"
   name        = "staged-recipes"

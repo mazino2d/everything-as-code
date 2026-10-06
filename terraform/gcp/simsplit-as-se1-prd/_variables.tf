@@ -41,3 +41,16 @@ variable "budget_amount" {
   type        = string
   default     = "1"
 }
+
+variable "app_check_debug_token" {
+  description = "UUID that debug builds of sim-split pass as APP_CHECK_DEBUG_TOKEN (see _docs/setup.md)."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "app_check_enforced" {
+  description = "Reject Auth and Firestore requests without a valid App Check token. Turn on with the v2.0.0 release."
+  type        = bool
+  default     = false
+}
