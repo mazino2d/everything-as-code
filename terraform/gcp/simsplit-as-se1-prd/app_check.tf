@@ -58,9 +58,10 @@ resource "google_firebase_app_check_debug_token" "web" {
   token        = var.app_check_debug_token
 }
 
-# Unenforced until v2.0.0, the first release that talks to Firebase, so no
-# installed version is locked out. Unenforced still records metrics, which
-# show whether real traffic carries valid tokens before enforcing.
+# Enforced: requests without a valid token are rejected. No installed Android
+# version talks to Firebase yet (the first is v2.0.0, built with App Check),
+# and the web app sends tokens since sim-split#45. Debug builds need the debug
+# token. Set app_check_enforced = false to fall back to metrics only.
 resource "google_firebase_app_check_service_config" "this" {
   for_each         = toset(["firestore.googleapis.com", "identitytoolkit.googleapis.com"])
   provider         = google-beta
