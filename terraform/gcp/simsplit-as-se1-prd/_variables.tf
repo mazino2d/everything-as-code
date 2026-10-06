@@ -50,7 +50,7 @@ variable "app_check_debug_token" {
 }
 
 variable "app_check_enforced" {
-  description = "Reject Auth and Firestore requests without a valid App Check token. Turn on with the v2.0.0 release."
+  description = "Reject Auth and Firestore requests without a valid App Check token."
   type        = bool
-  default     = false
+  default     = true
 }

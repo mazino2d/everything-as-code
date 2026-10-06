@@ -222,7 +222,8 @@ assessments a month). The github stack copies the site key into sim-split's
    workspace variable `app_check_debug_token`, and pass the same value to debug builds:
    `flutter run --dart-define=APP_CHECK_DEBUG_TOKEN=<uuid>`. Keep it private: anyone with
    it can pass App Check.
-3. **Enforce at v2.0.0:** watch **Firebase console → App Check → APIs** metrics until
-   almost all requests are verified, then set `app_check_enforced = true`. Auth and
-   Firestore then reject requests without a valid token, including old app versions
-   and debug builds without the registered token.
+3. **Enforcement** is on (`app_check_enforced`, default `true`): Auth and Firestore
+   reject requests without a valid token, including debug builds without the
+   registered token. If real users are rejected (low reCAPTCHA scores show up in
+   **Firebase console → App Check → APIs**), set the workspace variable
+   `app_check_enforced = false` to go back to metrics only while investigating.
