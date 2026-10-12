@@ -2,16 +2,6 @@
 # Archived
 # ===================================================================
 
-module "a3spy" {
-  source         = "./_modules/github-repository"
-  name           = "a3spy"
-  description    = "Funny game (on Telegram)"
-  visibility     = "public"
-  topics         = ["telegram", "game", "python"]
-  default_branch = "master"
-  archived       = true
-}
-
 module "ex_bk" {
   source         = "./_modules/github-repository"
   name           = "ex-bk"

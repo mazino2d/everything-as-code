@@ -19,6 +19,7 @@ on:
           - terraform/github
           - terraform/gcp/mazino2d-as-se1-dev
           - terraform/gcp/simsplit-as-se1-prd
+          - terraform/cloudflare
           - terraform/infisical
           - terraform/grafana/stack
           - terraform/grafana/dashboard
@@ -50,6 +51,7 @@ jobs:
             "terraform/github"
             "terraform/gcp/mazino2d-as-se1-dev"
             "terraform/gcp/simsplit-as-se1-prd"
+            "terraform/cloudflare"
             "terraform/infisical"
             "terraform/grafana/stack"
             "terraform/grafana/dashboard"

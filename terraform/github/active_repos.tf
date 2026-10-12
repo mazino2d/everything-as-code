@@ -139,3 +139,81 @@ module "github_workflows" {
   has_wiki     = false
   has_projects = false
 }
+
+module "a3spy" {
+  source                = "./_modules/github-repository"
+  name                  = "a3spy"
+  description           = "Who is Spy game master bot on Telegram"
+  visibility            = "public"
+  topics                = ["telegram", "game", "typescript", "cloudflare-workers"]
+  has_wiki              = false
+  has_projects          = false
+  rename_default_branch = true
+
+  branch_protection = {
+    required_status_checks = {
+      strict   = true
+      contexts = ["ci-ok"]
+    }
+  }
+
+  security = {
+    dependabot_alerts           = true
+    dependabot_security_updates = true
+    secret_scanning             = true
+  }
+}
+
+# Workers deploy token minted by the cloudflare workspace; until that
+# workspace has applied, the secrets are left out.
+data "terraform_remote_state" "cloudflare" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "cloudflare"
+    }
+  }
+}
+
+locals {
+  cloudflare_account_id      = try(data.terraform_remote_state.cloudflare.outputs.account_id, null)
+  a3spy_cloudflare_api_token = try(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens["a3spy"], null)
+}
+
+resource "github_actions_variable" "a3spy_cloudflare_account_id" {
+  count         = local.cloudflare_account_id != null ? 1 : 0
+  repository    = module.a3spy.name
+  variable_name = "CLOUDFLARE_ACCOUNT_ID"
+  value         = local.cloudflare_account_id
+}
+
+resource "github_actions_secret" "a3spy_cloudflare_api_token" {
+  count       = nonsensitive(local.a3spy_cloudflare_api_token != null) ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "CLOUDFLARE_API_TOKEN"
+  value       = local.a3spy_cloudflare_api_token
+}
+
+# Bot token comes from @BotFather, so it is set by hand as a sensitive
+# variable on the github workspace; the CD workflow pushes it to the Worker.
+resource "github_actions_secret" "a3spy_telegram_bot_token" {
+  count       = var.a3spy_telegram_bot_token != null ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "TELEGRAM_BOT_TOKEN"
+  value       = var.a3spy_telegram_bot_token
+}
+
+# Telegram echoes this in X-Telegram-Bot-Api-Secret-Token on every webhook
+# call, so the Worker can drop requests that did not come from Telegram.
+resource "random_password" "a3spy_telegram_webhook_secret" {
+  length  = 48
+  special = false
+}
+
+resource "github_actions_secret" "a3spy_telegram_webhook_secret" {
+  repository  = module.a3spy.name
+  secret_name = "TELEGRAM_WEBHOOK_SECRET"
+  value       = random_password.a3spy_telegram_webhook_secret.result
+}

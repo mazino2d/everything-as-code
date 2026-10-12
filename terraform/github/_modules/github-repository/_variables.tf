@@ -83,6 +83,12 @@ variable "default_branch" {
   default = "main"
 }
 
+variable "rename_default_branch" {
+  type        = bool
+  default     = false
+  description = "Rename the current default branch to default_branch instead of switching to an existing branch"
+}
+
 variable "archived" {
   type    = bool
   default = false
