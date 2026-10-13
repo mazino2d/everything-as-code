@@ -164,6 +164,43 @@ module "a3spy" {
   }
 }
 
+# Workers deploy token minted by the cloudflare workspace; until that
+# workspace has minted it, the secrets are left out.
+data "terraform_remote_state" "cloudflare" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "cloudflare"
+    }
+  }
+
+  defaults = {
+    account_id              = null
+    workers_deployer_tokens = {}
+  }
+}
+
+locals {
+  cloudflare_account_id      = try(data.terraform_remote_state.cloudflare.outputs.account_id, null)
+  a3spy_cloudflare_api_token = lookup(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens, "a3spy", null)
+}
+
+resource "github_actions_variable" "a3spy_cloudflare_account_id" {
+  count         = local.cloudflare_account_id != null ? 1 : 0
+  repository    = module.a3spy.name
+  variable_name = "CLOUDFLARE_ACCOUNT_ID"
+  value         = local.cloudflare_account_id
+}
+
+resource "github_actions_secret" "a3spy_cloudflare_api_token" {
+  count       = nonsensitive(local.a3spy_cloudflare_api_token != null) ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "CLOUDFLARE_API_TOKEN"
+  value       = local.a3spy_cloudflare_api_token
+}
+
 # Bot token comes from @BotFather, so it is set by hand as a sensitive
 # variable on the github workspace; the CD workflow pushes it to the Worker.
 resource "github_actions_secret" "a3spy_telegram_bot_token" {
