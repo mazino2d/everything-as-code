@@ -19,3 +19,10 @@ variable "eac_deployer_app_private_key" {
   sensitive   = true
   description = "PEM private key of the eac-deployer GitHub App"
 }
+
+variable "a3spy_telegram_bot_token" {
+  type        = string
+  sensitive   = true
+  default     = null
+  description = "a3spy bot token from @BotFather (set by hand on the github workspace)"
+}

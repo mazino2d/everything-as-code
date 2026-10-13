@@ -69,6 +69,7 @@ resource "github_branch_default" "this" {
   count      = var.archived ? 0 : 1
   repository = github_repository.this.name
   branch     = var.default_branch
+  rename     = var.rename_default_branch
 }
 
 resource "github_branch_protection" "this" {

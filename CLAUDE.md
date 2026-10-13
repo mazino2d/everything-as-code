@@ -26,6 +26,7 @@ Valid `STACK` values:
 - `terraform/github` (default)
 - `terraform/gcp/mazino2d-as-se1-dev`
 - `terraform/gcp/simsplit-as-se1-prd`
+- `terraform/cloudflare`
 - `terraform/infisical`
 - `terraform/grafana/stack`
 - `terraform/grafana/dashboard`
@@ -71,6 +72,7 @@ Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 | `terraform/github` | `github` | GitHub repos/settings/branch protection |
 | `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
 | `terraform/gcp/simsplit-as-se1-prd` | `gcp-simsplit-as-se1-prd` | Firebase backend for sim-split (Auth, Firestore, Hosting), budget and billing kill switch |
+| `terraform/cloudflare` | `cloudflare` | Cloudflare account-owned Workers deploy tokens per app repo (handed to repos via `terraform/github`) |
 | `terraform/infisical` | `infisical` | Infisical projects, identities, folders |
 | `terraform/grafana/stack` | `grafana-stack` | Grafana Cloud stack, access policies, service accounts |
 | `terraform/grafana/dashboard` | `grafana-dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
