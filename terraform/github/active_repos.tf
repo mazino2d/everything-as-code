@@ -73,6 +73,7 @@ module "jaffle_shop" {
   }
 
   branch_protection = {
+    require_conversation_resolution = true
     required_status_checks = {
       contexts = ["lint / gate", "dbt / gate", "docs / gate"]
     }
