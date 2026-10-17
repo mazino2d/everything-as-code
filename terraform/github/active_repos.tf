@@ -241,6 +241,15 @@ resource "github_actions_secret" "a3spy_telegram_bot_token" {
   value       = var.a3spy_telegram_bot_token
 }
 
+# Only this Telegram user may send announcements to everyone who used the bot
+# (/announce); set by hand on the github workspace, pushed to the Worker by CD.
+resource "github_actions_secret" "a3spy_owner_telegram_id" {
+  count       = var.a3spy_owner_telegram_id != null ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "OWNER_TELEGRAM_ID"
+  value       = var.a3spy_owner_telegram_id
+}
+
 # Telegram echoes this in X-Telegram-Bot-Api-Secret-Token on every webhook
 # call, so the Worker can drop requests that did not come from Telegram.
 resource "random_password" "a3spy_telegram_webhook_secret" {
