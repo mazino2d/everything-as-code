@@ -26,3 +26,10 @@ variable "a3spy_telegram_bot_token" {
   default     = null
   description = "a3spy bot token from @BotFather (set by hand on the github workspace)"
 }
+
+variable "a3spy_owner_telegram_id" {
+  type        = string
+  sensitive   = true
+  default     = null
+  description = "Telegram user id allowed to send a3spy announcements with /announce (set by hand on the github workspace)"
+}
