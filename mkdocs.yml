@@ -1,40 +1,12 @@
+# Theme and Markdown setup come from mazino2d/github-workflows (mkdocs/base.yml).
+INHERIT: .mkdocs/base.yml
+
 site_name: Everything as Code
 site_description: DevOps principles and concepts, demonstrated through real infrastructure
 site_url: https://mazino2d.github.io/everything-as-code/
 repo_url: https://github.com/mazino2d/everything-as-code
 repo_name: mazino2d/everything-as-code
 docs_dir: blog
-
-theme:
-  name: material
-  palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  features:
-    - navigation.top
-    - navigation.sections
-    - content.code.copy
-    - content.code.annotate
-
-markdown_extensions:
-  - admonition
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.superfences
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.details
-  - attr_list
 
 nav:
   - Home: index.md

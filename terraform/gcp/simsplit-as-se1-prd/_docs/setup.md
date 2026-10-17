@@ -189,7 +189,7 @@ apply:
   To recover:
   1. Find what caused the cost, using Billing reports and Firestore usage.
   2. Fix it.
-  3. Re-run apply on this stack (`tf-apply.yml`, stack
+  3. Re-run apply on this stack (`terraform.yml`, stack
      `terraform/gcp/simsplit-as-se1-prd`). `module.project` links billing again.
 
   Any apply of this stack links billing again, so don't apply unrelated changes until

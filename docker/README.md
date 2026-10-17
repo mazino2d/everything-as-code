@@ -1,7 +1,7 @@
 # Container images
 
 Each subdirectory with a `Dockerfile` is an image, built by
-`.github/workflows/docker-build.yml`:
+`.github/workflows/docker.yml` (a caller of the reusable `docker.yml` in mazino2d/github-workflows):
 
 ```
 docker/<name>/Dockerfile  →  ghcr.io/mazino2d/<name>

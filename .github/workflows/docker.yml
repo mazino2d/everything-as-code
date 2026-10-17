@@ -1,0 +1,35 @@
+name: Docker
+
+# Every docker/<name>/ directory containing a Dockerfile is built as
+# ghcr.io/<owner>/<name>. PRs build only; pushes to main also publish.
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "docker/**"
+      - ".github/workflows/docker.yml"
+  workflow_dispatch:
+    inputs:
+      images:
+        description: "Space-separated image names under docker/ (empty = all)"
+        required: false
+        default: ""
+
+concurrency:
+  group: docker-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    uses: mazino2d/github-workflows/.github/workflows/docker.yml@v1
+    permissions:
+      contents: read
+      packages: write
+    with:
+      discover-root: docker
+      select: ${{ inputs.images || '' }}
+      all-on: ^\.github/workflows/docker\.yml$

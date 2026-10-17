@@ -43,8 +43,11 @@ kustomize build --enable-helm kubernetes/clusters/mazino2d-as-se1-dev/monitoring
 
 ### Blog (manual validation)
 
+`mkdocs.yml` inherits the shared theme from `.mkdocs/base.yml`, which CI fetches from mazino2d/github-workflows:
+
 ```bash
-pip install mkdocs mkdocs-material
+pip install "mkdocs<2" mkdocs-material
+mkdir -p .mkdocs && curl -sSfL -o .mkdocs/base.yml https://raw.githubusercontent.com/mazino2d/github-workflows/v1/mkdocs/base.yml
 mkdocs build --strict
 ```
 
@@ -52,16 +55,19 @@ mkdocs build --strict
 
 ### GitOps Flow
 
+Workflows in `.github/workflows/` are thin callers of reusable workflows in [mazino2d/github-workflows](https://github.com/mazino2d/github-workflows) (`@v1`); the logic lives there. `k8s-power.yml` is the only workflow kept local.
+
 PRs run validation-only pipelines (no mutations):
-- Terraform: `.github/workflows/tf-plan.yml`
-- Kubernetes: `.github/workflows/k8s-validate.yml`
-- Docker images: `.github/workflows/docker-build.yml` (build only)
-- Blog: `.github/workflows/blog-check.yml`
+- Terraform plan: `terraform.yml`
+- Kubernetes: `k8s.yml`
+- Docker images: `docker.yml` (build only)
+- Blog: `blog.yml` (strict build)
+- Workflows: `lint.yml` (actionlint + CodeQL)
 
 Pushes to `main` trigger deployment/apply pipelines:
-- Terraform apply to Terraform Cloud workspaces (`tf-apply.yml`)
+- Terraform apply to Terraform Cloud workspaces (`terraform.yml`)
 - Kubernetes workloads reconcile via Argo CD (GitOps in-cluster)
-- Blog build and deploy to GitHub Pages (`blog-deploy.yml`)
+- Blog build and deploy to GitHub Pages (`blog.yml`)
 
 ### Terraform Structure
 
@@ -120,7 +126,7 @@ Local reusable charts are defined in `kubernetes/charts/`. Cluster components us
 
 ### Container Images
 
-Each `docker/<name>/Dockerfile` is built by `.github/workflows/docker-build.yml` into `ghcr.io/mazino2d/<name>` (build-only on PRs; `sha-<short>` and `latest` pushed from `main`). Adding an image needs no workflow change; see `docker/README.md`.
+Each `docker/<name>/Dockerfile` is built by `.github/workflows/docker.yml` into `ghcr.io/mazino2d/<name>` (build-only on PRs; `sha-<short>` and `latest` pushed from `main`). Adding an image needs no workflow change; see `docker/README.md`.
 
 ### Infrastructure Notes
 
@@ -144,17 +150,17 @@ Each `docker/<name>/Dockerfile` is built by `.github/workflows/docker-build.yml`
 
 ### PR Status Checks
 
-Validation workflows expose these gate jobs:
-- `check-terraform`
-- `check-k8s`
-- `check-blog`
-- `check-docker`
+Every reusable workflow ends in a `gate` job; the required checks are:
+- `terraform / gate`
+- `k8s / gate`
+- `blog / gate`
+- `docker / gate`
 
 ### Required GitHub Secrets
 
 | Secret | Used by |
 |--------|---------|
-| `TF_API_TOKEN` | Terraform CLI auth in `tf-plan.yml` and `tf-apply.yml` |
+| `TF_API_TOKEN` | Terraform CLI auth in `terraform.yml` |
 
 Notes:
 - `GITHUB_TOKEN` is provided automatically by GitHub Actions.
