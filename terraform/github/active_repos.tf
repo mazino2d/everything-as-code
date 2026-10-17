@@ -16,7 +16,7 @@ module "everything_as_code" {
   branch_protection = {
     required_status_checks = {
       strict   = true
-      contexts = ["check-terraform", "check-k8s", "check-blog", "check-docker"]
+      contexts = ["terraform / gate", "k8s / gate", "blog / gate", "docker / gate"]
     }
   }
 }
@@ -39,8 +39,7 @@ module "mazino2d_github_io" {
   has_projects = false
 
   pages = {
-    branch = "main"
-    path   = "/"
+    build_type = "workflow"
   }
 }
 
@@ -52,8 +51,13 @@ module "caketool" {
   topics      = ["machine-learning", "python"]
 
   pages = {
-    branch = "gh-pages"
-    path   = "/docs"
+    build_type = "workflow"
+  }
+
+  branch_protection = {
+    required_status_checks = {
+      contexts = ["ci / gate", "docs / gate"]
+    }
   }
 }
 
@@ -68,6 +72,12 @@ module "jaffle_shop" {
     build_type = "workflow"
   }
 
+  branch_protection = {
+    required_status_checks = {
+      contexts = ["lint / gate", "dbt / gate", "docs / gate"]
+    }
+  }
+
   deploy_app = local.eac_deploy_app
 }
 
@@ -79,8 +89,7 @@ module "sim_split" {
   topics      = ["flutter", "dart", "android", "offline-first"]
 
   pages = {
-    branch = "main"
-    path   = "/docs"
+    build_type = "workflow"
   }
 
   branch_protection = {
@@ -138,6 +147,9 @@ module "github_workflows" {
   topics       = ["github-actions", "ci-cd", "reusable-workflows"]
   has_wiki     = false
   has_projects = false
+
+  # release-please opens the release PR with the workflow token.
+  actions_can_create_and_approve_pull_requests = true
 }
 
 module "a3spy" {
@@ -153,7 +165,7 @@ module "a3spy" {
   branch_protection = {
     required_status_checks = {
       strict   = true
-      contexts = ["ci-ok"]
+      contexts = ["ci / gate"]
     }
   }
 
