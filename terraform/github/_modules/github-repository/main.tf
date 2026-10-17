@@ -109,7 +109,7 @@ resource "github_actions_secret" "eac_deployer_private_key" {
 }
 
 resource "github_workflow_repository_permissions" "this" {
-  count                            = var.actions_can_create_pull_requests ? 1 : 0
+  count                            = var.actions_can_create_and_approve_pull_requests ? 1 : 0
   repository                       = github_repository.this.name
   default_workflow_permissions     = "read"
   can_approve_pull_request_reviews = true

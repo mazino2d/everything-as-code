@@ -140,7 +140,7 @@ module "github_workflows" {
   has_projects = false
 
   # release-please opens the release PR with the workflow token.
-  actions_can_create_pull_requests = true
+  actions_can_create_and_approve_pull_requests = true
 }
 
 module "a3spy" {

@@ -89,7 +89,7 @@ variable "rename_default_branch" {
   description = "Rename the current default branch to default_branch instead of switching to an existing branch"
 }
 
-variable "actions_can_create_pull_requests" {
+variable "actions_can_create_and_approve_pull_requests" {
   type        = bool
   default     = false
   description = "Allow the workflow token to create and approve pull requests (e.g. release-please). Left unmanaged when false."
