@@ -10,7 +10,7 @@
 
 ## 2. Bootstrap token
 
-Terraform uses this token only to mint the per-repo deploy tokens in `workers.tf`.
+Terraform uses this token to mint the per-repo deploy tokens in `workers.tf` and the Realtime SFU apps in `realtime.tf`.
 
 [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Custom token**:
 
@@ -18,6 +18,7 @@ Terraform uses this token only to mint the per-repo deploy tokens in `workers.tf
 |------------------------------------|--------|
 | Account → Account API Tokens       | Edit   |
 | Account → Account Settings         | Read   |
+| Account → Calls (Media)            | Edit   |
 
 Account Resources: include your account only.
 
