@@ -67,14 +67,14 @@ EOF
 
 ## Step 4 — Validate what changed
 
-Map changed paths to stacks and run the cheap, read-only checks for each. These mirror the PR gate jobs (`check-terraform`, `check-k8s`, `check-blog`), so running them locally catches failures before CI.
+Map changed paths to stacks and run the cheap, read-only checks for each. These mirror the PR gate jobs (`terraform / gate`, `k8s / gate`, `blog / gate`), so running them locally catches failures before CI.
 
 | Changed path | Checks | Deploys on merge via |
 |--------------|--------|----------------------|
-| `terraform/<stack>/**` | `make fmt` (check only — don't commit reformatting of unrelated files), `make validate STACK=<stack>`, `make plan STACK=<stack>` | `tf-apply.yml` → Terraform Cloud workspace (see CLAUDE.md table) |
+| `terraform/<stack>/**` | `make fmt` (check only — don't commit reformatting of unrelated files), `make validate STACK=<stack>`, `make plan STACK=<stack>` | `terraform.yml` → Terraform Cloud workspace (see CLAUDE.md table) |
 | `kubernetes/charts/<chart>/**` | `helm lint kubernetes/charts/<chart>` + build every cluster dir that uses it | Argo CD (every app using the chart) |
 | `kubernetes/clusters/<cluster>/<group>/**` | `kustomize build --enable-helm kubernetes/clusters/<cluster>/<group>` | Argo CD |
-| `blog/**`, `mkdocs.yml` | `mkdocs build --strict` | `blog-deploy.yml` → GitHub Pages |
+| `blog/**`, `mkdocs.yml` | `mkdocs build --strict` | `blog.yml` → GitHub Pages |
 | `.github/workflows/**` | Read the workflow carefully; no local runner | GitHub Actions itself |
 
 For `make plan`, capture the `Plan: X to add, Y to change, Z to destroy` line and any resource marked `must be replaced` or `destroy`. Those go in the PR's risk section — replacements and destroys are the thing reviewers most need to see in a Terraform PR.
@@ -138,7 +138,7 @@ EOF
 
 For an existing PR, use `gh pr edit <number> --title … --body-file -` instead.
 
-Finish by giving the user the PR URL. Optionally run `gh pr checks <number>` and mention which gate jobs (`check-terraform`, `check-k8s`, `check-blog`) were triggered.
+Finish by giving the user the PR URL. Optionally run `gh pr checks <number>` and mention which gate jobs (`terraform / gate`, `k8s / gate`, `blog / gate`) were triggered.
 
 ## Don'ts
 

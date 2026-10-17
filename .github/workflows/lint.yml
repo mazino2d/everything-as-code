@@ -1,0 +1,21 @@
+name: Lint
+
+on:
+  pull_request:
+
+concurrency:
+  group: lint-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    uses: mazino2d/github-workflows/.github/workflows/lint.yml@v1
+
+  codeql:
+    uses: mazino2d/github-workflows/.github/workflows/codeql-actions.yml@v1
+    permissions:
+      contents: read
+      security-events: write

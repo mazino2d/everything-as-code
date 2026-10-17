@@ -1,0 +1,33 @@
+name: Blog
+
+# MkDocs blog on GitHub Pages. Pull requests only build (strict); main deploys.
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "blog/**"
+      - "mkdocs.yml"
+      - ".github/workflows/blog.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: blog-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  blog:
+    uses: mazino2d/github-workflows/.github/workflows/pages.yml@v1
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      generator: mkdocs
+      paths: |
+        blog/**
+        mkdocs.yml
+        .github/workflows/blog.yml

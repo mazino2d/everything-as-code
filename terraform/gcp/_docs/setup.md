@@ -75,14 +75,13 @@ Then trigger an apply on TF Cloud — APIs and project settings will be tracked 
 
 ## 5. GitHub Actions
 
-Add the new project to the matrix in both workflow files:
-
-- `.github/workflows/tf-plan.yml`
-- `.github/workflows/tf-apply.yml`
+`.github/workflows/terraform.yml` finds stacks on its own (every directory under
+`terraform/` holding `*.tf`, `_modules` excluded), so plan and apply pick up the
+new project without changes. Only add it to the `stack` choices of the manual
+run (`workflow_dispatch`):
 
 ```yaml
-matrix:
-  stack:
-    - terraform/github
-    - terraform/gcp/<project-id>   # add this line
+options:
+  - all
+  - terraform/gcp/<project-id>   # add this line
 ```

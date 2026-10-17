@@ -1,0 +1,45 @@
+name: Terraform
+
+# Pull requests plan every changed stack (sticky PR comment per stack); main
+# applies them; a manual run applies the chosen stack(s).
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: Terraform stack to apply
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - terraform/github
+          - terraform/gcp/mazino2d-as-se1-dev
+          - terraform/gcp/simsplit-as-se1-prd
+          - terraform/cloudflare
+          - terraform/infisical
+          - terraform/grafana/stack
+          - terraform/grafana/dashboard
+          - terraform/k8s/mazino2d-as-se1-dev
+
+concurrency:
+  group: terraform-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    uses: mazino2d/github-workflows/.github/workflows/terraform.yml@v1
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      mode: ${{ github.event_name == 'pull_request' && 'plan' || 'apply' }}
+      select: ${{ inputs.stack || '' }}
+    secrets: inherit

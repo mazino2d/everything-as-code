@@ -1,0 +1,19 @@
+name: Kubernetes
+
+on:
+  pull_request:
+
+concurrency:
+  group: k8s-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  k8s:
+    uses: mazino2d/github-workflows/.github/workflows/k8s-validate.yml@v1
+    with:
+      paths: |
+        kubernetes/**
+        .github/workflows/k8s.yml
