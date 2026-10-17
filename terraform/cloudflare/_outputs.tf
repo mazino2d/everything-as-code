@@ -7,3 +7,11 @@ output "workers_deployer_tokens" {
   sensitive   = true
   description = "Workers deploy token per app repo, keyed by repo name (read by terraform/github)."
 }
+
+output "realtime_apps" {
+  value = {
+    for name, app in cloudflare_calls_sfu_app.app : name => { id = app.uid, token = app.secret }
+  }
+  sensitive   = true
+  description = "Realtime SFU app id and token per app repo, keyed by repo name (read by terraform/github)."
+}

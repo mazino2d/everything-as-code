@@ -192,12 +192,14 @@ data "terraform_remote_state" "cloudflare" {
   defaults = {
     account_id              = null
     workers_deployer_tokens = {}
+    realtime_apps           = {}
   }
 }
 
 locals {
   cloudflare_account_id      = try(data.terraform_remote_state.cloudflare.outputs.account_id, null)
   a3spy_cloudflare_api_token = lookup(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens, "a3spy", null)
+  a3spy_realtime_app         = lookup(data.terraform_remote_state.cloudflare.outputs.realtime_apps, "a3spy", null)
 }
 
 resource "github_actions_variable" "a3spy_cloudflare_account_id" {
@@ -212,6 +214,22 @@ resource "github_actions_secret" "a3spy_cloudflare_api_token" {
   repository  = module.a3spy.name
   secret_name = "CLOUDFLARE_API_TOKEN"
   value       = local.a3spy_cloudflare_api_token
+}
+
+# Realtime SFU app minted by the cloudflare workspace: the CD workflow
+# pushes the token to the Worker, which calls the Realtime API for voice.
+resource "github_actions_variable" "a3spy_realtime_app_id" {
+  count         = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
+  repository    = module.a3spy.name
+  variable_name = "REALTIME_APP_ID"
+  value         = nonsensitive(local.a3spy_realtime_app.id)
+}
+
+resource "github_actions_secret" "a3spy_realtime_app_token" {
+  count       = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "REALTIME_APP_TOKEN"
+  value       = local.a3spy_realtime_app.token
 }
 
 # Bot token comes from @BotFather, so it is set by hand as a sensitive
