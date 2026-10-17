@@ -140,6 +140,14 @@ module "github_workflows" {
   has_projects = false
 }
 
+# release-please opens the release PR with the workflow token, which needs
+# "Allow GitHub Actions to create and approve pull requests".
+resource "github_workflow_repository_permissions" "github_workflows" {
+  repository                       = module.github_workflows.name
+  default_workflow_permissions     = "read"
+  can_approve_pull_request_reviews = true
+}
+
 module "a3spy" {
   source                = "./_modules/github-repository"
   name                  = "a3spy"
