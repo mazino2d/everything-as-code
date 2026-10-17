@@ -147,6 +147,9 @@ module "github_workflows" {
   topics       = ["github-actions", "ci-cd", "reusable-workflows"]
   has_wiki     = false
   has_projects = false
+
+  # release-please opens the release PR with the workflow token.
+  actions_can_create_and_approve_pull_requests = true
 }
 
 module "a3spy" {
