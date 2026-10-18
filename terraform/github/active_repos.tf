@@ -156,9 +156,9 @@ module "github_workflows" {
 module "a3spy" {
   source                = "./_modules/github-repository"
   name                  = "a3spy"
-  description           = "Who is Spy game master bot on Telegram"
+  description           = "Who is Spy game master in the browser: secret words, voting, and a voice call for friends far apart"
   visibility            = "public"
-  topics                = ["telegram", "game", "typescript", "cloudflare-workers"]
+  topics                = ["game", "party-game", "pwa", "webrtc", "typescript", "cloudflare-workers"]
   has_wiki              = false
   has_projects          = false
   rename_default_branch = true
