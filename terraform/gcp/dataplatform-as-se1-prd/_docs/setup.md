@@ -57,3 +57,11 @@ reads it from remote state and sets them as the repo variables `GCP_PROJECT_ID`,
   the cause is fixed.
 - **Lag:** budget notifications can arrive hours after the spend, so the cap limits a
   runaway cost but does not guarantee zero.
+
+## 4. sim-split raw data (R-4)
+
+`simsplit.tf` creates the `simsplit_raw` dataset (time travel at its 48-hour minimum),
+the `error_reports` and `usage_events` tables the telemetry endpoint writes, and a
+storage alert at 8 GiB. The endpoint's write grant waits for the
+`gcp-simsplit-as-se1-prd` workspace to share its state with this one (its setup § 8);
+re-run apply on this stack after that. Confirm the notification channel's email once.

@@ -227,3 +227,18 @@ assessments a month). The github stack copies the site key into sim-split's
    registered token. If real users are rejected (low reCAPTCHA scores show up in
    **Firebase console → App Check → APIs**), set the workspace variable
    `app_check_enforced = false` to go back to metrics only while investigating.
+
+## 8. Telemetry endpoint (R-4)
+
+`telemetry.tf` creates the Cloud Run service that receives sim-split's error reports and
+usage events, its Artifact Registry repository, a deployer service account for
+sim-split's workflow, and a log-based alert on error reports. By hand, once:
+
+1. In the workspace's **Settings → General → Remote state sharing**, share with
+   `gcp-dataplatform-as-se1-prd`: that stack reads the `telemetry` output to let the
+   endpoint write to `simsplit_raw`.
+2. Confirm the email Cloud Monitoring sends to the maintainer address when the
+   notification channel is created.
+
+The service starts with a placeholder image; sim-split's telemetry workflow deploys the
+real one and owns the image from then on (`ignore_changes`).

@@ -35,5 +35,9 @@ module "project" {
     "eventarc.googleapis.com",
     "storage.googleapis.com",
     "logging.googleapis.com",
+    # R-4 telemetry endpoint: alerts, and writes to the warehouse (telemetry.tf)
+    "monitoring.googleapis.com",
+    "bigquery.googleapis.com",
+    "bigquerystorage.googleapis.com",
   ]
 }
