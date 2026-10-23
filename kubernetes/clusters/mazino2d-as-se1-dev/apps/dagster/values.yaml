@@ -41,30 +41,10 @@ dagsterDaemon:
     limits:
       memory: 512Mi
 
+# No code locations: the webserver still needs workspace.yaml, so the subchart
+# stays enabled and renders an empty load_from.
 dagster-user-deployments:
   enabled: true
   enableSubchart: true
   rbacEnabled: false
-  deployments:
-    - name: jaffle-shop
-      image:
-        repository: ghcr.io/mazino2d/jaffle-shop
-        # Bump to the sha-<short> tag published by jaffle-shop's docker-image workflow.
-        tag: sha-94d7faf
-        pullPolicy: IfNotPresent
-      dagsterApiGrpcArgs:
-        - "-m"
-        - "dag"
-      port: 3030
-      envSecrets:
-        - name: jaffle-shop-env
-      env:
-        - name: DBT_TARGET
-          value: cloud
-      # dlt and dbt run in-process with DefaultRunLauncher.
-      resources:
-        requests:
-          cpu: 100m
-          memory: 512Mi
-        limits:
-          memory: 1536Mi
+  deployments: []

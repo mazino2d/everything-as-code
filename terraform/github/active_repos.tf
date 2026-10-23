@@ -61,12 +61,18 @@ module "caketool" {
   }
 }
 
-module "jaffle_shop" {
+# Renamed from jaffle-shop; github_repository renames in place on a name change.
+moved {
+  from = module.jaffle_shop
+  to   = module.data_platform
+}
+
+module "data_platform" {
   source      = "./_modules/github-repository"
-  name        = "jaffle-shop"
-  description = "dbt learning playground based on the Jaffle Shop demo"
+  name        = "data-platform"
+  description = "Data platform for mazino2d projects: dlt, BigQuery, dbt and Evidence"
   visibility  = "public"
-  topics      = ["dbt", "data-engineering", "analytics"]
+  topics      = ["dbt", "bigquery", "data-engineering", "analytics"]
 
   pages = {
     build_type = "workflow"
@@ -75,7 +81,7 @@ module "jaffle_shop" {
   branch_protection = {
     require_conversation_resolution = true
     required_status_checks = {
-      contexts = ["lint / gate", "dbt / gate", "docs / gate"]
+      contexts = ["lint / gate", "dbt", "docs / gate"]
     }
   }
 
