@@ -26,6 +26,7 @@ locals {
   project_id         = "dataplatform-as-se1-prd"
   region             = "asia-southeast1"
   billing_account_id = "0138D2-6EFA6E-34332E"
+  alert_email        = "mazino2d@gmail.com"
 }
 
 # Billing Budgets bill API quota to the caller's project, so every request is

@@ -24,5 +24,7 @@ module "project" {
     "eventarc.googleapis.com",
     "storage.googleapis.com",
     "logging.googleapis.com",
+    # Storage alert on the warehouse (simsplit.tf)
+    "monitoring.googleapis.com",
   ]
 }

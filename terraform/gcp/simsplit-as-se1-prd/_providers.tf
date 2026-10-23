@@ -31,6 +31,7 @@ locals {
   project_id         = "simsplit-as-se1-prd"
   region             = "asia-southeast1"
   billing_account_id = "0138D2-6EFA6E-34332E"
+  alert_email        = "mazino2d@gmail.com"
 }
 
 # Firebase, Identity Platform and Billing Budgets bill API quota to the caller's
