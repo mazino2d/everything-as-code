@@ -61,12 +61,18 @@ module "caketool" {
   }
 }
 
-module "jaffle_shop" {
+# Renamed from jaffle-shop; github_repository renames in place on a name change.
+moved {
+  from = module.jaffle_shop
+  to   = module.data_platform
+}
+
+module "data_platform" {
   source      = "./_modules/github-repository"
-  name        = "jaffle-shop"
-  description = "dbt learning playground based on the Jaffle Shop demo"
+  name        = "data-platform"
+  description = "Data platform for mazino2d projects: dlt, BigQuery, dbt and Evidence"
   visibility  = "public"
-  topics      = ["dbt", "data-engineering", "analytics"]
+  topics      = ["dbt", "bigquery", "data-engineering", "analytics"]
 
   pages = {
     build_type = "workflow"
@@ -75,11 +81,50 @@ module "jaffle_shop" {
   branch_protection = {
     require_conversation_resolution = true
     required_status_checks = {
-      contexts = ["lint / gate", "dbt / gate", "docs / gate"]
+      contexts = ["lint / gate", "dbt", "docs / gate"]
     }
   }
 
   deploy_app = local.eac_deploy_app
+}
+
+# Keyless BigQuery access for data-platform's workflows (WIF provider and
+# service account). Created by the gcp-dataplatform-as-se1-prd workspace; until
+# that workspace has applied, the variables are left out.
+data "terraform_remote_state" "dataplatform" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "gcp-dataplatform-as-se1-prd"
+    }
+  }
+}
+
+locals {
+  data_platform_ci = try(data.terraform_remote_state.dataplatform.outputs.data_platform_ci, null)
+}
+
+resource "github_actions_variable" "data_platform_gcp_project_id" {
+  count         = local.data_platform_ci != null ? 1 : 0
+  repository    = module.data_platform.name
+  variable_name = "GCP_PROJECT_ID"
+  value         = local.data_platform_ci.project_id
+}
+
+resource "github_actions_variable" "data_platform_gcp_workload_identity_provider" {
+  count         = local.data_platform_ci != null ? 1 : 0
+  repository    = module.data_platform.name
+  variable_name = "GCP_WORKLOAD_IDENTITY_PROVIDER"
+  value         = local.data_platform_ci.workload_identity_provider
+}
+
+resource "github_actions_variable" "data_platform_gcp_service_account" {
+  count         = local.data_platform_ci != null ? 1 : 0
+  repository    = module.data_platform.name
+  variable_name = "GCP_SERVICE_ACCOUNT"
+  value         = local.data_platform_ci.service_account
 }
 
 module "sim_split" {
