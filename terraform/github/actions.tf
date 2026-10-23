@@ -1,0 +1,95 @@
+# ===================================================================
+# Actions variables and secrets
+# ===================================================================
+
+# -------------------------------------------------------------------
+# data-platform
+# -------------------------------------------------------------------
+
+resource "github_actions_variable" "data_platform" {
+  for_each = local.data_platform_ci == null ? {} : {
+    GCP_PROJECT_ID                 = local.data_platform_ci.project_id
+    GCP_WORKLOAD_IDENTITY_PROVIDER = local.data_platform_ci.workload_identity_provider
+    GCP_SERVICE_ACCOUNT            = local.data_platform_ci.service_account
+  }
+
+  repository    = module.data_platform.name
+  variable_name = each.key
+  value         = each.value
+}
+
+# -------------------------------------------------------------------
+# sim-split
+# -------------------------------------------------------------------
+
+resource "github_actions_variable" "sim_split_recaptcha_site_key" {
+  count         = local.sim_split_recaptcha_site_key != null ? 1 : 0
+  repository    = module.sim_split.name
+  variable_name = "RECAPTCHA_ENTERPRISE_SITE_KEY"
+  value         = local.sim_split_recaptcha_site_key
+}
+
+# -------------------------------------------------------------------
+# a3spy
+# -------------------------------------------------------------------
+
+resource "github_actions_variable" "a3spy_cloudflare_account_id" {
+  count         = local.cloudflare_account_id != null ? 1 : 0
+  repository    = module.a3spy.name
+  variable_name = "CLOUDFLARE_ACCOUNT_ID"
+  value         = local.cloudflare_account_id
+}
+
+resource "github_actions_secret" "a3spy_cloudflare_api_token" {
+  count       = nonsensitive(local.a3spy_cloudflare_api_token != null) ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "CLOUDFLARE_API_TOKEN"
+  value       = local.a3spy_cloudflare_api_token
+}
+
+# Realtime SFU app minted by the cloudflare workspace: the CD workflow
+# pushes the token to the Worker, which calls the Realtime API for voice.
+resource "github_actions_variable" "a3spy_realtime_app_id" {
+  count         = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
+  repository    = module.a3spy.name
+  variable_name = "REALTIME_APP_ID"
+  value         = nonsensitive(local.a3spy_realtime_app.id)
+}
+
+resource "github_actions_secret" "a3spy_realtime_app_token" {
+  count       = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "REALTIME_APP_TOKEN"
+  value       = local.a3spy_realtime_app.token
+}
+
+# Bot token comes from @BotFather, so it is set by hand as a sensitive
+# variable on the github workspace; the CD workflow pushes it to the Worker.
+resource "github_actions_secret" "a3spy_telegram_bot_token" {
+  count       = var.a3spy_telegram_bot_token != null ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "TELEGRAM_BOT_TOKEN"
+  value       = var.a3spy_telegram_bot_token
+}
+
+# Only this Telegram user may send announcements to everyone who used the bot
+# (/announce); set by hand on the github workspace, pushed to the Worker by CD.
+resource "github_actions_secret" "a3spy_owner_telegram_id" {
+  count       = var.a3spy_owner_telegram_id != null ? 1 : 0
+  repository  = module.a3spy.name
+  secret_name = "OWNER_TELEGRAM_ID"
+  value       = var.a3spy_owner_telegram_id
+}
+
+# Telegram echoes this in X-Telegram-Bot-Api-Secret-Token on every webhook
+# call, so the Worker can drop requests that did not come from Telegram.
+resource "random_password" "a3spy_telegram_webhook_secret" {
+  length  = 48
+  special = false
+}
+
+resource "github_actions_secret" "a3spy_telegram_webhook_secret" {
+  repository  = module.a3spy.name
+  secret_name = "TELEGRAM_WEBHOOK_SECRET"
+  value       = random_password.a3spy_telegram_webhook_secret.result
+}

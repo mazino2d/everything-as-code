@@ -61,12 +61,6 @@ module "caketool" {
   }
 }
 
-# Renamed from jaffle-shop; github_repository renames in place on a name change.
-moved {
-  from = module.jaffle_shop
-  to   = module.data_platform
-}
-
 module "data_platform" {
   source      = "./_modules/github-repository"
   name        = "data-platform"
@@ -113,31 +107,6 @@ module "sim_split" {
   }
 }
 
-# reCAPTCHA site key for App Check on web, built into sim-split's web release
-# (firebase_deploy.yml). Created by the gcp-simsplit-as-se1-prd workspace; until
-# that workspace has applied, the variable is left out.
-data "terraform_remote_state" "simsplit" {
-  backend = "remote"
-
-  config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "gcp-simsplit-as-se1-prd"
-    }
-  }
-}
-
-locals {
-  sim_split_recaptcha_site_key = try(data.terraform_remote_state.simsplit.outputs.app_check.recaptcha_site_key, null)
-}
-
-resource "github_actions_variable" "sim_split_recaptcha_site_key" {
-  count         = local.sim_split_recaptcha_site_key != null ? 1 : 0
-  repository    = module.sim_split.name
-  variable_name = "RECAPTCHA_ENTERPRISE_SITE_KEY"
-  value         = local.sim_split_recaptcha_site_key
-}
-
 module "staged_recipes" {
   source      = "./_modules/github-repository"
   name        = "staged-recipes"
@@ -181,90 +150,4 @@ module "a3spy" {
     dependabot_security_updates = true
     secret_scanning             = true
   }
-}
-
-# Workers deploy token minted by the cloudflare workspace; until that
-# workspace has minted it, the secrets are left out.
-data "terraform_remote_state" "cloudflare" {
-  backend = "remote"
-
-  config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "cloudflare"
-    }
-  }
-
-  defaults = {
-    account_id              = null
-    workers_deployer_tokens = {}
-    realtime_apps           = {}
-  }
-}
-
-locals {
-  cloudflare_account_id      = try(data.terraform_remote_state.cloudflare.outputs.account_id, null)
-  a3spy_cloudflare_api_token = lookup(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens, "a3spy", null)
-  a3spy_realtime_app         = lookup(data.terraform_remote_state.cloudflare.outputs.realtime_apps, "a3spy", null)
-}
-
-resource "github_actions_variable" "a3spy_cloudflare_account_id" {
-  count         = local.cloudflare_account_id != null ? 1 : 0
-  repository    = module.a3spy.name
-  variable_name = "CLOUDFLARE_ACCOUNT_ID"
-  value         = local.cloudflare_account_id
-}
-
-resource "github_actions_secret" "a3spy_cloudflare_api_token" {
-  count       = nonsensitive(local.a3spy_cloudflare_api_token != null) ? 1 : 0
-  repository  = module.a3spy.name
-  secret_name = "CLOUDFLARE_API_TOKEN"
-  value       = local.a3spy_cloudflare_api_token
-}
-
-# Realtime SFU app minted by the cloudflare workspace: the CD workflow
-# pushes the token to the Worker, which calls the Realtime API for voice.
-resource "github_actions_variable" "a3spy_realtime_app_id" {
-  count         = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
-  repository    = module.a3spy.name
-  variable_name = "REALTIME_APP_ID"
-  value         = nonsensitive(local.a3spy_realtime_app.id)
-}
-
-resource "github_actions_secret" "a3spy_realtime_app_token" {
-  count       = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
-  repository  = module.a3spy.name
-  secret_name = "REALTIME_APP_TOKEN"
-  value       = local.a3spy_realtime_app.token
-}
-
-# Bot token comes from @BotFather, so it is set by hand as a sensitive
-# variable on the github workspace; the CD workflow pushes it to the Worker.
-resource "github_actions_secret" "a3spy_telegram_bot_token" {
-  count       = var.a3spy_telegram_bot_token != null ? 1 : 0
-  repository  = module.a3spy.name
-  secret_name = "TELEGRAM_BOT_TOKEN"
-  value       = var.a3spy_telegram_bot_token
-}
-
-# Only this Telegram user may send announcements to everyone who used the bot
-# (/announce); set by hand on the github workspace, pushed to the Worker by CD.
-resource "github_actions_secret" "a3spy_owner_telegram_id" {
-  count       = var.a3spy_owner_telegram_id != null ? 1 : 0
-  repository  = module.a3spy.name
-  secret_name = "OWNER_TELEGRAM_ID"
-  value       = var.a3spy_owner_telegram_id
-}
-
-# Telegram echoes this in X-Telegram-Bot-Api-Secret-Token on every webhook
-# call, so the Worker can drop requests that did not come from Telegram.
-resource "random_password" "a3spy_telegram_webhook_secret" {
-  length  = 48
-  special = false
-}
-
-resource "github_actions_secret" "a3spy_telegram_webhook_secret" {
-  repository  = module.a3spy.name
-  secret_name = "TELEGRAM_WEBHOOK_SECRET"
-  value       = random_password.a3spy_telegram_webhook_secret.result
 }
