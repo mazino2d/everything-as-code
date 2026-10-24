@@ -19,18 +19,23 @@ variable "google_oauth_client_secret" {
 
 # Signing certificate fingerprints of the Play app com.mazino2d.simsplit.dev,
 # for Google sign-in on Android: Play Console → SimSplit Dev → App integrity →
-# Play app signing (app signing key, then upload key). Not known until the app
-# exists in Play Console; fill in the defaults with a PR (_docs/setup.md § 4).
+# Play app signing (app signing key, then upload key). The upload key is prd's
+# (same keystore); the app signing key is added with a PR once the app exists in
+# Play Console (_docs/setup.md § 4).
 variable "android_sha1_hashes" {
   description = "SHA-1 fingerprints, lower case without colons."
   type        = list(string)
-  default     = []
+  default = [
+    "d4ba311c4d85f5f084b06839742de9390e237fa5", # upload key
+  ]
 }
 
 variable "android_sha256_hashes" {
   description = "SHA-256 fingerprints, lower case without colons."
   type        = list(string)
-  default     = []
+  default = [
+    "8ab3bf0adce70fdd609fb0d527eed930b6f829b2f69af45cdcd179b885a89399", # upload key
+  ]
 }
 
 variable "budget_amount" {
