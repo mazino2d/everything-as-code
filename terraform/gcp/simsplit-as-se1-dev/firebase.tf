@@ -1,5 +1,5 @@
 # Dev backend for SimSplit (mazino2d/sim-split): internal-test Android builds
-# (com.mazino2d.simsplit.dev) and the web build on simsplit-dev.web.app talk to
+# (com.mazino2d.simsplit.dev) and the web build on simsplit-as-se1-dev.web.app talk to
 # this project, never to simsplit-as-se1-prd. Firestore rules, indexes and
 # Hosting content live in the sim-split repo and are deployed from its CI with
 # the gha-firebase-deployer identity (github_actions.tf).
@@ -48,9 +48,10 @@ data "google_firebase_web_app_config" "sim_split" {
   web_app_id = google_firebase_web_app.sim_split.app_id
 }
 
-# Serves the dev web build plus assetlinks.json for App Links on the dev app.
-resource "google_firebase_hosting_site" "default" {
-  provider = google-beta
-  project  = google_firebase_project.this.project
-  site_id  = "simsplit-dev"
+# The dev web build and assetlinks.json for App Links on the dev app are served
+# from the project's default Hosting site, which Firebase creates with the
+# project ID as its name. Site names are global and "simsplit-dev" is taken by
+# another project.
+locals {
+  hosting_site_id = local.project_id
 }
