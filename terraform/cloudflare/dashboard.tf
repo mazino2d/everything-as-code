@@ -10,7 +10,6 @@
 
 locals {
   dashboard_project = "data-platform-dashboard"
-  dashboard_domain  = "${local.dashboard_project}.pages.dev"
   dashboard_viewers = ["mazino2d@gmail.com"]
 }
 
@@ -29,7 +28,9 @@ resource "cloudflare_zero_trust_access_policy" "dashboard_viewers" {
 
 # Covers the production site and every preview deployment
 # (<hash>.data-platform-dashboard.pages.dev). Sign-in is a one-time PIN
-# emailed to an allowed address.
+# emailed to an allowed address. Access accepts a pages.dev hostname only once
+# the Pages project exists in the account, so the domain comes from the
+# project (which also orders the two).
 resource "cloudflare_zero_trust_access_application" "dashboard" {
   account_id       = var.cloudflare_account_id
   name             = "data-platform dashboard"
@@ -37,8 +38,8 @@ resource "cloudflare_zero_trust_access_application" "dashboard" {
   session_duration = "24h"
 
   destinations = [
-    { type = "public", uri = local.dashboard_domain },
-    { type = "public", uri = "*.${local.dashboard_domain}" },
+    { type = "public", uri = cloudflare_pages_project.dashboard.subdomain },
+    { type = "public", uri = "*.${cloudflare_pages_project.dashboard.subdomain}" },
   ]
 
   policies = [{
