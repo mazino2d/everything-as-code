@@ -22,8 +22,7 @@ resource "google_recaptcha_enterprise_key" "web" {
     integration_type  = "SCORE"
     allow_all_domains = false
     allowed_domains = [
-      "${google_firebase_hosting_site.default.site_id}.web.app",
-      "${google_firebase_hosting_site.default.site_id}.firebaseapp.com",
+      "${local.hosting_site_id}.web.app",
       "${local.project_id}.firebaseapp.com",
       "localhost",
     ]
@@ -67,4 +66,8 @@ resource "google_firebase_app_check_service_config" "this" {
   project          = google_firebase_project.this.project
   service_id       = each.key
   enforcement_mode = var.app_check_enforced ? "ENFORCED" : "UNENFORCED"
+
+  # Firestore App Check fails with "Cloud Firestore is not yet set up" when it
+  # runs before the database exists.
+  depends_on = [google_firestore_database.default]
 }

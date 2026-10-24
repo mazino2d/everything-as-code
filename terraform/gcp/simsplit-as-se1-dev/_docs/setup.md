@@ -5,7 +5,7 @@ Auth, Firestore and Hosting, so internal-test builds never touch production data
 
 - Android: internal-test builds are a separate Play app, `com.mazino2d.simsplit.dev`
   (**SimSplit Dev**), which installs next to the production app.
-- Web: the dev build is served at `https://simsplit-dev.web.app`.
+- Web: the dev build is served at `https://simsplit-as-se1-dev.web.app` (the default Hosting site; `simsplit-dev` is taken by another project).
 
 The stack mirrors [simsplit-as-se1-prd](../../simsplit-as-se1-prd/_docs/setup.md)
 without the telemetry endpoint, Apple sign-in and the Play publisher service account.
@@ -157,7 +157,7 @@ Dev → google-services.json**, and commit it at the dev flavour's path in sim-s
 ## 5. App Check
 
 `app_check.tf` registers the Android app with Play Integrity and the web app with a
-score-based reCAPTCHA key for `simsplit-dev.web.app`, `simsplit-dev.firebaseapp.com`,
+score-based reCAPTCHA key for `simsplit-as-se1-dev.web.app`,
 `simsplit-as-se1-dev.firebaseapp.com` and `localhost` (24 h token TTL).
 
 1. **Debug token (optional):** generate a UUID (`uuidgen`), set it as the sensitive

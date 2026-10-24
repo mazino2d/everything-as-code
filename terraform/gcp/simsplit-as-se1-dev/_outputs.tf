@@ -6,7 +6,7 @@ output "firebase" {
     web_app_id      = google_firebase_web_app.sim_split.app_id
     web_api_key     = data.google_firebase_web_app_config.sim_split.api_key
     web_auth_domain = data.google_firebase_web_app_config.sim_split.auth_domain
-    hosting_url     = "https://${google_firebase_hosting_site.default.site_id}.web.app"
+    hosting_url     = "https://${local.hosting_site_id}.web.app"
   }
 }
 

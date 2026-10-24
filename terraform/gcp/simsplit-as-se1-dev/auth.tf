@@ -18,7 +18,7 @@ resource "google_identity_platform_config" "this" {
   authorized_domains = [
     "localhost",
     "${local.project_id}.firebaseapp.com",
-    "${google_firebase_hosting_site.default.site_id}.web.app",
+    "${local.hosting_site_id}.web.app",
   ]
 }
 
