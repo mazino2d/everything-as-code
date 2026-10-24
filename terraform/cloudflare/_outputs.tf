@@ -19,7 +19,7 @@ output "realtime_apps" {
 output "dashboard" {
   value = {
     project = cloudflare_pages_project.dashboard.name
-    url     = "https://${local.dashboard_domain}"
+    url     = "https://${cloudflare_pages_project.dashboard.subdomain}"
     token   = cloudflare_account_token.pages_deployer.value
   }
   sensitive   = true
