@@ -15,3 +15,13 @@ output "realtime_apps" {
   sensitive   = true
   description = "Realtime SFU app id and token per app repo, keyed by repo name (read by terraform/github)."
 }
+
+output "dashboard" {
+  value = {
+    project = cloudflare_pages_project.dashboard.name
+    url     = "https://${local.dashboard_domain}"
+    token   = cloudflare_account_token.pages_deployer.value
+  }
+  sensitive   = true
+  description = "data-platform dashboard: Pages project, its URL and the deploy token (read by terraform/github)."
+}

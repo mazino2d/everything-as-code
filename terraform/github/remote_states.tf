@@ -53,6 +53,7 @@ data "terraform_remote_state" "cloudflare" {
   defaults = {
     account_id              = null
     workers_deployer_tokens = {}
+    dashboard               = null
     realtime_apps           = {}
   }
 }
@@ -61,6 +62,7 @@ locals {
   data_platform_ci             = data.terraform_remote_state.dataplatform.outputs.data_platform_ci
   sim_split_recaptcha_site_key = try(data.terraform_remote_state.simsplit.outputs.app_check.recaptcha_site_key, null)
   cloudflare_account_id        = try(data.terraform_remote_state.cloudflare.outputs.account_id, null)
+  data_platform_dashboard      = data.terraform_remote_state.cloudflare.outputs.dashboard
   a3spy_cloudflare_api_token   = lookup(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens, "a3spy", null)
   a3spy_realtime_app           = lookup(data.terraform_remote_state.cloudflare.outputs.realtime_apps, "a3spy", null)
 }
