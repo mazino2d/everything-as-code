@@ -60,6 +60,17 @@ resource "github_actions_variable" "sim_split_recaptcha_site_key" {
   value         = local.sim_split_recaptcha_site_key
 }
 
+# Dev environment (gcp-simsplit-as-se1-dev): sim-split's workflows deploy
+# Firestore rules, indexes and Hosting to it and build dev web bundles with its
+# site key. Each variable is left out until that workspace has applied.
+resource "github_actions_variable" "sim_split_dev" {
+  for_each = { for name, value in local.sim_split_dev_variables : name => value if value != null }
+
+  repository    = module.sim_split.name
+  variable_name = each.key
+  value         = each.value
+}
+
 # -------------------------------------------------------------------
 # a3spy
 # -------------------------------------------------------------------

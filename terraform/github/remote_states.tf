@@ -40,6 +40,25 @@ data "terraform_remote_state" "simsplit" {
   }
 }
 
+# sim-split's dev Firebase project: deploy identity and reCAPTCHA site key for
+# dev builds and deploys.
+data "terraform_remote_state" "simsplit_dev" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "gcp-simsplit-as-se1-dev"
+    }
+  }
+
+  defaults = {
+    firebase          = null
+    firebase_deployer = null
+    app_check         = null
+  }
+}
+
 # Workers deploy token and Realtime SFU app for a3spy.
 data "terraform_remote_state" "cloudflare" {
   backend = "remote"
@@ -67,4 +86,10 @@ locals {
   data_platform_dashboard      = data.terraform_remote_state.cloudflare.outputs.dashboard
   a3spy_cloudflare_api_token   = lookup(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens, "a3spy", null)
   a3spy_realtime_app           = lookup(data.terraform_remote_state.cloudflare.outputs.realtime_apps, "a3spy", null)
+  sim_split_dev_variables = {
+    DEV_FIREBASE_PROJECT               = try(data.terraform_remote_state.simsplit_dev.outputs.firebase.project_id, null)
+    DEV_GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.workload_identity_provider, null)
+    DEV_GCP_SERVICE_ACCOUNT            = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.service_account, null)
+    DEV_RECAPTCHA_ENTERPRISE_SITE_KEY  = try(data.terraform_remote_state.simsplit_dev.outputs.app_check.recaptcha_site_key, null)
+  }
 }
