@@ -43,6 +43,16 @@ resource "github_actions_secret" "data_platform_cloudflare_api_token" {
 # sim-split
 # -------------------------------------------------------------------
 
+# R-4 telemetry endpoint, built into sim-split's web and Android releases.
+# Setting it starts sending error reports and usage events, so it ships with
+# the release that updates the privacy policy (sim-split R-4 P5).
+resource "github_actions_variable" "sim_split_telemetry_url" {
+  count         = local.sim_split_telemetry_url != null ? 1 : 0
+  repository    = module.sim_split.name
+  variable_name = "TELEMETRY_URL"
+  value         = local.sim_split_telemetry_url
+}
+
 resource "github_actions_variable" "sim_split_recaptcha_site_key" {
   count         = local.sim_split_recaptcha_site_key != null ? 1 : 0
   repository    = module.sim_split.name
