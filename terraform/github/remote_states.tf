@@ -36,6 +36,7 @@ data "terraform_remote_state" "simsplit" {
 
   defaults = {
     app_check = null
+    telemetry = null
   }
 }
 
@@ -61,6 +62,7 @@ data "terraform_remote_state" "cloudflare" {
 locals {
   data_platform_ci             = data.terraform_remote_state.dataplatform.outputs.data_platform_ci
   sim_split_recaptcha_site_key = try(data.terraform_remote_state.simsplit.outputs.app_check.recaptcha_site_key, null)
+  sim_split_telemetry_url      = try(data.terraform_remote_state.simsplit.outputs.telemetry.url, null)
   cloudflare_account_id        = try(data.terraform_remote_state.cloudflare.outputs.account_id, null)
   data_platform_dashboard      = data.terraform_remote_state.cloudflare.outputs.dashboard
   a3spy_cloudflare_api_token   = lookup(data.terraform_remote_state.cloudflare.outputs.workers_deployer_tokens, "a3spy", null)
