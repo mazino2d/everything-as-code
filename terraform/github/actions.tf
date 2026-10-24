@@ -18,6 +18,27 @@ resource "github_actions_variable" "data_platform" {
   value         = each.value
 }
 
+# The Evidence dashboard (sim-split R-4) deploys to Cloudflare Pages with the
+# Pages-only token minted by the cloudflare workspace; until it has, these are
+# left out.
+resource "github_actions_variable" "data_platform_dashboard" {
+  for_each = nonsensitive(local.data_platform_dashboard != null) ? {
+    CLOUDFLARE_ACCOUNT_ID = local.cloudflare_account_id
+    DASHBOARD_PROJECT     = nonsensitive(local.data_platform_dashboard.project)
+  } : {}
+
+  repository    = module.data_platform.name
+  variable_name = each.key
+  value         = each.value
+}
+
+resource "github_actions_secret" "data_platform_cloudflare_api_token" {
+  count       = nonsensitive(local.data_platform_dashboard != null) ? 1 : 0
+  repository  = module.data_platform.name
+  secret_name = "CLOUDFLARE_API_TOKEN"
+  value       = local.data_platform_dashboard.token
+}
+
 # -------------------------------------------------------------------
 # sim-split
 # -------------------------------------------------------------------
