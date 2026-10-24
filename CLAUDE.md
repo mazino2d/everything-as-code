@@ -26,6 +26,7 @@ Valid `STACK` values:
 - `terraform/github` (default)
 - `terraform/gcp/mazino2d-as-se1-dev`
 - `terraform/gcp/simsplit-as-se1-prd`
+- `terraform/gcp/simsplit-as-se1-dev`
 - `terraform/gcp/dataplatform-as-se1-prd`
 - `terraform/cloudflare`
 - `terraform/infisical`
@@ -79,6 +80,7 @@ Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
 | `terraform/github` | `github` | GitHub repos/settings/branch protection |
 | `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
 | `terraform/gcp/simsplit-as-se1-prd` | `gcp-simsplit-as-se1-prd` | Firebase backend for sim-split (Auth, Firestore, Hosting), budget and billing kill switch |
+| `terraform/gcp/simsplit-as-se1-dev` | `gcp-simsplit-as-se1-dev` | Dev Firebase backend for sim-split (Auth, Firestore, Hosting `simsplit-dev`, Play app `com.mazino2d.simsplit.dev`), budget and billing kill switch |
 | `terraform/gcp/dataplatform-as-se1-prd` | `gcp-dataplatform-as-se1-prd` | BigQuery warehouse for data-platform, keyless GitHub Actions access, budget and billing kill switch |
 | `terraform/cloudflare` | `cloudflare` | Cloudflare account-owned Workers deploy tokens per app repo (handed to repos via `terraform/github`) |
 | `terraform/infisical` | `infisical` | Infisical projects, identities, folders |

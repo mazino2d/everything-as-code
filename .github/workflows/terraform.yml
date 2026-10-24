@@ -20,6 +20,7 @@ on:
           - terraform/github
           - terraform/gcp/mazino2d-as-se1-dev
           - terraform/gcp/simsplit-as-se1-prd
+          - terraform/gcp/simsplit-as-se1-dev
           - terraform/gcp/dataplatform-as-se1-prd
           - terraform/cloudflare
           - terraform/infisical
