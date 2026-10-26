@@ -23,7 +23,7 @@ data "terraform_remote_state" "dataplatform" {
 }
 
 # reCAPTCHA site key for App Check on web, built into sim-split's web release
-# (firebase_deploy.yml).
+# (firebase_deploy.yml), and the deploy identity for the prd environment.
 data "terraform_remote_state" "simsplit" {
   backend = "remote"
 
@@ -35,8 +35,10 @@ data "terraform_remote_state" "simsplit" {
   }
 
   defaults = {
-    app_check = null
-    telemetry = null
+    firebase          = null
+    firebase_deployer = null
+    app_check         = null
+    telemetry         = null
   }
 }
 
@@ -91,5 +93,20 @@ locals {
     DEV_GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.workload_identity_provider, null)
     DEV_GCP_SERVICE_ACCOUNT            = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.service_account, null)
     DEV_RECAPTCHA_ENTERPRISE_SITE_KEY  = try(data.terraform_remote_state.simsplit_dev.outputs.app_check.recaptcha_site_key, null)
+  }
+  sim_split_environment_variables = {
+    dev = {
+      FIREBASE_PROJECT               = try(data.terraform_remote_state.simsplit_dev.outputs.firebase.project_id, null)
+      GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.workload_identity_provider, null)
+      GCP_FIREBASE_DEPLOYER          = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.service_account, null)
+      RECAPTCHA_ENTERPRISE_SITE_KEY  = try(data.terraform_remote_state.simsplit_dev.outputs.app_check.recaptcha_site_key, null)
+    }
+    prd = {
+      FIREBASE_PROJECT               = try(data.terraform_remote_state.simsplit.outputs.firebase.project_id, null)
+      GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit.outputs.firebase_deployer.workload_identity_provider, null)
+      GCP_FIREBASE_DEPLOYER          = try(data.terraform_remote_state.simsplit.outputs.firebase_deployer.service_account, null)
+      RECAPTCHA_ENTERPRISE_SITE_KEY  = local.sim_split_recaptcha_site_key
+      TELEMETRY_URL                  = local.sim_split_telemetry_url
+    }
   }
 }
