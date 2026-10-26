@@ -170,14 +170,14 @@ score-based reCAPTCHA key for `simsplit-as-se1-dev.web.app`,
 ## 6. GitHub Actions
 
 The github stack reads this workspace's outputs from remote state (section 1) and sets
-these sim-split repo variables:
+these variables on sim-split's `dev` environment (prd's environment has the same names):
 
 | Variable | From |
 |---|---|
-| `DEV_FIREBASE_PROJECT` | `firebase.project_id` |
-| `DEV_GCP_WORKLOAD_IDENTITY_PROVIDER` | `firebase_deployer.workload_identity_provider` |
-| `DEV_GCP_SERVICE_ACCOUNT` | `firebase_deployer.service_account` (`gha-firebase-deployer`) |
-| `DEV_RECAPTCHA_ENTERPRISE_SITE_KEY` | `app_check.recaptcha_site_key` |
+| `FIREBASE_PROJECT` | `firebase.project_id` |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `firebase_deployer.workload_identity_provider` |
+| `GCP_FIREBASE_DEPLOYER` | `firebase_deployer.service_account` (`gha-firebase-deployer`) |
+| `RECAPTCHA_ENTERPRISE_SITE_KEY` | `app_check.recaptcha_site_key` |
 
 Until this stack has applied, the github stack leaves them out; re-run apply on
 `terraform/github` after the first apply here. As in prd, the Workload Identity provider

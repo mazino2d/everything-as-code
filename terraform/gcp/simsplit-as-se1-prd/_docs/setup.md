@@ -211,8 +211,9 @@ link another project first if this one is ever replaced.
 
 `app_check.tf` registers the Android app with Play Integrity and the web app with a
 score-based reCAPTCHA key (24 h token TTL, so web stays inside reCAPTCHA's 10,000 free
-assessments a month). The github stack copies the site key into sim-split's
-`RECAPTCHA_ENTERPRISE_SITE_KEY` repo variable, which the web release build reads.
+assessments a month). The github stack copies the site key into the
+`RECAPTCHA_ENTERPRISE_SITE_KEY` variable of sim-split's `prd` environment, which the web
+release build reads.
 
 1. **Remote state:** the `github` workspace reads this workspace's outputs. In Terraform
    Cloud, open this workspace → **Settings → General → Remote state sharing** and allow
