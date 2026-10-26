@@ -71,6 +71,66 @@ resource "github_actions_variable" "sim_split_dev" {
   value         = each.value
 }
 
+# Environments: dev deploys from main, prd from release tags after the
+# maintainer approves, and store syncs the Play store listing from main
+# (play_metadata.yml, including pull_request_target runs, whose ref is main).
+# Each holds the same variable names, so workflows read vars.X whichever
+# environment their job targets.
+data "github_user" "mazino2d" {
+  username = "mazino2d"
+}
+
+resource "github_repository_environment" "sim_split" {
+  for_each = toset(["dev", "prd", "store"])
+
+  repository          = module.sim_split.name
+  environment         = each.key
+  can_admins_bypass   = each.key != "prd"
+  prevent_self_review = false # the sole maintainer approves their own releases
+
+  dynamic "reviewers" {
+    for_each = each.key == "prd" ? [1] : []
+    content {
+      users = [tonumber(data.github_user.mazino2d.id)]
+    }
+  }
+
+  deployment_branch_policy {
+    protected_branches     = false
+    custom_branch_policies = true
+  }
+}
+
+resource "github_repository_environment_deployment_policy" "sim_split_main" {
+  for_each = toset(["dev", "store"])
+
+  repository     = module.sim_split.name
+  environment    = github_repository_environment.sim_split[each.key].environment
+  branch_pattern = "main"
+}
+
+resource "github_repository_environment_deployment_policy" "sim_split_prd_tags" {
+  repository  = module.sim_split.name
+  environment = github_repository_environment.sim_split["prd"].environment
+  tag_pattern = "v*"
+}
+
+# Each variable is left out until the workspace it comes from has applied.
+resource "github_actions_environment_variable" "sim_split" {
+  for_each = {
+    for item in flatten([
+      for environment, variables in local.sim_split_environment_variables : [
+        for name, value in variables : { environment = environment, name = name, value = value }
+      ]
+    ]) : "${item.environment}/${item.name}" => item if item.value != null
+  }
+
+  repository    = module.sim_split.name
+  environment   = github_repository_environment.sim_split[each.value.environment].environment
+  variable_name = each.value.name
+  value         = each.value.value
+}
+
 # -------------------------------------------------------------------
 # a3spy
 # -------------------------------------------------------------------

@@ -94,8 +94,9 @@ module "sim_split" {
   }
 
   branch_protection = {
+    require_conversation_resolution = true
     required_status_checks = {
-      strict   = false
+      strict   = true
       contexts = ["PR Validation"]
     }
   }
