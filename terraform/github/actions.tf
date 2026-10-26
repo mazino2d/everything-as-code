@@ -43,34 +43,6 @@ resource "github_actions_secret" "data_platform_cloudflare_api_token" {
 # sim-split
 # -------------------------------------------------------------------
 
-# R-4 telemetry endpoint, built into sim-split's web and Android releases.
-# Setting it starts sending error reports and usage events, so it ships with
-# the release that updates the privacy policy (sim-split R-4 P5).
-resource "github_actions_variable" "sim_split_telemetry_url" {
-  count         = local.sim_split_telemetry_url != null ? 1 : 0
-  repository    = module.sim_split.name
-  variable_name = "TELEMETRY_URL"
-  value         = local.sim_split_telemetry_url
-}
-
-resource "github_actions_variable" "sim_split_recaptcha_site_key" {
-  count         = local.sim_split_recaptcha_site_key != null ? 1 : 0
-  repository    = module.sim_split.name
-  variable_name = "RECAPTCHA_ENTERPRISE_SITE_KEY"
-  value         = local.sim_split_recaptcha_site_key
-}
-
-# Dev environment (gcp-simsplit-as-se1-dev): sim-split's workflows deploy
-# Firestore rules, indexes and Hosting to it and build dev web bundles with its
-# site key. Each variable is left out until that workspace has applied.
-resource "github_actions_variable" "sim_split_dev" {
-  for_each = { for name, value in local.sim_split_dev_variables : name => value if value != null }
-
-  repository    = module.sim_split.name
-  variable_name = each.key
-  value         = each.value
-}
-
 # Environments: dev deploys from main, prd from release tags after the
 # maintainer approves, and store syncs the Play store listing from main
 # (play_metadata.yml, including pull_request_target runs, whose ref is main).
