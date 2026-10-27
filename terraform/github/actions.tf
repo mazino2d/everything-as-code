@@ -6,26 +6,13 @@
 # data-platform
 # -------------------------------------------------------------------
 
-resource "github_actions_variable" "data_platform" {
-  for_each = local.data_platform_ci == null ? {} : {
-    GCP_PROJECT_ID                 = local.data_platform_ci.project_id
-    GCP_WORKLOAD_IDENTITY_PROVIDER = local.data_platform_ci.workload_identity_provider
-    GCP_SERVICE_ACCOUNT            = local.data_platform_ci.service_account
-  }
-
-  repository    = module.data_platform.name
-  variable_name = each.key
-  value         = each.value
-}
-
 # Environments: dev runs CI on every branch and the pipeline on main against
 # dataplatform-as-se1-dev; prd runs the pipeline against dataplatform-as-se1-prd
 # from release tags, and on its daily schedule (whose ref is main; the workflow
 # checks out the latest tag). The tag push is the release gate: no reviewer,
 # or the daily run would wait for approval. Each holds the same variable names,
-# so workflows read vars.X whichever environment their job targets. The
-# repo-level GCP_* variables above stay until data-platform's workflows use
-# the environments.
+# so workflows read vars.X whichever environment their job targets; every job
+# that reads them sets its environment, so there are no repo-level copies.
 resource "github_repository_environment" "data_platform" {
   for_each = toset(["dev", "prd"])
 
@@ -72,11 +59,11 @@ resource "github_actions_environment_variable" "data_platform" {
 
 # The Evidence dashboard (sim-split R-4) deploys to Cloudflare Pages with the
 # Pages-only token minted by the cloudflare workspace; until it has, these are
-# left out.
+# left out. Both environments deploy with the same account and token, so they
+# stay repo-level; each environment's DASHBOARD_PROJECT names its Pages project.
 resource "github_actions_variable" "data_platform_dashboard" {
   for_each = nonsensitive(local.data_platform_dashboard != null) ? {
     CLOUDFLARE_ACCOUNT_ID = local.cloudflare_account_id
-    DASHBOARD_PROJECT     = nonsensitive(local.data_platform_dashboard.project)
   } : {}
 
   repository    = module.data_platform.name
