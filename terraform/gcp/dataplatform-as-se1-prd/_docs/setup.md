@@ -38,9 +38,9 @@ done
 
 The `data_platform_ci` output holds the project ID, Workload Identity provider and
 service account for data-platform's `google-github-actions/auth` step. The github stack
-reads it from remote state and sets them as the repo variables `GCP_PROJECT_ID`,
-`GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT`, so re-run apply on
-`terraform/github` after the first apply of this stack.
+reads it from remote state and sets them as `GCP_PROJECT_ID`,
+`GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT` in data-platform's `prd`
+environment, so re-run apply on `terraform/github` after the first apply of this stack.
 
 ## 3. Kill switch
 
