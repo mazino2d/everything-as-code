@@ -22,6 +22,22 @@ data "terraform_remote_state" "dataplatform" {
   }
 }
 
+# The same for the dev warehouse, used by data-platform's dev environment.
+data "terraform_remote_state" "dataplatform_dev" {
+  backend = "remote"
+
+  config = {
+    organization = "mazino2d-everything-as-code"
+    workspaces = {
+      name = "gcp-dataplatform-as-se1-dev"
+    }
+  }
+
+  defaults = {
+    data_platform_ci = null
+  }
+}
+
 # reCAPTCHA site key for App Check on web, built into sim-split's web release
 # (firebase_deploy.yml), and the deploy identity for the prd environment.
 data "terraform_remote_state" "simsplit" {
@@ -42,8 +58,8 @@ data "terraform_remote_state" "simsplit" {
   }
 }
 
-# sim-split's dev Firebase project: deploy identity and reCAPTCHA site key for
-# dev builds and deploys.
+# sim-split's dev Firebase project: deploy identity, reCAPTCHA site key and
+# telemetry endpoint for dev builds and deploys.
 data "terraform_remote_state" "simsplit_dev" {
   backend = "remote"
 
@@ -58,6 +74,7 @@ data "terraform_remote_state" "simsplit_dev" {
     firebase          = null
     firebase_deployer = null
     app_check         = null
+    telemetry         = null
   }
 }
 
@@ -76,6 +93,7 @@ data "terraform_remote_state" "cloudflare" {
     account_id              = null
     workers_deployer_tokens = {}
     dashboard               = null
+    dashboard_dev           = null
     realtime_apps           = {}
   }
 }
@@ -94,6 +112,9 @@ locals {
       GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.workload_identity_provider, null)
       GCP_FIREBASE_DEPLOYER          = try(data.terraform_remote_state.simsplit_dev.outputs.firebase_deployer.service_account, null)
       RECAPTCHA_ENTERPRISE_SITE_KEY  = try(data.terraform_remote_state.simsplit_dev.outputs.app_check.recaptcha_site_key, null)
+      TELEMETRY_URL                  = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.url, null)
+      TELEMETRY_IMAGE_REPOSITORY     = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.image_repository, null)
+      GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.deployer_service_account, null)
     }
     prd = {
       FIREBASE_PROJECT               = try(data.terraform_remote_state.simsplit.outputs.firebase.project_id, null)
@@ -101,6 +122,24 @@ locals {
       GCP_FIREBASE_DEPLOYER          = try(data.terraform_remote_state.simsplit.outputs.firebase_deployer.service_account, null)
       RECAPTCHA_ENTERPRISE_SITE_KEY  = local.sim_split_recaptcha_site_key
       TELEMETRY_URL                  = local.sim_split_telemetry_url
+      TELEMETRY_IMAGE_REPOSITORY     = try(data.terraform_remote_state.simsplit.outputs.telemetry.image_repository, null)
+      GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit.outputs.telemetry.deployer_service_account, null)
+    }
+  }
+  data_platform_environment_variables = {
+    dev = {
+      GCP_PROJECT_ID                 = try(data.terraform_remote_state.dataplatform_dev.outputs.data_platform_ci.project_id, null)
+      GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.dataplatform_dev.outputs.data_platform_ci.workload_identity_provider, null)
+      GCP_SERVICE_ACCOUNT            = try(data.terraform_remote_state.dataplatform_dev.outputs.data_platform_ci.service_account, null)
+      SIMSPLIT_FIREBASE_PROJECT      = try(data.terraform_remote_state.simsplit_dev.outputs.firebase.project_id, null)
+      DASHBOARD_PROJECT              = try(data.terraform_remote_state.cloudflare.outputs.dashboard_dev.project, null)
+    }
+    prd = {
+      GCP_PROJECT_ID                 = try(local.data_platform_ci.project_id, null)
+      GCP_WORKLOAD_IDENTITY_PROVIDER = try(local.data_platform_ci.workload_identity_provider, null)
+      GCP_SERVICE_ACCOUNT            = try(local.data_platform_ci.service_account, null)
+      SIMSPLIT_FIREBASE_PROJECT      = try(data.terraform_remote_state.simsplit.outputs.firebase.project_id, null)
+      DASHBOARD_PROJECT              = try(nonsensitive(local.data_platform_dashboard.project), null)
     }
   }
 }

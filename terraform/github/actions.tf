@@ -18,6 +18,58 @@ resource "github_actions_variable" "data_platform" {
   value         = each.value
 }
 
+# Environments: dev runs CI on every branch and the pipeline on main against
+# dataplatform-as-se1-dev; prd runs the pipeline against dataplatform-as-se1-prd
+# from release tags, and on its daily schedule (whose ref is main; the workflow
+# checks out the latest tag). The tag push is the release gate: no reviewer,
+# or the daily run would wait for approval. Each holds the same variable names,
+# so workflows read vars.X whichever environment their job targets. The
+# repo-level GCP_* variables above stay until data-platform's workflows use
+# the environments.
+resource "github_repository_environment" "data_platform" {
+  for_each = toset(["dev", "prd"])
+
+  repository        = module.data_platform.name
+  environment       = each.key
+  can_admins_bypass = true
+
+  dynamic "deployment_branch_policy" {
+    for_each = each.key == "prd" ? [1] : []
+    content {
+      protected_branches     = false
+      custom_branch_policies = true
+    }
+  }
+}
+
+resource "github_repository_environment_deployment_policy" "data_platform_prd_main" {
+  repository     = module.data_platform.name
+  environment    = github_repository_environment.data_platform["prd"].environment
+  branch_pattern = "main"
+}
+
+resource "github_repository_environment_deployment_policy" "data_platform_prd_tags" {
+  repository  = module.data_platform.name
+  environment = github_repository_environment.data_platform["prd"].environment
+  tag_pattern = "v*"
+}
+
+# Each variable is left out until the workspace it comes from has applied.
+resource "github_actions_environment_variable" "data_platform" {
+  for_each = {
+    for item in flatten([
+      for environment, variables in local.data_platform_environment_variables : [
+        for name, value in variables : { environment = environment, name = name, value = value }
+      ]
+    ]) : "${item.environment}/${item.name}" => item if item.value != null
+  }
+
+  repository    = module.data_platform.name
+  environment   = github_repository_environment.data_platform[each.value.environment].environment
+  variable_name = each.value.name
+  value         = each.value.value
+}
+
 # The Evidence dashboard (sim-split R-4) deploys to Cloudflare Pages with the
 # Pages-only token minted by the cloudflare workspace; until it has, these are
 # left out.

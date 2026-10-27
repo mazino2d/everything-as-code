@@ -25,3 +25,11 @@ output "dashboard" {
   sensitive   = true
   description = "data-platform dashboard: Pages project, its URL and the deploy token (read by terraform/github)."
 }
+
+output "dashboard_dev" {
+  value = {
+    project = cloudflare_pages_project.dashboard_dev.name
+    url     = "https://${cloudflare_pages_project.dashboard_dev.subdomain}"
+  }
+  description = "data-platform dev dashboard: Pages project and its URL (read by terraform/github); it deploys with the dashboard token."
+}

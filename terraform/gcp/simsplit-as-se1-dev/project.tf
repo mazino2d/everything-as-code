@@ -33,5 +33,8 @@ module "project" {
     "eventarc.googleapis.com",
     "storage.googleapis.com",
     "logging.googleapis.com",
+    # Telemetry endpoint: writes to the dev warehouse (telemetry.tf)
+    "bigquery.googleapis.com",
+    "bigquerystorage.googleapis.com",
   ]
 }
