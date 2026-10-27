@@ -8,7 +8,8 @@ Auth, Firestore and Hosting, so internal-test builds never touch production data
 - Web: the dev build is served at `https://simsplit-as-se1-dev.web.app` (the default Hosting site; `simsplit-dev` is taken by another project).
 
 The stack mirrors [simsplit-as-se1-prd](../../simsplit-as-se1-prd/_docs/setup.md)
-without the telemetry endpoint, Apple sign-in and the Play publisher service account.
+without Apple sign-in and the Play publisher service account. Its telemetry endpoint
+(`telemetry.tf`) writes to `dataplatform-as-se1-dev`, not prd, and has no error alert.
 Like prd, the target cost is zero: a budget emails at 50 % and 100 %, and a kill switch
 unlinks billing once actual cost reaches the budget.
 

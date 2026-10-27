@@ -66,3 +66,29 @@ resource "cloudflare_account_token" "pages_deployer" {
     })
   }]
 }
+
+# Dev dashboard: data-platform deploys the build from main, which reads
+# dataplatform-as-se1-dev (dev telemetry, dev Firestore and fake data). Same
+# viewers and deploy token as prd.
+resource "cloudflare_pages_project" "dashboard_dev" {
+  account_id        = var.cloudflare_account_id
+  name              = "${local.dashboard_project}-dev"
+  production_branch = "main"
+}
+
+resource "cloudflare_zero_trust_access_application" "dashboard_dev" {
+  account_id       = var.cloudflare_account_id
+  name             = "data-platform dashboard (dev)"
+  type             = "self_hosted"
+  session_duration = "24h"
+
+  destinations = [
+    { type = "public", uri = cloudflare_pages_project.dashboard_dev.subdomain },
+    { type = "public", uri = "*.${cloudflare_pages_project.dashboard_dev.subdomain}" },
+  ]
+
+  policies = [{
+    id         = cloudflare_zero_trust_access_policy.dashboard_viewers.id
+    precedence = 1
+  }]
+}

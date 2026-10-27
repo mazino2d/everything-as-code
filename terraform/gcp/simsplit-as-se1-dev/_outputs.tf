@@ -25,3 +25,14 @@ output "app_check" {
     enforced           = var.app_check_enforced
   }
 }
+
+output "telemetry" {
+  description = "Dev telemetry endpoint: its URL for dev builds, its service account for the dev warehouse grant, and the values for sim-split's deploy workflow."
+  value = {
+    url                        = google_cloud_run_v2_service.telemetry.uri
+    service_account            = google_service_account.telemetry.email
+    image_repository           = "${google_artifact_registry_repository.telemetry.location}-docker.pkg.dev/${google_artifact_registry_repository.telemetry.project}/${google_artifact_registry_repository.telemetry.repository_id}"
+    workload_identity_provider = google_iam_workload_identity_pool_provider.sim_split.name
+    deployer_service_account   = google_service_account.gha_telemetry_deployer.email
+  }
+}
