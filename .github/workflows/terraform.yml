@@ -22,6 +22,7 @@ on:
           - terraform/gcp/simsplit-as-se1-prd
           - terraform/gcp/simsplit-as-se1-dev
           - terraform/gcp/dataplatform-as-se1-prd
+          - terraform/gcp/dataplatform-as-se1-dev
           - terraform/cloudflare
           - terraform/infisical
           - terraform/grafana/stack
