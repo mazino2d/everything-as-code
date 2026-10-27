@@ -152,3 +152,12 @@ module "a3spy" {
     secret_scanning             = true
   }
 }
+
+module "test" {
+  source       = "./_modules/github-repository"
+  name         = "test"
+  description  = "Scratch repository for testing"
+  visibility   = "public"
+  has_wiki     = false
+  has_projects = false
+}
