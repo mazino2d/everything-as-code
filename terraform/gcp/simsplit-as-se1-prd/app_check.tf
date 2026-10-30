@@ -14,6 +14,8 @@ resource "google_firebase_app_check_play_integrity_config" "android" {
 # Web: a score-based reCAPTCHA key for the Hosting site. Every token exchange
 # is one assessment, and only 10,000 a month are free; a 24 h token TTL keeps
 # 100 daily web users at ~3,000 a month.
+# No localhost: local web builds run against simsplit-as-se1-dev (APP_ENV=dev),
+# so nothing built on a laptop can get prd tokens or write to the prd warehouse.
 resource "google_recaptcha_enterprise_key" "web" {
   provider     = google-beta
   project      = google_firebase_project.this.project
@@ -25,7 +27,6 @@ resource "google_recaptcha_enterprise_key" "web" {
     allowed_domains = [
       "${google_firebase_hosting_site.default.site_id}.web.app",
       "${google_firebase_hosting_site.default.site_id}.firebaseapp.com",
-      "localhost",
     ]
   }
 }
