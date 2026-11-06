@@ -152,3 +152,19 @@ module "a3spy" {
     secret_scanning             = true
   }
 }
+
+# ===================================================================
+# Active - Private
+# ===================================================================
+
+# GitHub Free does not allow branch protection on private repos.
+module "curriculum_vitae" {
+  source            = "./_modules/github-repository"
+  name              = "curriculum-vitae"
+  description       = "LaTeX source of my CV, built to PDF by CI"
+  visibility        = "private"
+  topics            = ["cv", "latex"]
+  has_wiki          = false
+  has_projects      = false
+  branch_protection = null
+}

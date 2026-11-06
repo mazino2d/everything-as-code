@@ -112,7 +112,8 @@ variable "branch_protection" {
       contexts = optional(list(string), [])
     }), null)
   })
-  default = {}
+  default     = {}
+  description = "Protection for the default branch; null leaves it unprotected (required for private repos on GitHub Free)"
 }
 
 variable "security" {

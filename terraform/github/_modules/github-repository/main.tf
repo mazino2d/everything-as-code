@@ -10,7 +10,7 @@ resource "github_repository" "this" {
   allow_merge_commit          = var.allow_merge_commit
   allow_squash_merge          = var.allow_squash_merge
   allow_rebase_merge          = var.allow_rebase_merge
-  allow_auto_merge            = var.allow_auto_merge != null ? var.allow_auto_merge : var.branch_protection.required_status_checks != null
+  allow_auto_merge            = var.allow_auto_merge != null ? var.allow_auto_merge : try(var.branch_protection.required_status_checks, null) != null
   squash_merge_commit_title   = "PR_TITLE"
   squash_merge_commit_message = "PR_BODY"
   is_template                 = var.is_template
@@ -72,8 +72,9 @@ resource "github_branch_default" "this" {
   rename     = var.rename_default_branch
 }
 
+# Private repos on GitHub Free cannot have branch protection; pass branch_protection = null to skip it.
 resource "github_branch_protection" "this" {
-  count                           = var.archived ? 0 : 1
+  count                           = var.archived || var.branch_protection == null ? 0 : 1
   repository_id                   = github_repository.this.node_id
   pattern                         = var.default_branch
   enforce_admins                  = var.branch_protection.enforce_admins
