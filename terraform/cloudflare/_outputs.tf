@@ -33,3 +33,8 @@ output "dashboard_dev" {
   }
   description = "data-platform dev dashboard: Pages project and its URL (read by terraform/github); it deploys with the dashboard token."
 }
+
+output "a3spy_pages_url" {
+  value       = "https://${cloudflare_pages_project.a3spy.subdomain}"
+  description = "a3spy's short link (Pages project proxying to the a3spy Worker)."
+}
