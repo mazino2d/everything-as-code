@@ -10,7 +10,7 @@
 
 ## 2. Bootstrap token
 
-Terraform uses this token to mint the per-repo deploy tokens in `workers.tf`, the Realtime SFU apps in `realtime.tf`, and the data-platform dashboard's Pages project and Access application in `dashboard.tf`.
+Terraform uses this token to mint the per-repo deploy tokens and a3spy's short-link Pages project in `workers.tf`, the Realtime SFU apps in `realtime.tf`, and the data-platform dashboard's Pages project and Access application in `dashboard.tf`.
 
 [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Custom token**:
 
