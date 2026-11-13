@@ -63,8 +63,14 @@ In **Google Auth Platform → Clients → Create client**:
 
 - Application type: **Web application**
 - Name: `SimSplit Firebase Auth`
-- Authorised JavaScript origins: `https://simsplit-as-se1-prd.firebaseapp.com`
-- Authorised redirect URIs: `https://simsplit-as-se1-prd.firebaseapp.com/__/auth/handler`
+- Authorised JavaScript origins: `https://simsplit-as-se1-prd.firebaseapp.com`, `https://simsplit.web.app`
+- Authorised redirect URIs: `https://simsplit-as-se1-prd.firebaseapp.com/__/auth/handler`,
+  `https://simsplit.web.app/__/auth/handler`
+
+The web app runs the sign-in handler on its own Hosting domain (`authDomain` =
+`simsplit.web.app`, mazino2d/sim-split#138), so sign-in stays on one site in browsers that
+partition cross-site storage. Keep the `firebaseapp.com` entries for builds released
+before that change.
 
 Download the JSON straight after creating it: the console shows the client secret only
 once. Keep the file outside git.
@@ -155,9 +161,9 @@ again whenever a certificate or client changes.
 
 1. In the Apple Developer portal:
    - Enable **Sign in with Apple** on the App ID `com.mazino2d.simsplit`.
-   - Create a **Services ID** with the return URL
-     `https://simsplit-as-se1-prd.firebaseapp.com/__/auth/handler`. Android uses the
-     web flow.
+   - Create a **Services ID** with the return URLs
+     `https://simsplit-as-se1-prd.firebaseapp.com/__/auth/handler` and
+     `https://simsplit.web.app/__/auth/handler`. Android uses the web flow.
    - Create a **Sign in with Apple key**. Keep the `.p8` file outside git.
 2. Generate the client secret, a JWT signed with the key, valid for at most six months.
    Set a reminder to rotate it.
