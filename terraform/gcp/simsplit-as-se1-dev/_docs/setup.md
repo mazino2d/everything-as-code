@@ -70,8 +70,14 @@ In **Google Auth Platform → Clients → Create client**:
 
 - Application type: **Web application**
 - Name: `SimSplit Dev Firebase Auth`
-- Authorised JavaScript origins: `https://simsplit-as-se1-dev.firebaseapp.com`
-- Authorised redirect URIs: `https://simsplit-as-se1-dev.firebaseapp.com/__/auth/handler`
+- Authorised JavaScript origins: `https://simsplit-as-se1-dev.firebaseapp.com`, `https://simsplit-as-se1-dev.web.app`
+- Authorised redirect URIs: `https://simsplit-as-se1-dev.firebaseapp.com/__/auth/handler`,
+  `https://simsplit-as-se1-dev.web.app/__/auth/handler`
+
+The web app runs the sign-in handler on its own Hosting domain (`authDomain` =
+`simsplit-as-se1-dev.web.app`, mazino2d/sim-split#138), so sign-in stays on one site in browsers that
+partition cross-site storage. Keep the `firebaseapp.com` entries for builds released
+before that change.
 
 Download the JSON straight after creating it: the console shows the client secret only
 once. Keep the file outside git.
