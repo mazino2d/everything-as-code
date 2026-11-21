@@ -15,8 +15,8 @@ resource "google_identity_platform_config" "this" {
     }
   }
 
+  # Local builds run against dev, so prd doesn't authorize localhost.
   authorized_domains = [
-    "localhost",
     "${local.project_id}.firebaseapp.com",
     "${google_firebase_hosting_site.default.site_id}.web.app",
   ]

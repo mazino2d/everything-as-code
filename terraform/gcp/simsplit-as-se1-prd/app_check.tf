@@ -39,25 +39,8 @@ resource "google_firebase_app_check_recaptcha_enterprise_config" "web" {
   token_ttl = "86400s"
 }
 
-# Debug builds (developer machines) send this token instead of an attestation.
-# The app reads the same value from --dart-define=APP_CHECK_DEBUG_TOKEN.
-resource "google_firebase_app_check_debug_token" "android" {
-  count        = var.app_check_debug_token != null ? 1 : 0
-  provider     = google-beta
-  project      = google_firebase_project.this.project
-  app_id       = google_firebase_android_app.sim_split.app_id
-  display_name = "Developer"
-  token        = var.app_check_debug_token
-}
-
-resource "google_firebase_app_check_debug_token" "web" {
-  count        = var.app_check_debug_token != null ? 1 : 0
-  provider     = google-beta
-  project      = google_firebase_project.this.project
-  app_id       = google_firebase_web_app.sim_split.app_id
-  display_name = "Developer"
-  token        = var.app_check_debug_token
-}
+# No App Check debug tokens on prd: debug builds run against dev
+# (simsplit-as-se1-dev, APP_ENV=dev), which registers its own (sim-split R-8 P1).
 
 # Enforced: requests without a valid token are rejected. No installed Android
 # version talks to Firebase yet (the first is v2.0.0, built with App Check),
