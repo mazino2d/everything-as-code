@@ -42,5 +42,6 @@ module "project" {
     # R-9 notifications service: Firestore events, batch flushes, the tick (crm.tf)
     "cloudtasks.googleapis.com",
     "cloudscheduler.googleapis.com",
+    "fcm.googleapis.com",
   ]
 }
