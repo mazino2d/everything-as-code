@@ -205,11 +205,9 @@ resource "google_cloud_scheduler_job" "crm_tick" {
   schedule  = "*/15 * * * *"
   time_zone = "Etc/UTC"
 
+  # No retry: the next tick comes 15 minutes later anyway (the API's default
+  # retry_count is already 0, so no retry_config block).
   attempt_deadline = "300s"
-
-  retry_config {
-    retry_count = 0
-  }
 
   http_target {
     http_method = "POST"
