@@ -150,7 +150,7 @@ certificate changes, update `firebase.tf` and the matching client together.
 Download it after the Android clients exist: **Project settings → Your apps → SimSplit
 Android → google-services.json**. Put it at `android/app/google-services.json` in
 sim-split. It is not secret, since the API key is restricted to the package and
-certificates, so it is committed there.
+certificates (`api_keys.tf`), so it is committed there.
 
 Its `oauth_client` list must hold two entries with `client_type: 1` (Android, one per
 SHA-1) and one with `client_type: 3` (the Web client, which the app uses as
@@ -225,10 +225,10 @@ release build reads.
    Cloud, open this workspace → **Settings → General → Remote state sharing** and allow
    `github`. Until the site key exists, the github stack skips the variable; re-run its
    apply once this stack has applied.
-2. **Debug token (optional):** generate a UUID (`uuidgen`), set it as the sensitive
-   workspace variable `app_check_debug_token`, and pass the same value to debug builds:
-   `flutter run --dart-define=APP_CHECK_DEBUG_TOKEN=<uuid>`. Keep it private: anyone with
-   it can pass App Check.
+2. **No debug token on prd.** Debug builds run against dev (`APP_ENV=dev`), whose stack
+   registers the debug token (`simsplit-as-se1-dev`, workspace variable
+   `app_check_debug_token`). Prd has no such variable, so anyone holding a debug token
+   still can't pass App Check here.
 3. **Enforcement** is on (`app_check_enforced`, default `true`): Auth and Firestore
    reject requests without a valid token, including debug builds without the
    registered token. If real users are rejected (low reCAPTCHA scores show up in

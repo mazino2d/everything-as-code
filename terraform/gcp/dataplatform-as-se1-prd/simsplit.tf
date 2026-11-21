@@ -101,6 +101,30 @@ locals {
   simsplit_telemetry = data.terraform_remote_state.simsplit.outputs.telemetry
 }
 
+# The telemetry endpoint only appends rows through the Storage Write API's
+# default stream; it can't change or delete tables or rows (sim-split R-8 P1).
+# Granted next to the old dataEditor grant first; a follow-up drops that one
+# once writes are seen working, so telemetry never loses access.
+resource "google_project_iam_custom_role" "simsplit_telemetry_writer" {
+  project     = module.project.project_id
+  role_id     = "simsplitTelemetryWriter"
+  title       = "sim-split telemetry writer"
+  description = "Append rows to simsplit_raw tables; nothing else."
+  permissions = [
+    "bigquery.tables.get",
+    "bigquery.tables.updateData",
+  ]
+}
+
+resource "google_bigquery_dataset_iam_member" "simsplit_telemetry_writer" {
+  count = local.simsplit_telemetry != null ? 1 : 0
+
+  project    = module.project.project_id
+  dataset_id = google_bigquery_dataset.simsplit_raw.dataset_id
+  role       = google_project_iam_custom_role.simsplit_telemetry_writer.id
+  member     = "serviceAccount:${local.simsplit_telemetry.service_account}"
+}
+
 resource "google_bigquery_dataset_iam_member" "simsplit_telemetry" {
   count = local.simsplit_telemetry != null ? 1 : 0
 
