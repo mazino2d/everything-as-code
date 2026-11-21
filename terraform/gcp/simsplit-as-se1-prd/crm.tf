@@ -81,6 +81,10 @@ resource "google_cloud_run_v2_service" "crm" {
         name  = "CRM_TASKS_QUEUE"
         value = google_cloud_tasks_queue.crm_flush.id
       }
+      env {
+        name  = "CRM_TRAITS_TABLE"
+        value = "dataplatform-as-se1-prd.simsplit_crm.user_traits"
+      }
     }
   }
 
@@ -113,6 +117,9 @@ resource "google_project_iam_member" "crm_sender" {
   for_each = toset([
     "roles/datastore.user",
     "roles/firebasecloudmessaging.admin",
+    # Audience queries run in this project, against the warehouse's
+    # simsplit_crm dataset (granted in dataplatform-as-se1-*/simsplit.tf).
+    "roles/bigquery.jobUser",
   ])
 
   project = module.project.project_id
@@ -255,4 +262,35 @@ resource "google_service_account_iam_member" "gha_crm_deployer_act_as" {
   service_account_id = google_service_account.crm.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.gha_crm_deployer.email}"
+}
+
+# Errors in the notifications service (including stale traits, which stop
+# scheduled sends) email the maintainer, at most once an hour.
+resource "google_monitoring_alert_policy" "crm_errors" {
+  project      = module.project.project_id
+  display_name = "sim-split crm errors"
+  combiner     = "OR"
+
+  conditions {
+    display_name = "The crm service logged an error"
+    condition_matched_log {
+      filter = <<-EOT
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="${google_cloud_run_v2_service.crm.name}"
+        severity>=ERROR
+      EOT
+      label_extractors = {
+        kind = "EXTRACT(jsonPayload.kind)"
+      }
+    }
+  }
+
+  alert_strategy {
+    notification_rate_limit {
+      period = "3600s"
+    }
+    auto_close = "1800s"
+  }
+
+  notification_channels = [google_monitoring_notification_channel.maintainer.id]
 }

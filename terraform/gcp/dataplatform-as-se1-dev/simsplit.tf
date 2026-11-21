@@ -96,11 +96,13 @@ data "terraform_remote_state" "simsplit" {
 
   defaults = {
     telemetry = null
+    crm       = null
   }
 }
 
 locals {
   simsplit_telemetry = data.terraform_remote_state.simsplit.outputs.telemetry
+  simsplit_crm       = data.terraform_remote_state.simsplit.outputs.crm
 }
 
 # The telemetry endpoint only appends rows through the Storage Write API's
@@ -123,4 +125,37 @@ resource "google_bigquery_dataset_iam_member" "simsplit_telemetry" {
   dataset_id = google_bigquery_dataset.simsplit_raw.dataset_id
   role       = google_project_iam_custom_role.simsplit_telemetry_writer.id
   member     = "serviceAccount:${local.simsplit_telemetry.service_account}"
+}
+
+# sim-split R-9 audiences: data-platform's dbt model user_traits (one row per
+# account, traits only: no names, emails or free text) lands here, and
+# sim-split's crm service reads it to pick who gets a notice. Only this dataset
+# is shared with crm; data-platform's runner writes it with its project-level
+# dataEditor.
+resource "google_bigquery_dataset" "simsplit_crm" {
+  project     = module.project.project_id
+  dataset_id  = "simsplit_crm"
+  location    = local.region
+  description = "sim-split dev user traits for notification audiences (dbt user_traits)."
+
+  max_time_travel_hours = "48"
+}
+
+resource "google_bigquery_dataset_iam_member" "simsplit_crm_reader" {
+  count = local.simsplit_crm != null ? 1 : 0
+
+  project    = module.project.project_id
+  dataset_id = google_bigquery_dataset.simsplit_crm.dataset_id
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${local.simsplit_crm.service_account}"
+}
+
+# The dev deploy checks crm/traits.yaml against the table's schema first.
+resource "google_bigquery_dataset_iam_member" "simsplit_crm_deployer" {
+  count = local.simsplit_crm != null ? 1 : 0
+
+  project    = module.project.project_id
+  dataset_id = google_bigquery_dataset.simsplit_crm.dataset_id
+  role       = "roles/bigquery.metadataViewer"
+  member     = "serviceAccount:${local.simsplit_crm.deployer_service_account}"
 }
