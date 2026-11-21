@@ -17,6 +17,8 @@ resource "google_iam_workload_identity_pool_provider" "sim_split" {
     "google.subject"       = "assertion.sub"
     "attribute.repository" = "assertion.repository"
     "attribute.ref"        = "assertion.ref"
+    # Lets one deployer trust a GitHub Environment instead of the whole repo (crm.tf).
+    "attribute.environment" = "assertion.environment"
   }
   attribute_condition = "assertion.repository == 'mazino2d/sim-split' && (assertion.ref == 'refs/heads/main' || assertion.ref.startsWith('refs/tags/v'))"
 

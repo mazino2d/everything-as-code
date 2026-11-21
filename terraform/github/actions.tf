@@ -21,7 +21,7 @@ resource "github_repository_environment" "data_platform" {
   can_admins_bypass = true
 
   dynamic "deployment_branch_policy" {
-    for_each = each.key == "prd" ? [1] : []
+    for_each = contains(["prd", "crm-prd"], each.key) ? [1] : []
     content {
       protected_branches     = false
       custom_branch_policies = true
@@ -85,6 +85,9 @@ resource "github_actions_secret" "data_platform_cloudflare_api_token" {
 # Environments: dev deploys from main, prd from release tags after the
 # maintainer approves, and store syncs the Play store listing from main
 # (play_metadata.yml, including pull_request_target runs, whose ref is main).
+# crm-prd deploys only the R-9 notifications service (crm_deploy.yml) from main
+# after the maintainer approves; prd's Workload Identity trusts that environment
+# for the crm deployer alone.
 # Each holds the same variable names, so workflows read vars.X whichever
 # environment their job targets.
 data "github_user" "mazino2d" {
@@ -92,11 +95,11 @@ data "github_user" "mazino2d" {
 }
 
 resource "github_repository_environment" "sim_split" {
-  for_each = toset(["dev", "prd", "store"])
+  for_each = toset(["dev", "prd", "store", "crm-prd"])
 
   repository          = module.sim_split.name
   environment         = each.key
-  can_admins_bypass   = each.key != "prd"
+  can_admins_bypass   = !contains(["prd", "crm-prd"], each.key)
   prevent_self_review = false # the sole maintainer approves their own releases
 
   dynamic "reviewers" {
@@ -113,7 +116,7 @@ resource "github_repository_environment" "sim_split" {
 }
 
 resource "github_repository_environment_deployment_policy" "sim_split_main" {
-  for_each = toset(["dev", "store"])
+  for_each = toset(["dev", "store", "crm-prd"])
 
   repository     = module.sim_split.name
   environment    = github_repository_environment.sim_split[each.key].environment
