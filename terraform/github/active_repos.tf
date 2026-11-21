@@ -85,7 +85,7 @@ module "data_platform" {
 module "sim_split" {
   source      = "./_modules/github-repository"
   name        = "sim-split"
-  description = "Offline-first Flutter app for tracking and splitting group expenses"
+  description = "Flutter app for splitting group trip expenses with friends: shared groups that sync live and work offline, settle up through one person or in the fewest transfers. Android and web."
   visibility  = "public"
   topics      = ["flutter", "dart", "android", "offline-first"]
 
