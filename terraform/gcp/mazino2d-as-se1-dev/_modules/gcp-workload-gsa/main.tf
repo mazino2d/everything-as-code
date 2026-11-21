@@ -1,5 +1,5 @@
 locals {
-  raw_account_id = lower("gsa-${var.namespace}-${var.app_name}")
+  raw_account_id       = lower("gsa-${var.namespace}-${var.app_name}")
   sanitised_account_id = replace(local.raw_account_id, "/[^a-z0-9-]/", "-")
   compacted_account_id = replace(local.sanitised_account_id, "/-+/", "-")
   trimmed_account_id   = trim(local.compacted_account_id, "-")

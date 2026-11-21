@@ -81,6 +81,10 @@ resource "google_cloud_run_v2_service" "crm" {
         name  = "CRM_TASKS_QUEUE"
         value = google_cloud_tasks_queue.crm_flush.id
       }
+      env {
+        name  = "CRM_TRAITS_TABLE"
+        value = "dataplatform-as-se1-dev.simsplit_crm.user_traits"
+      }
     }
   }
 
@@ -113,6 +117,9 @@ resource "google_project_iam_member" "crm_sender" {
   for_each = toset([
     "roles/datastore.user",
     "roles/firebasecloudmessaging.admin",
+    # Audience queries run in this project, against the warehouse's
+    # simsplit_crm dataset (granted in dataplatform-as-se1-*/simsplit.tf).
+    "roles/bigquery.jobUser",
   ])
 
   project = module.project.project_id
