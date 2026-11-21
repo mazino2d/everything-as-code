@@ -82,6 +82,10 @@ resource "google_cloud_run_v2_service" "crm" {
         value = google_cloud_tasks_queue.crm_flush.id
       }
       env {
+        name  = "CRM_SENDS_DATASET"
+        value = "dataplatform-as-se1-dev.simsplit_raw"
+      }
+      env {
         name  = "CRM_TRAITS_TABLE"
         value = "dataplatform-as-se1-dev.simsplit_crm.user_traits"
       }

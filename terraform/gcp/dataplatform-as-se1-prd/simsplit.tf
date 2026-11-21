@@ -183,3 +183,39 @@ resource "google_bigquery_dataset_iam_member" "simsplit_crm_reader" {
   role       = "roles/bigquery.dataViewer"
   member     = "serviceAccount:${local.simsplit_crm.service_account}"
 }
+
+# sim-split R-9: one row per push the crm service tries to send, for the
+# notifications dashboard (spec AC24). crm appends through the Storage Write
+# API with the same append-only role as telemetry.
+resource "google_bigquery_table" "simsplit_crm_sends" {
+  project    = module.project.project_id
+  dataset_id = google_bigquery_dataset.simsplit_raw.dataset_id
+  table_id   = "crm_sends"
+
+  time_partitioning {
+    type  = "DAY"
+    field = "sent_at"
+  }
+  clustering = ["source", "source_id"]
+
+  schema = jsonencode([
+    { name = "sent_at", type = "TIMESTAMP", mode = "REQUIRED" },
+    { name = "message_id", type = "STRING", mode = "REQUIRED" },
+    { name = "source", type = "STRING", mode = "REQUIRED", description = "trigger, schedule or campaign" },
+    { name = "source_id", type = "STRING", mode = "REQUIRED" },
+    { name = "category", type = "STRING", mode = "REQUIRED" },
+    { name = "uid", type = "STRING", mode = "REQUIRED" },
+    { name = "platform", type = "STRING", mode = "REQUIRED" },
+    { name = "locale", type = "STRING", mode = "REQUIRED" },
+    { name = "result", type = "STRING", mode = "REQUIRED", description = "sent, invalid_token or failed" },
+  ])
+}
+
+resource "google_bigquery_dataset_iam_member" "simsplit_crm_sends_writer" {
+  count = local.simsplit_crm != null ? 1 : 0
+
+  project    = module.project.project_id
+  dataset_id = google_bigquery_dataset.simsplit_raw.dataset_id
+  role       = google_project_iam_custom_role.simsplit_telemetry_writer.id
+  member     = "serviceAccount:${local.simsplit_crm.service_account}"
+}
