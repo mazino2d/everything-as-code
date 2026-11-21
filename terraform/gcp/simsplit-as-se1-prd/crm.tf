@@ -106,6 +106,20 @@ resource "google_cloud_run_v2_service_iam_member" "crm_invoker" {
   member   = "serviceAccount:${google_service_account.crm.email}"
 }
 
+# R-9 P3: reads groups, members, activity, preferences and devices, keeps
+# its server-only state (crm_pending, crm_sends, crm_deferred), deletes
+# devices whose token FCM rejects, and sends pushes.
+resource "google_project_iam_member" "crm_sender" {
+  for_each = toset([
+    "roles/datastore.user",
+    "roles/firebasecloudmessaging.admin",
+  ])
+
+  project = module.project.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.crm.email}"
+}
+
 # Group activity: one event per new activity entry. The service reads the
 # entry from Firestore, so the protobuf payload is never decoded.
 resource "google_project_iam_member" "crm_event_receiver" {
