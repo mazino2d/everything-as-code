@@ -117,6 +117,9 @@ locals {
       GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.deployer_service_account, null)
       CRM_IMAGE_REPOSITORY           = try(data.terraform_remote_state.simsplit_dev.outputs.crm.image_repository, null)
       GCP_CRM_DEPLOYER               = try(data.terraform_remote_state.simsplit_dev.outputs.crm.deployer_service_account, null)
+      # Web Push certificate (public key) from Firebase console → Cloud Messaging;
+      # there is no API to create it (simsplit-as-se1-dev/_docs/setup.md).
+      FCM_VAPID_KEY = "BC-5JIKP68desB8Y397OuQd3RcAgRvFCJXYUpwFia4-NttPNIKn0k2tD-ZxPSerB6iI-B4yJOjOZIaknSbV-WlM"
     }
     prd = {
       FIREBASE_PROJECT               = try(data.terraform_remote_state.simsplit.outputs.firebase.project_id, null)
@@ -126,6 +129,9 @@ locals {
       TELEMETRY_URL                  = local.sim_split_telemetry_url
       TELEMETRY_IMAGE_REPOSITORY     = try(data.terraform_remote_state.simsplit.outputs.telemetry.image_repository, null)
       GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit.outputs.telemetry.deployer_service_account, null)
+      # Web Push certificate (public key), created by hand in Firebase console
+      # (simsplit-as-se1-prd/_docs/setup.md).
+      FCM_VAPID_KEY = "BGdPC84yZQJxPphU_qWTUCJW0gwszynVvUn_aM4iHX5Sy_gpNNZZnD3cz_NbPftyreemLZxL73l9ptFCvH_i5RI"
     }
     # R-9 notifications service: config changes reach prd from main after the
     # maintainer approves, without an app release; app deploys stay tag-only.
