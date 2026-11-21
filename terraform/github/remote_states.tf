@@ -115,6 +115,8 @@ locals {
       TELEMETRY_URL                  = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.url, null)
       TELEMETRY_IMAGE_REPOSITORY     = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.image_repository, null)
       GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit_dev.outputs.telemetry.deployer_service_account, null)
+      CRM_IMAGE_REPOSITORY           = try(data.terraform_remote_state.simsplit_dev.outputs.crm.image_repository, null)
+      GCP_CRM_DEPLOYER               = try(data.terraform_remote_state.simsplit_dev.outputs.crm.deployer_service_account, null)
     }
     prd = {
       FIREBASE_PROJECT               = try(data.terraform_remote_state.simsplit.outputs.firebase.project_id, null)
@@ -124,6 +126,13 @@ locals {
       TELEMETRY_URL                  = local.sim_split_telemetry_url
       TELEMETRY_IMAGE_REPOSITORY     = try(data.terraform_remote_state.simsplit.outputs.telemetry.image_repository, null)
       GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit.outputs.telemetry.deployer_service_account, null)
+    }
+    # R-9 notifications service: config changes reach prd from main after the
+    # maintainer approves, without an app release; app deploys stay tag-only.
+    crm-prd = {
+      GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit.outputs.firebase_deployer.workload_identity_provider, null)
+      CRM_IMAGE_REPOSITORY           = try(data.terraform_remote_state.simsplit.outputs.crm.image_repository, null)
+      GCP_CRM_DEPLOYER               = try(data.terraform_remote_state.simsplit.outputs.crm.deployer_service_account, null)
     }
   }
   data_platform_environment_variables = {

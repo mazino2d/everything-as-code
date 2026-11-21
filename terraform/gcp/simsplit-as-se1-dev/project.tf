@@ -36,5 +36,8 @@ module "project" {
     # Telemetry endpoint: writes to the dev warehouse (telemetry.tf)
     "bigquery.googleapis.com",
     "bigquerystorage.googleapis.com",
+    # R-9 notifications service: Firestore events, batch flushes, the tick (crm.tf)
+    "cloudtasks.googleapis.com",
+    "cloudscheduler.googleapis.com",
   ]
 }

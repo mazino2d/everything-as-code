@@ -36,3 +36,13 @@ output "telemetry" {
     deployer_service_account   = google_service_account.gha_telemetry_deployer.email
   }
 }
+
+output "crm" {
+  description = "R-9 notifications service: the values for sim-split's crm_deploy.yml."
+  value = {
+    url                      = google_cloud_run_v2_service.crm.uri
+    service_account          = google_service_account.crm.email
+    image_repository         = "${google_artifact_registry_repository.crm.location}-docker.pkg.dev/${google_artifact_registry_repository.crm.project}/${google_artifact_registry_repository.crm.repository_id}"
+    deployer_service_account = google_service_account.gha_crm_deployer.email
+  }
+}
