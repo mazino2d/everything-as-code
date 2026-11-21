@@ -249,3 +249,17 @@ sim-split's workflow, and a log-based alert on error reports. By hand, once:
 
 The service starts with a placeholder image; sim-split's telemetry workflow deploys the
 real one and owns the image from then on (`ignore_changes`).
+
+## 9. Web push (R-9 notifications)
+
+The web app needs a Web Push certificate (VAPID key) to get push notifications.
+Firebase has no API for it, so it is created by hand once:
+
+1. Firebase console → Project settings → Cloud Messaging → Web configuration →
+   Web Push certificates → **Generate key pair**.
+2. Put the public key (the "Key pair" string, not the private key) in
+   `FCM_VAPID_KEY` for sim-split's `prd` environment in
+   `terraform/github/remote_states.tf`. It is public: the web app ships it.
+
+Replacing the key pair invalidates every web device's registration; web users get
+push again after their next visit.
