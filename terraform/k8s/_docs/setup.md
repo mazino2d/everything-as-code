@@ -3,28 +3,24 @@
 ## 1. Prerequisites
 
 - A running K3S cluster (for example from `terraform/gcp/mazino2d-as-se1-dev`)
-- HCP Terraform workspace `k8s` in organisation `mazino2d-everything-as-code`
-- HCP Terraform workspace `infisical` already applied at least once
+- The `infisical` stack already applied at least once
 
 The `k8s` stack reads Infisical machine identity outputs from remote state and writes the Kubernetes secret in namespace `infisical-operator`.
 
-## 2. Terraform Cloud Workspace Variables
+## 2. Terraform Variables
 
 No `kubeconfig` variable is required.
 
-The `k8s` stack reads Kubernetes access credentials directly from remote state output `kube_config_dev` in workspace `gcp-mazino2d-as-se1-dev`.
+The `k8s` stack reads Kubernetes access credentials directly from the remote state of `terraform/gcp/mazino2d-as-se1-dev` (`state/gcp/mazino2d-as-se1-dev` in `gs://mazino2d-as-se1-eac-tfstate`).
 
 Notes:
 
-- Ensure workspace `gcp-mazino2d-as-se1-dev` has been applied successfully before running `k8s`.
+- Ensure stack `terraform/gcp/mazino2d-as-se1-dev` has been applied successfully before running `k8s`.
 - Argo CD performs workload reconciliation; GitHub Actions is not the normal Kubernetes deployment path.
 
-## 3. Terraform Cloud Workspace Settings
+## 3. State and Authentication
 
-Go to workspace `k8s` -> **Settings -> General**:
-
-- Execution Mode: **Remote**
-- Auto-apply API, UI, & VCS runs: **On**
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
 
 ## 4. Bootstrap Notes (Infisical + Argo CD)
 
@@ -40,9 +36,9 @@ This is a classic chicken-and-egg problem in GitOps, so initial installation bel
 ## 5. Apply
 
 ```bash
-make init STACK=terraform/k8s
-make plan STACK=terraform/k8s
-make apply STACK=terraform/k8s
+make init STACK=terraform/k8s/mazino2d-as-se1-dev
+make plan STACK=terraform/k8s/mazino2d-as-se1-dev
+make apply STACK=terraform/k8s/mazino2d-as-se1-dev
 ```
 
 After the first apply:

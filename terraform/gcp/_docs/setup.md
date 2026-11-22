@@ -5,7 +5,6 @@
 Create accounts if you don't have them already:
 
 - GCP: [console.cloud.google.com](https://console.cloud.google.com)
-- HCP Terraform: [app.terraform.io](https://app.terraform.io)
 
 ---
 
@@ -29,35 +28,31 @@ gcloud iam service-accounts create terraform \
 gcloud projects add-iam-policy-binding <project-id> \
   --member="serviceAccount:terraform@<project-id>.iam.gserviceaccount.com" \
   --role="roles/owner"
-
-# Create key
-gcloud iam service-accounts keys create /tmp/terraform-sa-key.json \
-  --iam-account=terraform@<project-id>.iam.gserviceaccount.com
 ```
+
+No service account key is created: CI signs in as this service account through Workload Identity Federation (section 3).
 
 ---
 
-## 3. Terraform Cloud Workspace
+## 3. State bucket access and Workload Identity Federation
 
-### Org-level settings
+State lives in `gs://mazino2d-as-se1-eac-tfstate` under the prefix `state/gcp/<project-id>`, in the project `mazino2d-as-se1-eac` (bucket defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). A new project needs three things:
 
-In the `mazino2d-everything-as-code` org at [app.terraform.io](https://app.terraform.io), go to **Settings → General** and set:
+1. Add `<project-id>` to the project list in `local.terraform_service_accounts` in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`, so `terraform@<project-id>.iam.gserviceaccount.com` gets `roles/storage.objectAdmin` on the bucket.
+2. Add a `terraform_wif.tf` to the new stack like `terraform/gcp/simsplit-as-se1-dev/terraform_wif.tf`. It grants `roles/iam.workloadIdentityUser` on the `terraform` service account to the repo's principalSet in the `github` pool (provider `everything-as-code`, project `mazino2d-as-se1-eac`, number `725985974531`).
+3. Add an entry `"terraform/gcp/<project-id>": "terraform@<project-id>.iam.gserviceaccount.com"` to `gcp-service-accounts` in `.github/workflows/terraform.yml`, so CI impersonates that project's service account for the stack.
 
-- Execution Mode: **Remote**
-- Auto-apply API, UI, & VCS runs: **On**
+### Variables
 
-### Workspace
+Secret and input variables are one JSON file in the same bucket, `secrets/gcp/<project-id>.tfvars.json`:
 
-Create a new workspace:
+```bash
+make secrets-edit STACK=terraform/gcp/<project-id>
+```
 
-1. **API-driven workflow**
-2. Name: `gcp-<project-id>`
-3. **Variables** → add:
+CI and `make plan/apply` copy it to `terraform/gcp/<project-id>/ci.auto.tfvars.json` (git-ignored). There is no `gcp_credentials` variable. Stack-specific variables (for example `duckdns_token` for `mazino2d-as-se1-dev`) go in the same file.
 
-  | Type        | Key               | Value                                    | Sensitive |
-  |-------------|-------------------|------------------------------------------|-----------|
-  | Terraform   | `gcp_credentials` | contents of `/tmp/terraform-sa-key.json` | ✅        |
-  | Environment | `DUCKDNS_TOKEN`   | DuckDNS API token                        | ✅        |
+Locally, run `gcloud auth application-default login` before `make plan STACK=...`.
 
 ---
 
@@ -69,7 +64,7 @@ terraform init
 terraform import module.project.google_project.this <project-id>
 ```
 
-Then trigger an apply on TF Cloud — APIs and project settings will be tracked from that point on.
+Then run an apply (`make apply STACK=terraform/gcp/<project-id>` or the GitHub Actions workflow) — APIs and project settings will be tracked from that point on.
 
 ---
 
@@ -77,7 +72,7 @@ Then trigger an apply on TF Cloud — APIs and project settings will be tracked 
 
 `.github/workflows/terraform.yml` finds stacks on its own (every directory under
 `terraform/` holding `*.tf`, `_modules` excluded), so plan and apply pick up the
-new project without changes. Only add it to the `stack` choices of the manual
+new project once the `gcp-service-accounts` entry above exists. Also add it to the `stack` choices of the manual
 run (`workflow_dispatch`):
 
 ```yaml

@@ -68,27 +68,28 @@ PRs run validation-only pipelines (no mutations):
 - Workflows: `lint.yml` (actionlint + CodeQL)
 
 Pushes to `main` trigger deployment/apply pipelines:
-- Terraform apply to Terraform Cloud workspaces (`terraform.yml`)
+- Terraform apply of every changed stack (`terraform.yml`)
 - Kubernetes workloads reconcile via Argo CD (GitOps in-cluster)
 - Blog build and deploy to GitHub Pages (`blog.yml`)
 
 ### Terraform Structure
 
-Stacks and Terraform Cloud workspaces (org: `mazino2d-everything-as-code`):
+State lives in GCS: `gs://mazino2d-as-se1-eac-tfstate/state/<stack path under terraform/>` (gcs backend, with locking; the bucket is versioned and defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). Each stack's secret input variables are one JSON file, `gs://mazino2d-as-se1-eac-tfstate/secrets/<stack path>.tfvars.json`, which CI and `make` copy to `<stack>/ci.auto.tfvars.json` (git-ignored). CI signs in keylessly through the `github` workload identity pool in `mazino2d-as-se1-eac`, as the `terraform@<project>` service account of the project a GCP stack manages, or `terraform@mazino2d-as-se1-eac` for the other stacks (mapping in `.github/workflows/terraform.yml`).
 
-| Stack | Workspace | Primary scope |
-|-------|-----------|---------------|
-| `terraform/github` | `github` | GitHub repos/settings/branch protection |
-| `terraform/gcp/mazino2d-as-se1-dev` | `gcp-mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
-| `terraform/gcp/simsplit-as-se1-prd` | `gcp-simsplit-as-se1-prd` | Firebase backend for sim-split (Auth, Firestore, Hosting), budget and billing kill switch |
-| `terraform/gcp/simsplit-as-se1-dev` | `gcp-simsplit-as-se1-dev` | Dev Firebase backend for sim-split (Auth, Firestore, Hosting `simsplit-as-se1-dev.web.app`, Play app `com.mazino2d.simsplit.dev`), budget and billing kill switch |
-| `terraform/gcp/dataplatform-as-se1-prd` | `gcp-dataplatform-as-se1-prd` | BigQuery warehouse for data-platform, keyless GitHub Actions access, budget and billing kill switch |
-| `terraform/gcp/dataplatform-as-se1-dev` | `gcp-dataplatform-as-se1-dev` | Dev BigQuery warehouse for data-platform (sim-split dev telemetry, dev Firestore copy, fake data), keyless GitHub Actions access, budget and billing kill switch |
-| `terraform/cloudflare` | `cloudflare` | Cloudflare account-owned Workers deploy tokens per app repo (handed to repos via `terraform/github`) |
-| `terraform/infisical` | `infisical` | Infisical projects, identities, folders |
-| `terraform/grafana/stack` | `grafana-stack` | Grafana Cloud stack, access policies, service accounts |
-| `terraform/grafana/dashboard` | `grafana-dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
-| `terraform/k8s/mazino2d-as-se1-dev` | `k8s-mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
+| Stack | Primary scope |
+|-------|---------------|
+| `terraform/github` | GitHub repos/settings/branch protection |
+| `terraform/gcp/mazino2d-as-se1-eac` | Terraform state bucket, GitHub Actions workload identity pool and service account for every stack (billing account `mazino2d`) |
+| `terraform/gcp/mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
+| `terraform/gcp/simsplit-as-se1-prd` | Firebase backend for sim-split (Auth, Firestore, Hosting), budget and billing kill switch |
+| `terraform/gcp/simsplit-as-se1-dev` | Dev Firebase backend for sim-split (Auth, Firestore, Hosting `simsplit-as-se1-dev.web.app`, Play app `com.mazino2d.simsplit.dev`), budget and billing kill switch |
+| `terraform/gcp/dataplatform-as-se1-prd` | BigQuery warehouse for data-platform, keyless GitHub Actions access, budget and billing kill switch |
+| `terraform/gcp/dataplatform-as-se1-dev` | Dev BigQuery warehouse for data-platform (sim-split dev telemetry, dev Firestore copy, fake data), keyless GitHub Actions access, budget and billing kill switch |
+| `terraform/cloudflare` | Cloudflare account-owned Workers deploy tokens per app repo (handed to repos via `terraform/github`) |
+| `terraform/infisical` | Infisical projects, identities, folders |
+| `terraform/grafana/stack` | Grafana Cloud stack, access policies, service accounts |
+| `terraform/grafana/dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
+| `terraform/k8s/mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
 
 Reusable modules live under each stack's `_modules/`.
 
@@ -147,11 +148,11 @@ Each `docker/<name>/Dockerfile` is built by `.github/workflows/docker.yml` into 
 - No external ingress (no load balancer). Services are reachable privately with Telepresence (`telepresence connect`, then `http://<service>.<namespace>`; `infra/telepresence`, see `kubernetes/_docs/access-telepresence.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
 **Claude agent:**
-- `platform/claude-agent` runs `claude remote-control`, steered from claude.ai/code or the Claude app. It has read-only cluster RBAC (no Secrets), a plan-only TFC token and a repo-scoped GitHub PAT, so it can only propose changes via PRs. The claude.ai login is a one-off `kubectl exec ... claude auth login`, persisted on its PVC (`kubernetes/_docs/claude-agent.md`).
+- `platform/claude-agent` runs `claude remote-control`, steered from claude.ai/code or the Claude app. It has read-only cluster RBAC (no Secrets), no Terraform credentials (it reads the plan CI posts on its PRs) and a repo-scoped GitHub PAT, so it can only propose changes via PRs. The claude.ai login is a one-off `kubectl exec ... claude auth login`, persisted on its PVC (`kubernetes/_docs/claude-agent.md`).
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure
-- GKE cluster credentials (endpoint, CA cert, SA key) are passed between Terraform workspaces via remote state — no manual kubeconfig management
+- GKE cluster credentials (endpoint, CA cert, SA key) are passed between Terraform stacks via remote state — no manual kubeconfig management
 - PostgreSQL and Redis are deployed in-cluster for demo/testing
 
 ### PR Status Checks
@@ -164,14 +165,12 @@ Every reusable workflow ends in a `gate` job; the required checks are:
 
 ### Required GitHub Secrets
 
-| Secret | Used by |
-|--------|---------|
-| `TF_API_TOKEN` | Terraform CLI auth in `terraform.yml` |
+None for Terraform: `terraform.yml` signs in to Google Cloud with workload identity federation and reads stack variables from the state bucket.
 
 Notes:
 - `GITHUB_TOKEN` is provided automatically by GitHub Actions.
 - Kubernetes deployment is not driven by GitHub Actions in normal operation; Argo CD performs reconciliation in-cluster.
-- Other sensitive values (for example `gcp_credentials`, `infisical_client_secret`, `grafana_cloud_access_policy_token`) are Terraform input variables managed per stack/workspace, not repository-level GitHub secrets.
+- Sensitive Terraform inputs (for example `infisical_client_secret`, `grafana_cloud_access_policy_token`) live in the stack's `secrets/<stack path>.tfvars.json` in the state bucket, not in repository-level GitHub secrets. Edit one with `make secrets-edit STACK=terraform/<stack>`.
 
 ## Coding Style
 

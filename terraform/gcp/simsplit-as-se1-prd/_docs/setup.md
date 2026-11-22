@@ -7,11 +7,12 @@ billing once actual cost reaches the budget.
 
 Some steps have no Terraform or API support and are done by hand, once.
 
-## 1. Project, Terraform service account and workspace
+## 1. Project, Terraform service account and state
 
 Follow [terraform/gcp/_docs/setup.md](../../_docs/setup.md) with
-`<project-id>` = `simsplit-as-se1-prd`. The workspace is
-`gcp-simsplit-as-se1-prd`.
+`<project-id>` = `simsplit-as-se1-prd`. State is
+`state/gcp/simsplit-as-se1-prd`. Variables go in
+`secrets/gcp/simsplit-as-se1-prd.tfvars.json` (`make secrets-edit STACK=terraform/gcp/simsplit-as-se1-prd`).
 
 The providers bill API quota to this project (`user_project_override`), so the first
 apply fails with `SERVICE_DISABLED` unless these APIs are already enabled:
@@ -75,9 +76,9 @@ before that change.
 Download the JSON straight after creating it: the console shows the client secret only
 once. Keep the file outside git.
 
-### 2.3 Workspace variables
+### 2.3 Variables
 
-Add these as **Terraform variables** in the workspace:
+Add these to the stack's variables file:
 
 | Key | Value | Sensitive |
 |---|---|---|
@@ -135,7 +136,7 @@ client per row:
 | `SimSplit Android (upload key)` | `com.mazino2d.simsplit` | `D4:BA:31:1C:4D:85:F5:F0:84:B0:68:39:74:2D:E9:39:0E:23:7F:A5` |
 
 These are the SHA-1 values from `local.android_sha1_hashes` in `firebase.tf`, upper case
-with colons. Android clients have no secret, so nothing goes into the workspace. If a
+with colons. Android clients have no secret, so nothing goes into the variables file. If a
 certificate changes, update `firebase.tf` and the matching client together.
 
 ### 2.7 Checks after apply
@@ -167,7 +168,7 @@ again whenever a certificate or client changes.
    - Create a **Sign in with Apple key**. Keep the `.p8` file outside git.
 2. Generate the client secret, a JWT signed with the key, valid for at most six months.
    Set a reminder to rotate it.
-3. Add these workspace variables:
+3. Add these variables to the stack's variables file:
 
    | Key | Value | Sensitive |
    |---|---|---|
@@ -221,18 +222,17 @@ assessments a month). The github stack copies the site key into the
 `RECAPTCHA_ENTERPRISE_SITE_KEY` variable of sim-split's `prd` environment, which the web
 release build reads.
 
-1. **Remote state:** the `github` workspace reads this workspace's outputs. In Terraform
-   Cloud, open this workspace → **Settings → General → Remote state sharing** and allow
-   `github`. Until the site key exists, the github stack skips the variable; re-run its
-   apply once this stack has applied.
+1. **Remote state:** the `github` stack reads this stack's outputs from its state in the
+   bucket; no sharing step is needed. Until the site key exists, the github stack skips
+   the variable; re-run its apply once this stack has applied.
 2. **No debug token on prd.** Debug builds run against dev (`APP_ENV=dev`), whose stack
-   registers the debug token (`simsplit-as-se1-dev`, workspace variable
+   registers the debug token (`simsplit-as-se1-dev`, variable
    `app_check_debug_token`). Prd has no such variable, so anyone holding a debug token
    still can't pass App Check here.
 3. **Enforcement** is on (`app_check_enforced`, default `true`): Auth and Firestore
    reject requests without a valid token, including debug builds without the
    registered token. If real users are rejected (low reCAPTCHA scores show up in
-   **Firebase console → App Check → APIs**), set the workspace variable
+   **Firebase console → App Check → APIs**), set the variable
    `app_check_enforced = false` to go back to metrics only while investigating.
 
 ## 8. Telemetry endpoint (R-4)
@@ -241,9 +241,8 @@ release build reads.
 usage events, its Artifact Registry repository, a deployer service account for
 sim-split's workflow, and a log-based alert on error reports. By hand, once:
 
-1. In the workspace's **Settings → General → Remote state sharing**, share with
-   `gcp-dataplatform-as-se1-prd`: that stack reads the `telemetry` output to let the
-   endpoint write to `simsplit_raw`.
+1. Nothing to share: `terraform/gcp/dataplatform-as-se1-prd` reads the `telemetry` output
+   from this stack's state in the bucket to let the endpoint write to `simsplit_raw`.
 2. Confirm the email Cloud Monitoring sends to the maintainer address when the
    notification channel is created.
 

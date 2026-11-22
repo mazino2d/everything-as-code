@@ -2,7 +2,9 @@ locals {
   workload_gsa_sync = {
     sources = [
       {
+        # workspace names the Infisical folder; stack is the state path under terraform/.
         workspace   = "gcp-mazino2d-as-se1-dev"
+        stack       = "gcp/mazino2d-as-se1-dev"
         environment = "dev"
       },
     ]
@@ -11,6 +13,7 @@ locals {
   workload_gsa_sources = {
     for source in local.workload_gsa_sync.sources : source.workspace => {
       workspace      = source.workspace
+      stack          = source.stack
       environment    = source.environment
       workspace_slug = replace(lower(source.workspace), "/[^a-z0-9-]+/", "-")
     }
@@ -20,13 +23,11 @@ locals {
 data "terraform_remote_state" "gcp_workload_gsa" {
   for_each = local.workload_gsa_sources
 
-  backend = "remote"
+  backend = "gcs"
 
   config = {
-    organization = var.remote_state_organization
-    workspaces = {
-      name = each.value.workspace
-    }
+    bucket = var.remote_state_bucket
+    prefix = "state/${each.value.stack}"
   }
 }
 

@@ -2,11 +2,6 @@ locals {
   region = join("-", slice(split("-", var.zone), 0, 2))
 }
 
-data "external" "duckdns_token" {
-  count   = var.duckdns_domain != null ? 1 : 0
-  program = ["bash", "-c", "printf '{\"token\":\"%s\"}' \"$DUCKDNS_TOKEN\""]
-}
-
 resource "google_compute_address" "this" {
   count   = var.external_ip_type == "static" ? 1 : 0
   name    = "${var.name}-ip"
@@ -76,7 +71,7 @@ resource "google_compute_instance" "this" {
       block-project-ssh-keys  = "true"
       startup-script          = file("${path.module}/_scripts/wrap_duckdns_startup.sh")
       user-startup-script-b64 = var.startup_script != null ? base64encode(var.startup_script) : null
-      duckdns-token           = try(sensitive(data.external.duckdns_token[0].result.token), null)
+      duckdns-token           = var.duckdns_domain != null ? var.duckdns_token : null
       duckdns-domain          = var.duckdns_domain
     },
     var.instance_metadata,

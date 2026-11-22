@@ -16,12 +16,11 @@ at 50 % and 100 %, and a kill switch unlinks billing once actual cost reaches th
 
 Some steps have no Terraform or API support and are done by hand, once.
 
-## 1. Project, Terraform service account and workspace
+## 1. Project, Terraform service account and state
 
 Follow [terraform/gcp/_docs/setup.md](../../_docs/setup.md) with
-`<project-id>` = `dataplatform-as-se1-dev`. The workspace is
-`gcp-dataplatform-as-se1-dev`, and it only needs the `gcp_credentials` variable. In the
-workspace's **Settings → General → Remote state sharing**, share with workspace `github`.
+`<project-id>` = `dataplatform-as-se1-dev`. The stack needs no
+variables. The github stack reads its state from the bucket, so there is no sharing step.
 
 Before the first apply, run the one-time gcloud steps in prd's section 1 against
 `dataplatform-as-se1-dev`:
@@ -48,7 +47,6 @@ table's schema, change both stacks in the same PR and apply dev first.
 
 The dev endpoint's write grant waits for two things:
 
-- the `gcp-simsplit-as-se1-dev` workspace has applied `telemetry.tf`;
-- that workspace shares its state with this one.
+- the `terraform/gcp/simsplit-as-se1-dev` stack has applied `telemetry.tf`.
 
-Re-run apply on this stack after both are done.
+Re-run apply on this stack after that.

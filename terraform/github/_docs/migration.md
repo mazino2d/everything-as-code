@@ -4,22 +4,9 @@ If your GitHub account already has repositories, you need to import them into Te
 
 ## Prerequisites
 
-### Switch to Local execution (temporary)
+### Set the Terraform variables
 
-Remote execution on a fresh workspace causes `409 Conflict` on the first state write. Switch to Local mode for the migration, then switch back to Remote after.
-
-Go to workspace `github` → **Settings → General** → Execution Mode: **Local**
-
-### Create `terraform.tfvars`
-
-Create `terraform/github/terraform.tfvars` (gitignored — never commit this file):
-
-```hcl
-github_token = "<your-github-token>"
-github_owner = "<your-github-username>"
-```
-
-This allows `terraform plan/apply` to authenticate with GitHub when running locally. The token requires scopes: `repo`, `delete_repo`, `read:org`.
+Store `github_token` and `github_owner` in the stack's variables file in the state bucket (`make secrets-edit STACK=terraform/github`, see [setup.md](setup.md)). `make plan/apply` copies it to `terraform/github/ci.auto.tfvars.json` (git-ignored — never commit this file) so `terraform plan/apply` can authenticate with GitHub when running locally. The token requires scopes: `repo`, `delete_repo`, `read:org`. Locally, also run `gcloud auth application-default login` for the GCS state backend.
 
 ---
 
@@ -65,25 +52,11 @@ The output should show `N to import, 0 to add, 0 to destroy` (in-place updates a
 terraform apply -auto-approve -lock=false
 ```
 
-If you encounter `409 Conflict` when saving state:
-
-```sh
-terraform state push errored.tfstate
-terraform apply -auto-approve -lock=false
-```
-
 Repeat until `Apply complete!` and `No changes`.
 
 ## Step 5 — Remove `imports.tf`
 
 Once the apply succeeds, delete `imports.tf` and commit. Import blocks are one-time use — keeping them will cause errors on subsequent applies.
-
-## Step 6 — Switch back to Remote execution
-
-Go to workspace `github` → **Settings → General**:
-
-- Execution Mode: **Remote**
-- Auto-apply API, UI, & VCS runs: **On**
 
 ---
 

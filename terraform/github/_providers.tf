@@ -16,12 +16,9 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "github"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-eac-tfstate"
+    prefix = "state/github"
   }
 }
 

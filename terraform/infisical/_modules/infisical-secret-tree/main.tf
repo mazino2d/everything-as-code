@@ -33,19 +33,19 @@ locals {
         for top_name, children in var.tree : [
           for leaf_name, leaf in children : [
             for secret in try(leaf.secrets, []) : {
-              key         = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}_${try(replace(lower(secret.key), "/[^a-z0-9]+/", "_"), "")}"
-              env_slug    = env
-              name        = try(secret.key, null)
-              folder_ref  = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
-              folder_path = "/${top_name}/${leaf_name}"
-              secret_envs = try(tolist(secret.environments), var.environments)
-              value       = try(secret.value, null)
-              generate    = try(secret.generate, null)
+              key           = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}_${try(replace(lower(secret.key), "/[^a-z0-9]+/", "_"), "")}"
+              env_slug      = env
+              name          = try(secret.key, null)
+              folder_ref    = "${env}:${replace(top_name, "/[^a-zA-Z0-9]+/", "_")}_${replace(leaf_name, "/[^a-zA-Z0-9]+/", "_")}"
+              folder_path   = "/${top_name}/${leaf_name}"
+              secret_envs   = try(tolist(secret.environments), var.environments)
+              value         = try(secret.value, null)
+              generate      = try(secret.generate, null)
               generate_mode = lower(trimspace(tostring(try(secret.generate.mode, ""))))
               remote_state = try({
-                workspace = secret.remote_state.workspace
-                output    = secret.remote_state.output
-                format    = try(secret.remote_state.format, null)
+                stack  = secret.remote_state.stack
+                output = secret.remote_state.output
+                format = try(secret.remote_state.format, null)
               }, null)
             }
           ]
@@ -70,20 +70,18 @@ locals {
     if secret.remote_state != null
   }
 
-  remote_state_workspaces = toset([
-    for secret in values(local.secret_instances_with_remote_state_values) : secret.remote_state.workspace
+  remote_state_stacks = toset([
+    for secret in values(local.secret_instances_with_remote_state_values) : secret.remote_state.stack
   ])
 }
 
-data "terraform_remote_state" "workspaces" {
-  for_each = local.remote_state_workspaces
+data "terraform_remote_state" "stacks" {
+  for_each = local.remote_state_stacks
 
-  backend = "remote"
+  backend = "gcs"
   config = {
-    organization = var.remote_state_organization
-    workspaces = {
-      name = each.key
-    }
+    bucket = var.remote_state_bucket
+    prefix = "state/${each.key}"
   }
 }
 
@@ -130,14 +128,14 @@ resource "infisical_secret" "secrets" {
   name = each.value.name
   value_wo = each.value.generate != null ? (
     contains(["openssl_rand_hex_32", "hex32"], each.value.generate_mode)
-      ? random_id.generated_hex[each.key].hex
-      : random_password.generated[each.key].result
-  ) : (
+    ? random_id.generated_hex[each.key].hex
+    : random_password.generated[each.key].result
+    ) : (
     each.value.remote_state != null ? (
       each.value.remote_state.format != null ? format(
         each.value.remote_state.format,
-        data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output]
-      ) : data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output]
+        data.terraform_remote_state.stacks[each.value.remote_state.stack].outputs[each.value.remote_state.output]
+      ) : data.terraform_remote_state.stacks[each.value.remote_state.stack].outputs[each.value.remote_state.output]
     ) : each.value.value
   )
   value_wo_version = try(tonumber(each.value.generate.version), 1)
@@ -158,7 +156,7 @@ resource "infisical_secret" "secrets" {
     }
 
     precondition {
-      condition     = each.value.remote_state == null || can(data.terraform_remote_state.workspaces[each.value.remote_state.workspace].outputs[each.value.remote_state.output])
+      condition     = each.value.remote_state == null || can(data.terraform_remote_state.stacks[each.value.remote_state.stack].outputs[each.value.remote_state.output])
       error_message = "Secret ${each.value.name} for env ${each.value.env_slug} references missing remote_state output in secret_tree.yaml."
     }
 

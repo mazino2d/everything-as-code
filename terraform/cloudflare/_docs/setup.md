@@ -26,20 +26,24 @@ Account Resources: include your account only.
 
 ---
 
-## 3. Terraform Cloud workspace
+## 3. Terraform variables
 
-Create workspace `cloudflare` (CLI-driven) in org `mazino2d-everything-as-code`:
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/cloudflare`); no workspace to create. The stack's variables are one JSON file in the same bucket, `secrets/cloudflare.tfvars.json`:
 
-- **Settings → General**: Execution Mode **Remote**, Auto-apply **On**.
-- **Settings → General → Remote state sharing**: share with workspace `github`.
-- **Variables**:
+```bash
+make secrets-edit STACK=terraform/cloudflare
+```
 
-| Category  | Key                     | Value           | Sensitive |
-|-----------|-------------------------|-----------------|-----------|
-| Terraform | `cloudflare_api_token`  | bootstrap token | ✅        |
-| Terraform | `cloudflare_account_id` | account ID      | ❌        |
+```json
+{
+  "cloudflare_api_token": "<bootstrap token>",
+  "cloudflare_account_id": "<account ID>"
+}
+```
 
-The `github` workspace reads `workers_deployer_tokens` from this workspace's state, so it must exist before a `terraform/github` plan that references it.
+CI and `make plan/apply` copy it to `terraform/cloudflare/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
+
+The `github` stack reads `workers_deployer_tokens` from this stack's state, so apply it before a `terraform/github` plan that references it.
 
 ---
 

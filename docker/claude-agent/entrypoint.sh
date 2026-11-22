@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Starts a Claude Code Remote Control server inside the repo checkout.
-# Expects GH_TOKEN and TF_API_TOKEN in the environment; Claude credentials
+# Expects GH_TOKEN in the environment; Claude credentials
 # live on the PVC mounted at $HOME (see kubernetes/_docs/claude-agent.md).
 set -euo pipefail
 
@@ -20,12 +20,6 @@ else
   log "fetching ${REPO}"
   git -C "${WORKSPACE}" fetch --prune origin
 fi
-
-# Terraform Cloud: plan-only team token.
-mkdir -p "${HOME}/.terraform.d"
-jq -n --arg t "${TF_API_TOKEN}" '{credentials: {"app.terraform.io": {token: $t}}}' \
-  > "${HOME}/.terraform.d/credentials.tfrc.json"
-chmod 600 "${HOME}/.terraform.d/credentials.tfrc.json"
 
 # Pre-accept the workspace trust dialog for the checkout.
 config="${HOME}/.claude.json"

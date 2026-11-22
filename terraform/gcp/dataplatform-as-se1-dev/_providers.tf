@@ -13,12 +13,9 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "gcp-dataplatform-as-se1-dev"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-eac-tfstate"
+    prefix = "state/gcp/dataplatform-as-se1-dev"
   }
 }
 
@@ -31,7 +28,6 @@ locals {
 # Billing Budgets bill API quota to the caller's project, so every request is
 # attributed to this project explicitly.
 provider "google" {
-  credentials           = var.gcp_credentials
   project               = local.project_id
   user_project_override = true
   billing_project       = local.project_id
