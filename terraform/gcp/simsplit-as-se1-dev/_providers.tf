@@ -30,7 +30,7 @@ terraform {
 locals {
   project_id         = "simsplit-as-se1-dev"
   region             = "asia-southeast1"
-  billing_account_id = "0138D2-6EFA6E-34332E"
+  billing_account_id = "014412-F60C67-E5B80D"
 }
 
 # Firebase, Identity Platform and Billing Budgets bill API quota to the caller's

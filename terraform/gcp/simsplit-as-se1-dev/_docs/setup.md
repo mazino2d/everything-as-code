@@ -35,7 +35,7 @@ to create the budget and to link billing again after the kill switch has fired:
 
 ```bash
 for role in roles/billing.user roles/billing.costsManager; do
-  gcloud billing accounts add-iam-policy-binding 0138D2-6EFA6E-34332E \
+  gcloud billing accounts add-iam-policy-binding 014412-F60C67-E5B80D \
     --member="serviceAccount:terraform@simsplit-as-se1-dev.iam.gserviceaccount.com" \
     --role="$role"
 done
