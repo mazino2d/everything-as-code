@@ -8,13 +8,12 @@
 # Keyless BigQuery access for data-platform's workflows (WIF provider and
 # service account).
 data "terraform_remote_state" "dataplatform" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "gcp-dataplatform-as-se1-prd"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/dataplatform-as-se1-prd"
   }
 
   defaults = {
@@ -24,13 +23,12 @@ data "terraform_remote_state" "dataplatform" {
 
 # The same for the dev warehouse, used by data-platform's dev environment.
 data "terraform_remote_state" "dataplatform_dev" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "gcp-dataplatform-as-se1-dev"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/dataplatform-as-se1-dev"
   }
 
   defaults = {
@@ -41,13 +39,12 @@ data "terraform_remote_state" "dataplatform_dev" {
 # reCAPTCHA site key for App Check on web, built into sim-split's web release
 # (firebase_deploy.yml), and the deploy identity for the prd environment.
 data "terraform_remote_state" "simsplit" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "gcp-simsplit-as-se1-prd"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/simsplit-as-se1-prd"
   }
 
   defaults = {
@@ -61,13 +58,12 @@ data "terraform_remote_state" "simsplit" {
 # sim-split's dev Firebase project: deploy identity, reCAPTCHA site key and
 # telemetry endpoint for dev builds and deploys.
 data "terraform_remote_state" "simsplit_dev" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "gcp-simsplit-as-se1-dev"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/simsplit-as-se1-dev"
   }
 
   defaults = {
@@ -80,13 +76,12 @@ data "terraform_remote_state" "simsplit_dev" {
 
 # Workers deploy token and Realtime SFU app for a3spy.
 data "terraform_remote_state" "cloudflare" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "cloudflare"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/cloudflare"
   }
 
   defaults = {

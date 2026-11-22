@@ -11,5 +11,6 @@ module "vm-free" {
   ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqUrfB0oPmolyXRYtA9kHDWYy5D2GhhaGb9odfQYvAu khoi.do@cake.vn"
   tags             = ["free"]
   duckdns_domain   = "mazino2d-free"
+  duckdns_token    = var.duckdns_token
   startup_script   = file("${path.module}/_scripts/fortune_server.sh")
 }

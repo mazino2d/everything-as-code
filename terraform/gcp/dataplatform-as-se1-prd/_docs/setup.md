@@ -8,12 +8,11 @@ budget.
 
 Some steps have no Terraform or API support and are done by hand, once.
 
-## 1. Project, Terraform service account and workspace
+## 1. Project, Terraform service account and state
 
 Follow [terraform/gcp/_docs/setup.md](../../_docs/setup.md) with
-`<project-id>` = `dataplatform-as-se1-prd`. The workspace is
-`gcp-dataplatform-as-se1-prd`; it only needs the `gcp_credentials` variable. In the
-workspace's **Settings → General → Remote state sharing**, share with workspace `github`.
+`<project-id>` = `dataplatform-as-se1-prd`. The stack needs no
+variables. The github stack reads its state from the bucket, so there is no sharing step.
 
 The providers bill API quota to this project (`user_project_override`), so the first
 apply fails with `SERVICE_DISABLED` unless these APIs are already enabled:
@@ -63,5 +62,5 @@ environment, so re-run apply on `terraform/github` after the first apply of this
 `simsplit.tf` creates the `simsplit_raw` dataset (time travel at its 48-hour minimum),
 the `error_reports` and `usage_events` tables the telemetry endpoint writes, and a
 storage alert at 8 GiB. The endpoint's write grant waits for the
-`gcp-simsplit-as-se1-prd` workspace to share its state with this one (its setup § 8);
+`terraform/gcp/simsplit-as-se1-prd` stack to apply `telemetry.tf` (its setup § 8);
 re-run apply on this stack after that. Confirm the notification channel's email once.

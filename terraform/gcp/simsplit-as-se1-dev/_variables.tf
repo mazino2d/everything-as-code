@@ -1,9 +1,3 @@
-variable "gcp_credentials" {
-  type      = string
-  sensitive = true
-  default   = null
-}
-
 # Web OAuth client created by hand (see _docs/setup.md); Google sign-in stays
 # disabled until both are set as TFC variables.
 variable "google_oauth_client_id" {

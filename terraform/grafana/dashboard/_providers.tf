@@ -8,12 +8,9 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "grafana-dashboard"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/grafana/dashboard"
   }
 }
 
@@ -21,13 +18,12 @@ terraform {
 # Terraform Cloud evaluates terraform_remote_state (built-in provider) before user-defined
 # providers, so the SA token can be referenced directly in the grafana provider block.
 data "terraform_remote_state" "grafana_stack" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "grafana-stack"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/grafana/stack"
   }
 }
 

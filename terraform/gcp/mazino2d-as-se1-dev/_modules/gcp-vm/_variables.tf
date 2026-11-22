@@ -65,6 +65,12 @@ variable "duckdns_domain" {
   default = null
 }
 
+variable "duckdns_token" {
+  type      = string
+  sensitive = true
+  default   = null
+}
+
 variable "allow_stopping_for_update" {
   type    = bool
   default = true

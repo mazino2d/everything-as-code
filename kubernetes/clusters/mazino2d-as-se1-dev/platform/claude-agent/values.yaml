@@ -22,7 +22,7 @@ podSecurityContext:
   runAsUser: 1000
   runAsGroup: 1000
   fsGroup: 1000
-# GH_TOKEN and TF_API_TOKEN from Infisical /platform/claude-agent.
+# GH_TOKEN from Infisical /platform/claude-agent.
 secrets:
   - claude-agent-env
 env:

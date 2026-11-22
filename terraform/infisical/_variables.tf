@@ -10,8 +10,8 @@ variable "infisical_client_secret" {
   default   = null
 }
 
-variable "remote_state_organization" {
+variable "remote_state_bucket" {
   type        = string
-  description = "Terraform Cloud organization used to resolve remote state secrets."
-  default     = "mazino2d-everything-as-code"
+  description = "GCS bucket holding every stack's state under state/<stack path>."
+  default     = "mazino2d-as-se1-dev-tfstate"
 }

@@ -18,12 +18,9 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "gcp-simsplit-as-se1-prd"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/simsplit-as-se1-prd"
   }
 }
 
@@ -37,14 +34,12 @@ locals {
 # Firebase, Identity Platform and Billing Budgets bill API quota to the caller's
 # project, so every request is attributed to this project explicitly.
 provider "google" {
-  credentials           = var.gcp_credentials
   project               = local.project_id
   user_project_override = true
   billing_project       = local.project_id
 }
 
 provider "google-beta" {
-  credentials           = var.gcp_credentials
   project               = local.project_id
   user_project_override = true
   billing_project       = local.project_id

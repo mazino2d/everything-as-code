@@ -20,23 +20,19 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "k8s-mazino2d-as-se1-dev"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/k8s/mazino2d-as-se1-dev"
   }
 }
 
 data "terraform_remote_state" "gcp" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "gcp-mazino2d-as-se1-dev"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/mazino2d-as-se1-dev"
   }
 }
 

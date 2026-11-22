@@ -47,13 +47,12 @@ locals {
 }
 
 data "terraform_remote_state" "github" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "github"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/github"
   }
 }
 

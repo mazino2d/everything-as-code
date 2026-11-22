@@ -3,13 +3,10 @@
 ## 1. Accounts
 
 - GitHub: [github.com/signup](https://github.com/signup)
-- HCP Terraform: [app.terraform.io/public/signup/account](https://app.terraform.io/public/signup/account)
-
-After creating an HCP Terraform account, create an organization at [app.terraform.io/app/organizations/new](https://app.terraform.io/app/organizations/new)
 
 ---
 
-## 2. GitHub Token + Terraform Cloud Variable
+## 2. GitHub Token + Terraform Variables
 
 **Create a GitHub Classic Token:** [github.com/settings/tokens/new](https://github.com/settings/tokens/new)
 
@@ -19,43 +16,24 @@ Required scopes:
 - `delete_repo`
 - `read:org`
 
-**Add to Terraform Cloud workspace variables:**
+**Add to the stack's variables file:**
 
-Go to workspace `github` → **Variables** → Add variable:
+State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/github`). The stack's variables are one JSON file in the same bucket, `secrets/github.tfvars.json`:
 
-| Category    | Key            | Value           | Sensitive |
-|-------------|----------------|-----------------|-----------|
-| Environment | `GITHUB_TOKEN` | token           | ✅        |
-| Environment | `GITHUB_OWNER` | GitHub username | ❌        |
+```bash
+make secrets-edit STACK=terraform/github
+```
 
----
+| Key            | Value           | Sensitive |
+|----------------|-----------------|-----------|
+| `github_token` | token           | ✅        |
+| `github_owner` | GitHub username | ❌        |
 
-## 3. Terraform Token + GitHub Actions Secret
-
-**Create a Terraform User Token:** [app.terraform.io/app/settings/tokens/new](https://app.terraform.io/app/settings/tokens/new)
-
-Select **User API token** (not team or org token).
-
-**Add to GitHub repository secret:**
-
-Go to repo → **Settings → Secrets and variables → Secrets** → New repository secret:
-
-| Name            | Value |
-|-----------------|-------|
-| `TF_API_TOKEN`  | token |
+CI and `make plan/apply` copy the file to `terraform/github/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`, so no GitHub Actions secret is needed; locally run `gcloud auth application-default login` first.
 
 ---
 
-## 4. Terraform Cloud Workspace Settings
-
-Go to workspace `github` → **Settings → General**:
-
-- Execution Mode: **Remote**
-- Auto-apply API, UI, & VCS runs: **On**
-
----
-
-## 5. eac-deployer GitHub App
+## 3. eac-deployer GitHub App
 
 Lets other repos' CI open image-bump PRs against `everything-as-code`. GitHub has no API to create Apps, so this is a one-off manual step; Terraform then distributes the credentials (`deploy_apps.tf`).
 
@@ -76,14 +54,12 @@ After creating it:
 2. **Private keys → Generate a private key** — a `.pem` file downloads.
 3. **Install App** → your account → **Only select repositories** → `everything-as-code`.
 
-**Add to Terraform Cloud workspace variables:**
+**Add to the stack's variables file** (`make secrets-edit STACK=terraform/github`):
 
-Go to workspace `github` → **Variables** → Add variable:
-
-| Category  | Key                            | Value                  | Sensitive |
-|-----------|--------------------------------|------------------------|-----------|
-| Terraform | `eac_deployer_app_id`          | App ID                 | ❌        |
-| Terraform | `eac_deployer_app_private_key` | contents of the `.pem` | ✅        |
+| Key                            | Value                  | Sensitive |
+|--------------------------------|------------------------|-----------|
+| `eac_deployer_app_id`          | App ID                 | ❌        |
+| `eac_deployer_app_private_key` | contents of the `.pem` | ✅        |
 
 Delete the local `.pem` once saved.
 

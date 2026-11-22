@@ -1,13 +1,13 @@
 # Claude agent (Remote Control)
 
-`platform/claude-agent` runs a [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control) server inside the cluster. You send it tasks from [claude.ai/code](https://claude.ai/code) or the Claude mobile app. It investigates with `kubectl` and `terraform plan`, then opens pull requests against this repository.
+`platform/claude-agent` runs a [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control) server inside the cluster. You send it tasks from [claude.ai/code](https://claude.ai/code) or the Claude mobile app. It investigates with `kubectl` and reads the code, then opens pull requests against this repository. CI plans every Terraform stack a pull request touches and posts the plan as a comment, which the agent reads with `gh pr view --comments`.
 
 It can read, plan and propose changes, but it can't apply them. Every change still goes through a pull request, CI, and then Argo CD or `tf-apply`. That limit comes from the credentials the pod holds, not from prompts:
 
 | Tool | Credential | Scope |
 |------|------------|-------|
 | `kubectl` | ServiceAccount `platform/claude-agent` | ClusterRole `claude-agent-read`: `get/list/watch` plus `pods/log`, **no Secrets** |
-| `terraform` | `TF_API_TOKEN` | TFC team token with **Plan** permission on the workspaces |
+| `terraform` | none | No state or provider access, so `terraform fmt` and `validate` only; plans come from CI on the pull request |
 | `gh` / `git` | `GH_TOKEN` | Fine-grained PAT for `mazino2d/everything-as-code` only; branch protection still gates `main` |
 
 `/etc/claude-code/managed-settings.json` in the image adds an allow/deny list on top, for example denying `terraform apply`, `kubectl delete` and `gh pr merge`.
@@ -23,11 +23,10 @@ It can read, plan and propose changes, but it can't apply them. Every change sti
 
 ## First-time setup
 
-1. **Create the credentials** and add them to Infisical under `everything-as-code` / `dev` / `/platform/claude-agent`:
+1. **Create the credential** and add it to Infisical under `everything-as-code` / `dev` / `/platform/claude-agent`:
    - `GH_TOKEN`: a fine-grained PAT.
      - Repository access: `mazino2d/everything-as-code` only.
      - Permissions: Contents RW, Pull requests RW, Actions R, Metadata R.
-   - `TF_API_TOKEN`: in TFC, create a team (e.g. `claude-agent`) with **Plan** access on every workspace, then generate a team token.
 
 2. **Sign in to Claude.** Remote Control needs a full claude.ai login. A `claude setup-token` / `CLAUDE_CODE_OAUTH_TOKEN` token can only make model requests, and an API key is not accepted. Until you sign in, the container waits and logs a reminder.
 
@@ -55,7 +54,7 @@ Each new session starts in `/home/agent/workspace/everything-as-code`. File edit
 
 ## Operations
 
-- **Rotate `GH_TOKEN` / `TF_API_TOKEN`**: update them in Infisical. The operator resyncs within 60s. Then run `kubectl -n platform delete pod claude-agent-0`, because the environment is read only at start-up.
+- **Rotate `GH_TOKEN`**: update it in Infisical. The operator resyncs within 60s. Then run `kubectl -n platform delete pod claude-agent-0`, because the environment is read only at start-up.
 - **Re-login** (after a sign-out or an expired session): repeat step 2.
 - **Nightly sleep**: `k8s-power.yml` scales the StatefulSet to zero at 00:00 ICT. After wake, the server restores the previous sessions if the gap was less than about 4 hours. Otherwise it starts a new one.
 - **Upgrade tools**: bump the `ARG`s in `docker/claude-agent/Dockerfile`, merge, then set `image.tag` in `values.yaml` to the new `sha-<short>` tag.

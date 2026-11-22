@@ -15,12 +15,13 @@ unlinks billing once actual cost reaches the budget.
 
 Some steps have no Terraform or API support and are done by hand, once.
 
-## 1. Project, Terraform service account and workspace
+## 1. Project, Terraform service account and state
 
 Follow [terraform/gcp/_docs/setup.md](../../_docs/setup.md) with
-`<project-id>` = `simsplit-as-se1-dev`. The workspace is
-`gcp-simsplit-as-se1-dev`. In the workspace's **Settings → General → Remote state
-sharing**, share with workspace `github` (see section 6).
+`<project-id>` = `simsplit-as-se1-dev`. State is
+`state/gcp/simsplit-as-se1-dev`; the github stack reads it from the bucket (see section 6),
+so there is no sharing step. Variables go in
+`secrets/gcp/simsplit-as-se1-dev.tfvars.json` (`make secrets-edit STACK=terraform/gcp/simsplit-as-se1-dev`).
 
 The providers bill API quota to this project (`user_project_override`), so the first
 apply fails with `SERVICE_DISABLED` unless these APIs are already enabled:
@@ -82,9 +83,9 @@ before that change.
 Download the JSON straight after creating it: the console shows the client secret only
 once. Keep the file outside git.
 
-### 2.3 Workspace variables
+### 2.3 Variables
 
-Add these as **Terraform variables** in the workspace:
+Add these to the stack's variables file:
 
 | Key | Value | Sensitive |
 |---|---|---|
@@ -168,7 +169,7 @@ score-based reCAPTCHA key for `simsplit-as-se1-dev.web.app`,
 `simsplit-as-se1-dev.firebaseapp.com` and `localhost` (24 h token TTL).
 
 1. **Debug token (optional):** generate a UUID (`uuidgen`), set it as the sensitive
-   workspace variable `app_check_debug_token`, and pass the same value to debug builds:
+   variable `app_check_debug_token`, and pass the same value to debug builds:
    `flutter run --dart-define=APP_CHECK_DEBUG_TOKEN=<uuid>`. Keep it private.
 2. **Enforcement** is on from the start (`app_check_enforced`, default `true`). Play
    Integrity verdicts need the link from section 3, so Android requests are rejected
@@ -176,7 +177,7 @@ score-based reCAPTCHA key for `simsplit-as-se1-dev.web.app`,
 
 ## 6. GitHub Actions
 
-The github stack reads this workspace's outputs from remote state (section 1) and sets
+The github stack reads this stack's outputs from its remote state (section 1) and sets
 these variables on sim-split's `dev` environment (prd's environment has the same names):
 
 | Variable | From |

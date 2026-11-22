@@ -8,12 +8,9 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "grafana-stack"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/grafana/stack"
   }
 }
 

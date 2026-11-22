@@ -1,7 +1,9 @@
 name: Terraform
 
 # Pull requests plan every changed stack (sticky PR comment per stack); main
-# applies them; a manual run applies the chosen stack(s).
+# applies them; a manual run applies the chosen stack(s). State and each
+# stack's variables live in gs://mazino2d-as-se1-dev-tfstate; jobs sign in
+# keylessly as the terraform service account of the project a stack manages.
 on:
   pull_request:
   push:
@@ -42,7 +44,17 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     with:
       mode: ${{ github.event_name == 'pull_request' && 'plan' || 'apply' }}
       select: ${{ inputs.stack || '' }}
-    secrets: inherit
+      gcp-workload-identity-provider: projects/238020767329/locations/global/workloadIdentityPools/github/providers/everything-as-code
+      gcp-service-account: terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com
+      gcp-service-accounts: >-
+        {
+          "terraform/gcp/simsplit-as-se1-dev": "terraform@simsplit-as-se1-dev.iam.gserviceaccount.com",
+          "terraform/gcp/simsplit-as-se1-prd": "terraform@simsplit-as-se1-prd.iam.gserviceaccount.com",
+          "terraform/gcp/dataplatform-as-se1-dev": "terraform@dataplatform-as-se1-dev.iam.gserviceaccount.com",
+          "terraform/gcp/dataplatform-as-se1-prd": "terraform@dataplatform-as-se1-prd.iam.gserviceaccount.com"
+        }
+      secrets-uri: gs://mazino2d-as-se1-dev-tfstate/secrets

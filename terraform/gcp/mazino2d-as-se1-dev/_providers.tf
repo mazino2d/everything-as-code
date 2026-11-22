@@ -8,17 +8,13 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "mazino2d-everything-as-code"
-
-    workspaces {
-      name = "gcp-mazino2d-as-se1-dev"
-    }
+  backend "gcs" {
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/gcp/mazino2d-as-se1-dev"
   }
 }
 
 provider "google" {
-  credentials = var.gcp_credentials
-  project     = "mazino2d-as-se1-dev"
+  project = "mazino2d-as-se1-dev"
 }
 

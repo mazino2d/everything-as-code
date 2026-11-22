@@ -3,9 +3,6 @@
 ## 1. Accounts
 
 - Infisical: [app.infisical.com](https://app.infisical.com)
-- HCP Terraform: [app.terraform.io/public/signup/account](https://app.terraform.io/public/signup/account)
-
-After creating an HCP Terraform account, create an organization at [app.terraform.io/app/organizations/new](https://app.terraform.io/app/organizations/new)
 
 ---
 
@@ -19,27 +16,26 @@ Create a machine identity for Terraform to authenticate against Infisical:
    - **Organization Role**: `Admin`
 3. Open the created identity → **Authentication → Add Auth Method → Universal Auth** → leave defaults → Save
 4. Click **+ Add Client Secret**:
-   - **Description**: `terraform-cloud`
+   - **Description**: `terraform`
    - **TTL**: `0` (no expiry)
    - **Max Number of Uses**: `0` (unlimited)
 5. Copy **Client ID** (shown at top of identity page) and **Client Secret** (shown once only — save it immediately)
 
 ---
 
-## 3. Terraform Cloud Workspace Variables
+## 3. Terraform variables
 
-Go to workspace `infisical` → **Variables** → add the following:
+State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/infisical`). Put the identity in the stack's variables file, `secrets/infisical.tfvars.json` in the same bucket:
 
-| Category  | Key                       | Value         | Sensitive |
-|-----------|---------------------------|---------------|-----------|
-| terraform | `infisical_client_id`     | Client ID     | ❌        |
-| terraform | `infisical_client_secret` | Client Secret | ✅        |
+```bash
+make secrets-edit STACK=terraform/infisical
+```
 
----
+```json
+{
+  "infisical_client_id": "<Client ID>",
+  "infisical_client_secret": "<Client Secret>"
+}
+```
 
-## 4. Terraform Cloud Workspace Settings
-
-Go to workspace `infisical` → **Settings → General**:
-
-- Execution Mode: **Remote**
-- Auto-apply API, UI, & VCS runs: **On**
+CI and `make plan/apply` copy it to `terraform/infisical/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.

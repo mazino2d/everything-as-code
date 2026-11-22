@@ -1,11 +1,10 @@
 data "terraform_remote_state" "infisical" {
-  backend = "remote"
+  backend = "gcs"
+
 
   config = {
-    organization = "mazino2d-everything-as-code"
-    workspaces = {
-      name = "infisical"
-    }
+    bucket = "mazino2d-as-se1-dev-tfstate"
+    prefix = "state/infisical"
   }
 }
 
