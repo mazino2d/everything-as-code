@@ -30,7 +30,7 @@ terraform {
 locals {
   project_id         = "simsplit-as-se1-prd"
   region             = "asia-southeast1"
-  billing_account_id = "0138D2-6EFA6E-34332E"
+  billing_account_id = "014412-F60C67-E5B80D"
   alert_email        = "mazino2d@gmail.com"
 }
 

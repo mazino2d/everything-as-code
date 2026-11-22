@@ -25,7 +25,7 @@ terraform {
 locals {
   project_id         = "dataplatform-as-se1-dev"
   region             = "asia-southeast1"
-  billing_account_id = "0138D2-6EFA6E-34332E"
+  billing_account_id = "016BA1-3DBFBB-1B7972"
 }
 
 # Billing Budgets bill API quota to the caller's project, so every request is
