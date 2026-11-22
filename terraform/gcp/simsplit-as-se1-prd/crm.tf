@@ -232,7 +232,8 @@ resource "google_cloud_scheduler_job" "crm_tick" {
 }
 
 # Deploys new images from sim-split's crm_deploy.yml, only from jobs in the
-# crm-prd GitHub Environment (maintainer approval, main only).
+# prd GitHub Environment (crm_apply.yml runs it from main after a repo
+# admin's "crm apply" on a green PR).
 resource "google_service_account" "gha_crm_deployer" {
   project      = module.project.project_id
   account_id   = "gha-crm-deployer"
@@ -242,7 +243,7 @@ resource "google_service_account" "gha_crm_deployer" {
 resource "google_service_account_iam_member" "gha_crm_deployer_wif" {
   service_account_id = google_service_account.gha_crm_deployer.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.environment/crm-prd"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.environment/prd"
 }
 
 resource "google_artifact_registry_repository_iam_member" "gha_crm_deployer" {
