@@ -1,6 +1,5 @@
-# Keyless auth for this repository's GitHub Actions. Any workflow of the repository
-# gets a token (pull request plans need one); each service account decides which
-# refs may impersonate it.
+# Keyless auth for GitHub Actions: only workflows on main of this repository can impersonate
+# the service accounts below.
 resource "google_iam_workload_identity_pool" "github" {
   project                   = module.project.project_id
   workload_identity_pool_id = "github"
@@ -21,7 +20,7 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.repository" = "assertion.repository"
     "attribute.ref"        = "assertion.ref"
   }
-  attribute_condition = "assertion.repository == 'mazino2d/everything-as-code'"
+  attribute_condition = "assertion.repository == 'mazino2d/everything-as-code' && assertion.ref == 'refs/heads/main'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
@@ -35,11 +34,10 @@ resource "google_service_account" "gha_k8s_power" {
   display_name = "GitHub Actions k8s-power workflow"
 }
 
-# Only workflows running on main.
 resource "google_service_account_iam_member" "gha_k8s_power_wif" {
   service_account_id = google_service_account.gha_k8s_power.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principal://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/subject/repo:mazino2d/everything-as-code:ref:refs/heads/main"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/mazino2d/everything-as-code"
 }
 
 resource "google_project_iam_member" "gha_k8s_power_container_developer" {

@@ -11,7 +11,7 @@ The `k8s` stack reads Infisical machine identity outputs from remote state and w
 
 No `kubeconfig` variable is required.
 
-The `k8s` stack reads Kubernetes access credentials directly from the remote state of `terraform/gcp/mazino2d-as-se1-dev` (`state/gcp/mazino2d-as-se1-dev` in `gs://mazino2d-as-se1-dev-tfstate`).
+The `k8s` stack reads Kubernetes access credentials directly from the remote state of `terraform/gcp/mazino2d-as-se1-dev` (`state/gcp/mazino2d-as-se1-dev` in `gs://mazino2d-as-se1-eac-tfstate`).
 
 Notes:
 
@@ -20,7 +20,7 @@ Notes:
 
 ## 3. State and Authentication
 
-State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
 
 ## 4. Bootstrap Notes (Infisical + Argo CD)
 

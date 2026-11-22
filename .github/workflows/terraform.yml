@@ -2,8 +2,9 @@ name: Terraform
 
 # Pull requests plan every changed stack (sticky PR comment per stack); main
 # applies them; a manual run applies the chosen stack(s). State and each
-# stack's variables live in gs://mazino2d-as-se1-dev-tfstate; jobs sign in
-# keylessly as the terraform service account of the project a stack manages.
+# stack's variables live in gs://mazino2d-as-se1-eac-tfstate; jobs sign in
+# keylessly as the terraform service account of the project a stack manages
+# (terraform@mazino2d-as-se1-eac for stacks outside GCP).
 on:
   pull_request:
   push:
@@ -20,6 +21,7 @@ on:
         options:
           - all
           - terraform/github
+          - terraform/gcp/mazino2d-as-se1-eac
           - terraform/gcp/mazino2d-as-se1-dev
           - terraform/gcp/simsplit-as-se1-prd
           - terraform/gcp/simsplit-as-se1-dev
@@ -48,13 +50,14 @@ jobs:
     with:
       mode: ${{ github.event_name == 'pull_request' && 'plan' || 'apply' }}
       select: ${{ inputs.stack || '' }}
-      gcp-workload-identity-provider: projects/238020767329/locations/global/workloadIdentityPools/github/providers/everything-as-code
-      gcp-service-account: terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com
+      gcp-workload-identity-provider: projects/725985974531/locations/global/workloadIdentityPools/github/providers/everything-as-code
+      gcp-service-account: terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com
       gcp-service-accounts: >-
         {
+          "terraform/gcp/mazino2d-as-se1-dev": "terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com",
           "terraform/gcp/simsplit-as-se1-dev": "terraform@simsplit-as-se1-dev.iam.gserviceaccount.com",
           "terraform/gcp/simsplit-as-se1-prd": "terraform@simsplit-as-se1-prd.iam.gserviceaccount.com",
           "terraform/gcp/dataplatform-as-se1-dev": "terraform@dataplatform-as-se1-dev.iam.gserviceaccount.com",
           "terraform/gcp/dataplatform-as-se1-prd": "terraform@dataplatform-as-se1-prd.iam.gserviceaccount.com"
         }
-      secrets-uri: gs://mazino2d-as-se1-dev-tfstate/secrets
+      secrets-uri: gs://mazino2d-as-se1-eac-tfstate/secrets

@@ -18,7 +18,7 @@ Required scopes:
 
 **Add to the stack's variables file:**
 
-State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/github`). The stack's variables are one JSON file in the same bucket, `secrets/github.tfvars.json`:
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/github`). The stack's variables are one JSON file in the same bucket, `secrets/github.tfvars.json`:
 
 ```bash
 make secrets-edit STACK=terraform/github

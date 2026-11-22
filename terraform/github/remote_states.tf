@@ -12,7 +12,7 @@ data "terraform_remote_state" "dataplatform" {
 
 
   config = {
-    bucket = "mazino2d-as-se1-dev-tfstate"
+    bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/dataplatform-as-se1-prd"
   }
 
@@ -27,7 +27,7 @@ data "terraform_remote_state" "dataplatform_dev" {
 
 
   config = {
-    bucket = "mazino2d-as-se1-dev-tfstate"
+    bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/dataplatform-as-se1-dev"
   }
 
@@ -43,7 +43,7 @@ data "terraform_remote_state" "simsplit" {
 
 
   config = {
-    bucket = "mazino2d-as-se1-dev-tfstate"
+    bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/simsplit-as-se1-prd"
   }
 
@@ -62,7 +62,7 @@ data "terraform_remote_state" "simsplit_dev" {
 
 
   config = {
-    bucket = "mazino2d-as-se1-dev-tfstate"
+    bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/simsplit-as-se1-dev"
   }
 
@@ -80,7 +80,7 @@ data "terraform_remote_state" "cloudflare" {
 
 
   config = {
-    bucket = "mazino2d-as-se1-dev-tfstate"
+    bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/cloudflare"
   }
 

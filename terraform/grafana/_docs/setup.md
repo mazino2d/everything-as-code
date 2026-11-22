@@ -9,7 +9,7 @@
 
 ## 2. Add the Terraform variable
 
-State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/grafana/stack`). Put the token in the stack's variables file, `secrets/grafana/stack.tfvars.json` in the same bucket:
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/grafana/stack`). Put the token in the stack's variables file, `secrets/grafana/stack.tfvars.json` in the same bucket:
 
 ```bash
 make secrets-edit STACK=terraform/grafana/stack

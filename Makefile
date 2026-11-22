@@ -1,5 +1,5 @@
 STACK ?= terraform/github
-STATE_BUCKET := mazino2d-as-se1-dev-tfstate
+STATE_BUCKET := mazino2d-as-se1-eac-tfstate
 # Stack variables: gs://<bucket>/secrets/<stack path under terraform/>.tfvars.json
 SECRETS := gs://$(STATE_BUCKET)/secrets/$(patsubst terraform/%,%,$(STACK)).tfvars.json
 TFVARS := $(STACK)/ci.auto.tfvars.json

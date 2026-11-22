@@ -25,7 +25,7 @@ Create a machine identity for Terraform to authenticate against Infisical:
 
 ## 3. Terraform variables
 
-State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/infisical`). Put the identity in the stack's variables file, `secrets/infisical.tfvars.json` in the same bucket:
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/infisical`). Put the identity in the stack's variables file, `secrets/infisical.tfvars.json` in the same bucket:
 
 ```bash
 make secrets-edit STACK=terraform/infisical

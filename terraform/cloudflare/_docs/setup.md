@@ -28,7 +28,7 @@ Account Resources: include your account only.
 
 ## 3. Terraform variables
 
-State lives in `gs://mazino2d-as-se1-dev-tfstate` (prefix `state/cloudflare`); no workspace to create. The stack's variables are one JSON file in the same bucket, `secrets/cloudflare.tfvars.json`:
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/cloudflare`); no workspace to create. The stack's variables are one JSON file in the same bucket, `secrets/cloudflare.tfvars.json`:
 
 ```bash
 make secrets-edit STACK=terraform/cloudflare

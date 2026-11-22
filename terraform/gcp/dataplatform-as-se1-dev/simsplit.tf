@@ -89,7 +89,7 @@ data "terraform_remote_state" "simsplit" {
 
 
   config = {
-    bucket = "mazino2d-as-se1-dev-tfstate"
+    bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/simsplit-as-se1-dev"
   }
 

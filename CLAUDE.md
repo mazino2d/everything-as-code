@@ -74,11 +74,12 @@ Pushes to `main` trigger deployment/apply pipelines:
 
 ### Terraform Structure
 
-State lives in GCS: `gs://mazino2d-as-se1-dev-tfstate/state/<stack path under terraform/>` (gcs backend, with locking; the bucket is versioned and defined in `terraform/gcp/mazino2d-as-se1-dev/tfstate.tf`). Each stack's secret input variables are one JSON file, `gs://mazino2d-as-se1-dev-tfstate/secrets/<stack path>.tfvars.json`, which CI and `make` copy to `<stack>/ci.auto.tfvars.json` (git-ignored). CI signs in keylessly through the `github` workload identity pool in `mazino2d-as-se1-dev`, as the `terraform@<project>` service account of the project a GCP stack manages, or `terraform@mazino2d-as-se1-dev` for the other stacks (mapping in `.github/workflows/terraform.yml`).
+State lives in GCS: `gs://mazino2d-as-se1-eac-tfstate/state/<stack path under terraform/>` (gcs backend, with locking; the bucket is versioned and defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). Each stack's secret input variables are one JSON file, `gs://mazino2d-as-se1-eac-tfstate/secrets/<stack path>.tfvars.json`, which CI and `make` copy to `<stack>/ci.auto.tfvars.json` (git-ignored). CI signs in keylessly through the `github` workload identity pool in `mazino2d-as-se1-eac`, as the `terraform@<project>` service account of the project a GCP stack manages, or `terraform@mazino2d-as-se1-eac` for the other stacks (mapping in `.github/workflows/terraform.yml`).
 
 | Stack | Primary scope |
 |-------|---------------|
 | `terraform/github` | GitHub repos/settings/branch protection |
+| `terraform/gcp/mazino2d-as-se1-eac` | Terraform state bucket, GitHub Actions workload identity pool and service account for every stack (billing account `mazino2d`) |
 | `terraform/gcp/mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
 | `terraform/gcp/simsplit-as-se1-prd` | Firebase backend for sim-split (Auth, Firestore, Hosting), budget and billing kill switch |
 | `terraform/gcp/simsplit-as-se1-dev` | Dev Firebase backend for sim-split (Auth, Firestore, Hosting `simsplit-as-se1-dev.web.app`, Play app `com.mazino2d.simsplit.dev`), budget and billing kill switch |
