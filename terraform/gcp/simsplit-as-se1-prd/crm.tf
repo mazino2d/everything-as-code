@@ -172,6 +172,42 @@ resource "google_eventarc_trigger" "crm_activity" {
   depends_on = [google_project_iam_member.crm_event_receiver]
 }
 
+# Test notification (R-9 AC33): the app sets testRequestedAt on its device
+# document; the service reads the document and sends one push. Every device
+# write arrives here; the service ignores those without a fresh request.
+resource "google_eventarc_trigger" "crm_devices" {
+  project  = module.project.project_id
+  name     = "crm-devices"
+  location = local.region
+
+  matching_criteria {
+    attribute = "type"
+    value     = "google.cloud.firestore.document.v1.written"
+  }
+  matching_criteria {
+    attribute = "database"
+    value     = "(default)"
+  }
+  matching_criteria {
+    attribute = "document"
+    value     = "users/{uid}/devices/{deviceId}"
+    operator  = "match-path-pattern"
+  }
+
+  event_data_content_type = "application/protobuf"
+  service_account         = google_service_account.crm.email
+
+  destination {
+    cloud_run_service {
+      service = google_cloud_run_v2_service.crm.name
+      region  = local.region
+      path    = "/events"
+    }
+  }
+
+  depends_on = [google_project_iam_member.crm_event_receiver]
+}
+
 # Batched group activity: the service schedules one flush task per group and
 # window. Cloud Tasks is free under 1 M operations a month.
 resource "google_cloud_tasks_queue" "crm_flush" {
