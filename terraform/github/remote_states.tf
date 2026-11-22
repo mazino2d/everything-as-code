@@ -129,16 +129,12 @@ locals {
       TELEMETRY_URL                  = local.sim_split_telemetry_url
       TELEMETRY_IMAGE_REPOSITORY     = try(data.terraform_remote_state.simsplit.outputs.telemetry.image_repository, null)
       GCP_TELEMETRY_DEPLOYER         = try(data.terraform_remote_state.simsplit.outputs.telemetry.deployer_service_account, null)
+      # R-9 notifications service, deployed by crm_apply.yml from main.
+      CRM_IMAGE_REPOSITORY = try(data.terraform_remote_state.simsplit.outputs.crm.image_repository, null)
+      GCP_CRM_DEPLOYER     = try(data.terraform_remote_state.simsplit.outputs.crm.deployer_service_account, null)
       # Web Push certificate (public key), created by hand in Firebase console
       # (simsplit-as-se1-prd/_docs/setup.md).
       FCM_VAPID_KEY = "BGdPC84yZQJxPphU_qWTUCJW0gwszynVvUn_aM4iHX5Sy_gpNNZZnD3cz_NbPftyreemLZxL73l9ptFCvH_i5RI"
-    }
-    # R-9 notifications service: config changes reach prd from main after the
-    # maintainer approves, without an app release; app deploys stay tag-only.
-    crm-prd = {
-      GCP_WORKLOAD_IDENTITY_PROVIDER = try(data.terraform_remote_state.simsplit.outputs.firebase_deployer.workload_identity_provider, null)
-      CRM_IMAGE_REPOSITORY           = try(data.terraform_remote_state.simsplit.outputs.crm.image_repository, null)
-      GCP_CRM_DEPLOYER               = try(data.terraform_remote_state.simsplit.outputs.crm.deployer_service_account, null)
     }
   }
   data_platform_environment_variables = {

@@ -41,6 +41,35 @@ resource "github_repository_environment_deployment_policy" "data_platform_prd_ta
   tag_pattern = "v*"
 }
 
+# A v* tag ships to prd with no approval step, so only repo admins (the
+# maintainer) may create, move or delete one.
+resource "github_repository_ruleset" "sim_split_release_tags" {
+  repository  = module.sim_split.name
+  name        = "release tags"
+  target      = "tag"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["refs/tags/v*"]
+      exclude = []
+    }
+  }
+
+  rules {
+    creation         = true
+    update           = true
+    deletion         = true
+    non_fast_forward = true
+  }
+
+  bypass_actors {
+    actor_id    = 5 # the repository admin role
+    actor_type  = "RepositoryRole"
+    bypass_mode = "always"
+  }
+}
+
 # Each variable is left out until the workspace it comes from has applied.
 resource "github_actions_environment_variable" "data_platform" {
   for_each = {
@@ -82,32 +111,22 @@ resource "github_actions_secret" "data_platform_cloudflare_api_token" {
 # sim-split
 # -------------------------------------------------------------------
 
-# Environments: dev deploys from main, prd from release tags after the
-# maintainer approves, and store syncs the Play store listing from main
-# (play_metadata.yml, including pull_request_target runs, whose ref is main).
-# crm-prd deploys only the R-9 notifications service (crm_deploy.yml) from main
-# after the maintainer approves; prd's Workload Identity trusts that environment
-# for the crm deployer alone.
+# Environments: dev deploys from main; prd deploys app releases from v* tags
+# and the R-9 notifications service from main (crm_apply.yml, after a repo
+# admin comments "crm apply" on a green PR), with no approval step: approving
+# in the Actions UI was awkward on a phone. Pushing a v* tag is the release
+# go-ahead, so a tag ruleset below lets only admins create, move or delete
+# them, and every app deploy workflow checks it runs from its vYYYY.M.D tag.
+# store syncs the Play store listing from main (play_metadata.yml, including
+# pull_request_target runs, whose ref is main).
 # Each holds the same variable names, so workflows read vars.X whichever
 # environment their job targets.
-data "github_user" "mazino2d" {
-  username = "mazino2d"
-}
-
 resource "github_repository_environment" "sim_split" {
-  for_each = toset(["dev", "prd", "store", "crm-prd"])
+  for_each = toset(["dev", "prd", "store"])
 
-  repository          = module.sim_split.name
-  environment         = each.key
-  can_admins_bypass   = !contains(["prd", "crm-prd"], each.key)
-  prevent_self_review = false # the sole maintainer approves their own releases
-
-  dynamic "reviewers" {
-    for_each = each.key == "prd" ? [1] : []
-    content {
-      users = [tonumber(data.github_user.mazino2d.id)]
-    }
-  }
+  repository        = module.sim_split.name
+  environment       = each.key
+  can_admins_bypass = each.key != "prd"
 
   deployment_branch_policy {
     protected_branches     = false
@@ -116,7 +135,7 @@ resource "github_repository_environment" "sim_split" {
 }
 
 resource "github_repository_environment_deployment_policy" "sim_split_main" {
-  for_each = toset(["dev", "store", "crm-prd"])
+  for_each = toset(["dev", "store", "prd"])
 
   repository     = module.sim_split.name
   environment    = github_repository_environment.sim_split[each.key].environment
