@@ -60,3 +60,16 @@ resource "google_billing_account_iam_member" "terraform_plan" {
   role               = "roles/billing.viewer"
   member             = "serviceAccount:terraform-plan@${each.value.project}.iam.gserviceaccount.com"
 }
+
+# This stack's plans read the IAM policy of every billing account above;
+# terraform_plan already covers the account this project is on.
+resource "google_billing_account_iam_member" "eac_plan" {
+  for_each = {
+    for account, id in local.billing_accounts : account => id
+    if !contains(local.billing_account_projects[account], module.project.project_id)
+  }
+
+  billing_account_id = each.value
+  role               = "roles/billing.viewer"
+  member             = "serviceAccount:${google_service_account.terraform_plan.email}"
+}
