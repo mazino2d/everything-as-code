@@ -64,7 +64,7 @@ findings. Ordered by blast radius.
   `terraform@`; project-level grants where a resource-level grant would do;
   user-managed SA keys (`gcloud iam service-accounts keys list --managed-by user`)
   — there should be none except ones the code knowingly outputs (for example the
-  k8s Terraform key and workload GSA keys): list them and their consumers.
+  workload GSA keys): list them and their consumers.
 - Billing: who has `billing.admin` / `billing.user` on each billing account;
   budgets and kill switches present on every project that serves traffic.
 
@@ -115,7 +115,7 @@ findings. Ordered by blast radius.
 - Pod security: non-root, no privileged, no host paths or host network, read-only
   root FS where possible, resources set.
 - RBAC: cluster-admin bindings, the claude-agent ClusterRole (no Secrets, no
-  exec), the Terraform k8s SA key's scope, Argo CD admin and its repo credential
+  exec), Argo CD admin and its repo credential
   (`argocd_private_key_pem`: read-only deploy key?).
 - Secrets: only through the Infisical operator; no plain `Secret` manifests or
   values with secrets in git; the operator's machine identity scope.

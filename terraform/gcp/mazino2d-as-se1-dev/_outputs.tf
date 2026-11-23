@@ -30,12 +30,6 @@ output "gke_cluster_ca_cert" {
   sensitive   = true
 }
 
-output "k8s_tf_sa_key_json" {
-  description = "Service account JSON key for the Terraform k8s stack."
-  value       = base64decode(google_service_account_key.k8s_tf.private_key)
-  sensitive   = true
-}
-
 output "workload_gsa" {
   description = "Per-workload GSA metadata and optional JSON key."
   value = {
@@ -47,11 +41,6 @@ output "workload_gsa" {
     }
   }
   sensitive = true
-}
-
-output "github_actions_wif_provider" {
-  description = "Workload Identity Federation provider for GitHub Actions (google-github-actions/auth)."
-  value       = google_iam_workload_identity_pool_provider.github.name
 }
 
 output "gha_k8s_power_sa_email" {

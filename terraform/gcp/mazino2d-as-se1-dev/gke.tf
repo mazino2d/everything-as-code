@@ -55,24 +55,3 @@ resource "google_project_iam_member" "gke_node_default" {
   role    = "roles/container.defaultNodeServiceAccount"
   member  = "serviceAccount:${google_service_account.gke_node.email}"
 }
-
-resource "google_service_account" "k8s_tf" {
-  account_id   = "tf-k8s"
-  display_name = "Terraform k8s stack"
-  project      = module.project.project_id
-}
-
-moved {
-  from = google_project_iam_member.k8s_tf_container_developer
-  to   = google_project_iam_member.k8s_tf_container_admin
-}
-
-resource "google_project_iam_member" "k8s_tf_container_admin" {
-  project = module.project.project_id
-  role    = "roles/container.admin"
-  member  = "serviceAccount:${google_service_account.k8s_tf.email}"
-}
-
-resource "google_service_account_key" "k8s_tf" {
-  service_account_id = google_service_account.k8s_tf.name
-}

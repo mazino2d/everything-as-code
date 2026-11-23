@@ -31,10 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Keyless auth via Workload Identity Federation (terraform/gcp/mazino2d-as-se1-dev/github_actions.tf).
+      # Keyless auth through the github pool in mazino2d-as-se1-eac (terraform/gcp/mazino2d-as-se1-dev/github_actions.tf).
       - uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: projects/238020767329/locations/global/workloadIdentityPools/github/providers/everything-as-code
+          workload_identity_provider: projects/725985974531/locations/global/workloadIdentityPools/github/providers/everything-as-code
           service_account: gha-k8s-power@mazino2d-as-se1-dev.iam.gserviceaccount.com
 
       - uses: google-github-actions/get-gke-credentials@v3
