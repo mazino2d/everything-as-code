@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Third-party actions are pinned by commit SHA; this keeps the SHA and its
+  # version comment current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

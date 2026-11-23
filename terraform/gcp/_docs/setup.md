@@ -38,9 +38,9 @@ No service account key is created: CI signs in as this service account through W
 
 State lives in `gs://mazino2d-as-se1-eac-tfstate` under the prefix `state/gcp/<project-id>`, in the project `mazino2d-as-se1-eac` (bucket defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). A new project needs four things:
 
-1. Add `<project-id>` to the project list in `local.terraform_service_accounts` in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`, so `terraform@<project-id>.iam.gserviceaccount.com` gets `roles/storage.objectAdmin` on the bucket.
-2. Add a `terraform_wif.tf` to the new stack like `terraform/gcp/simsplit-as-se1-dev/terraform_wif.tf`. It grants `roles/iam.workloadIdentityUser` on the `terraform` service account to the repo's principalSet in the `github` pool (provider `everything-as-code`, project `mazino2d-as-se1-eac`, number `725985974531`).
-3. Add an entry `"terraform/gcp/<project-id>": "terraform@<project-id>.iam.gserviceaccount.com"` to `gcp-service-accounts` in `.github/workflows/terraform.yml`, so CI impersonates that project's service account for the stack.
+1. Add `<project-id>` to `local.terraform_projects` in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`, so `terraform@<project-id>` gets `roles/storage.objectAdmin` on the bucket and `terraform-plan@<project-id>` gets `roles/storage.objectViewer`, and to `local.billing_account_projects` in `billing_iam.tf` for its billing roles.
+2. Copy `terraform/gcp/simsplit-as-se1-dev/terraform_wif.tf` to the new stack. It grants `roles/iam.workloadIdentityUser` on the `terraform` service account to the main branch in the `github` pool (provider `everything-as-code`, project `mazino2d-as-se1-eac`, number `725985974531`), and creates the read-only `terraform-plan` service account that pull request plans use.
+3. Add `"terraform/gcp/<project-id>": "terraform@<project-id>.iam.gserviceaccount.com"` to `gcp-service-accounts` and the matching `terraform-plan@` entry to `gcp-plan-service-accounts` in `.github/workflows/terraform.yml`, so CI applies and plans the stack as that project's service accounts.
 4. Add `terraform/gcp/<project-id>` to the `stack` choices of the manual run (`workflow_dispatch`) in the same file. Plan and apply on push and pull request find stacks on their own (every directory under `terraform/` holding `*.tf`, `_modules` excluded), so only the manual run needs the entry.
 
 ### Variables

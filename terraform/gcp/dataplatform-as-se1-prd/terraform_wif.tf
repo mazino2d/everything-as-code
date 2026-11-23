@@ -5,6 +5,8 @@
 locals {
   eac_github_pool = "projects/725985974531/locations/global/workloadIdentityPools/github"
   eac_repository  = "principalSet://iam.googleapis.com/${local.eac_github_pool}/attribute.repository/mazino2d/everything-as-code"
+  # The pool only admits mazino2d/everything-as-code, so this is its main branch.
+  eac_main = "principalSet://iam.googleapis.com/${local.eac_github_pool}/attribute.ref/refs/heads/main"
 
   terraform_plan_roles = toset([
     "roles/viewer",
@@ -18,7 +20,7 @@ locals {
 resource "google_service_account_iam_member" "terraform_wif" {
   service_account_id = "projects/${local.project_id}/serviceAccounts/terraform@${local.project_id}.iam.gserviceaccount.com"
   role               = "roles/iam.workloadIdentityUser"
-  member             = local.eac_repository
+  member             = local.eac_main
 }
 
 resource "google_service_account" "terraform_plan" {

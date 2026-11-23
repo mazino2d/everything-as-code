@@ -20,7 +20,7 @@ Notes:
 
 ## 3. State and Authentication
 
-State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com` for applies and the read-only `terraform-plan@mazino2d-as-se1-dev` for plans (cluster read access: `terraform_plan.tf`); locally run `gcloud auth application-default login` first.
 
 ## 4. Bootstrap Notes (Infisical + Argo CD)
 

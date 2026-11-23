@@ -13,7 +13,7 @@ resource "google_service_account_iam_member" "gha_k8s_power_wif" {
   service_account_id = google_service_account.gha_k8s_power.name
   role               = "roles/iam.workloadIdentityUser"
   # The pool's provider already pins the repository to mazino2d/everything-as-code.
-  member = "principalSet://iam.googleapis.com/${local.eac_github_pool}/attribute.ref/refs/heads/main"
+  member = local.eac_main
 }
 
 resource "google_project_iam_member" "gha_k8s_power_container_developer" {
