@@ -175,9 +175,6 @@ module "dot_github" {
   has_wiki     = false
   has_projects = false
 
-  # Created empty; flip to true once the first commit is pushed.
-  initialized = false
-
   security = {
     dependabot_alerts = true
     secret_scanning   = true
