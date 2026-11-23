@@ -20,6 +20,10 @@ locals {
   billing_account_id = "0138D2-6EFA6E-34332E"
 }
 
+# Billing Budgets bill API quota to the caller's project, so every request is
+# attributed to this project explicitly.
 provider "google" {
-  project = local.project_id
+  project               = local.project_id
+  user_project_override = true
+  billing_project       = local.project_id
 }

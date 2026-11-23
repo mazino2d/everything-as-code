@@ -12,6 +12,9 @@ module "project" {
     # Workload Identity Federation for GitHub Actions (k8s-power.yml)
     "sts.googleapis.com",
     "iamcredentials.googleapis.com",
+    # Budget alerts (budget.tf)
+    "cloudbilling.googleapis.com",
+    "billingbudgets.googleapis.com",
     # Gemini Cloud Assist (console chat): required APIs
     "geminicloudassist.googleapis.com",
     "cloudaicompanion.googleapis.com",
