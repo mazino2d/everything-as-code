@@ -110,15 +110,17 @@ Terraform wants the hashes in lower case without colons:
 echo "AB:CD:EF:..." | tr -d ':' | tr 'A-F' 'a-f'
 ```
 
-### 2.5 Pull request
+### 2.5 Fingerprints in code
 
-Fill in `local.android_sha1_hashes` and `local.android_sha256_hashes` in `firebase.tf`,
-one entry per certificate, in the order Play App Signing, upload key.
-Fingerprints are not secret.
+The fingerprints are `local.android_sha1_hashes` and `local.android_sha256_hashes` in
+`firebase.tf`, one entry per certificate, in the order Play App Signing, upload key.
+They are not secret.
 
-The plan should show one change to `google_firebase_android_app.sim_split` and one add
-for `google_identity_platform_default_supported_idp_config.google[0]`. Merging applies
-both. The apply also links billing again, which is expected (see section 5).
+When a certificate changes (or the project is rebuilt), update both lists in a pull
+request; the plan shows an in-place change to `google_firebase_android_app.sim_split`
+(and adds `google_identity_platform_default_supported_idp_config.google[0]` once the
+section 2.3 variables are set). Merging applies it. Any apply also links billing again
+if the kill switch had unlinked it (see section 5).
 
 ### 2.6 Android OAuth clients
 

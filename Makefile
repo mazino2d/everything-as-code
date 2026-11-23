@@ -37,6 +37,6 @@ validate:
 
 # Usage:
 #   make plan STACK=terraform/github
-#   make apply STACK=terraform/gcp/project-example
+#   make apply STACK=terraform/gcp/mazino2d-as-se1-dev
 #   make secrets-edit STACK=terraform/cloudflare
 #   make fmt

@@ -2,7 +2,7 @@
 
 ## 1. Prerequisites
 
-- A running K3S cluster (for example from `terraform/gcp/mazino2d-as-se1-dev`)
+- The GKE Autopilot cluster from `terraform/gcp/mazino2d-as-se1-dev`
 - The `infisical` stack already applied at least once
 
 The `k8s` stack reads Infisical machine identity outputs from remote state and writes the Kubernetes secret in namespace `infisical-operator`.
@@ -20,7 +20,7 @@ Notes:
 
 ## 3. State and Authentication
 
-State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
+State lives in `gs://mazino2d-as-se1-eac-tfstate` (prefix `state/k8s/mazino2d-as-se1-dev`). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
 
 ## 4. Bootstrap Notes (Infisical + Argo CD)
 
@@ -43,5 +43,5 @@ make apply STACK=terraform/k8s/mazino2d-as-se1-dev
 
 After the first apply:
 
-- Argo CD is installed and starts reconciling `infra`, `monitoring`, and `apps`
-- The Infisical machine identity secret exists in `infra` for workloads/operators that consume it
+- Argo CD is installed and starts reconciling `platform`, `infra`, `monitoring`, and `apps`
+- The Infisical machine identity secret exists in `infisical-operator` for workloads/operators that consume it

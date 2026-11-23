@@ -28,7 +28,8 @@ resources:            # required; always set limits to avoid unbounded resource 
   #   memory: 64Mi
 
 # SECRETS
-# Injected before env — secret values can be referenced in env via $(VAR_NAME) expansion.
+# Secret values are not available to env via $(VAR_NAME): env is injected through a
+# ConfigMap (envFrom), where Kubernetes does no expansion. Build such values in the app.
 # Two formats supported:
 #   - "my-secret"                              inject all keys from the Secret via envFrom (bulk inject)
 #   - "ENV_NAME=my-secret:SECRET_KEY"          inject one key as a named env var (valueFrom.secretKeyRef)
@@ -40,12 +41,12 @@ secrets: []
 
 # ENVIRONMENT VARIABLES
 # Plain key-value pairs — rendered into a ConfigMap and injected via envFrom.
-# Secrets are available here via $(VAR_NAME) expansion (e.g. DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host/db").
+# Values are literal: $(VAR_NAME) is not expanded (see SECRETS).
 env: {}
 # e.g.
 # env:
 #   LOG_LEVEL: info
-#   DATABASE_URL: "postgres://user:$(DB_PASSWORD)@host:5432/db"
+#   DATABASE_HOST: app-db-1.apps.svc.cluster.local
 
 # DNS CONFIGURATION
 dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided

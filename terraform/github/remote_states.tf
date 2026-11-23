@@ -1,15 +1,14 @@
 # ===================================================================
-# Remote state of other workspaces
+# Remote state of other stacks
 # ===================================================================
 # Each repo's Actions variables and secrets (actions.tf) are read from here.
-# Until a workspace has applied, its outputs fall back to the defaults and the
+# Until a stack has applied, its outputs fall back to the defaults and the
 # variables and secrets built from them are left out.
 
 # Keyless BigQuery access for data-platform's workflows (WIF provider and
 # service account).
 data "terraform_remote_state" "dataplatform" {
   backend = "gcs"
-
 
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"
@@ -25,7 +24,6 @@ data "terraform_remote_state" "dataplatform" {
 data "terraform_remote_state" "dataplatform_dev" {
   backend = "gcs"
 
-
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/dataplatform-as-se1-dev"
@@ -40,7 +38,6 @@ data "terraform_remote_state" "dataplatform_dev" {
 # (firebase_deploy.yml), and the deploy identity for the prd environment.
 data "terraform_remote_state" "simsplit" {
   backend = "gcs"
-
 
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"
@@ -60,7 +57,6 @@ data "terraform_remote_state" "simsplit" {
 data "terraform_remote_state" "simsplit_dev" {
   backend = "gcs"
 
-
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/gcp/simsplit-as-se1-dev"
@@ -77,7 +73,6 @@ data "terraform_remote_state" "simsplit_dev" {
 # Workers deploy token and Realtime SFU app for a3spy.
 data "terraform_remote_state" "cloudflare" {
   backend = "gcs"
-
 
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"

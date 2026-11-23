@@ -36,8 +36,8 @@ deployment:
     targetMemoryUtilizationPercentage: ""   # optional; omit or leave empty to disable memory scaling
 
   # ROLLOUT STRATEGY
-  # BlueGreen | ReplicaCanary | MeshTrafficCanary require Argo Rollouts (infra/argo-rollouts).
-  # MeshTrafficCanary requires Istio sidecar injection enabled on the namespace.
+  # BlueGreen | ReplicaCanary | MeshTrafficCanary require Argo Rollouts (infra/argocd).
+  # MeshTrafficCanary also needs a service mesh, which this cluster does not run.
   rollout:
     strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen | ReplicaCanary | MeshTrafficCanary — default: RollingUpdate
     # RollingUpdate params:
@@ -77,7 +77,7 @@ statefulset:
     storageClassName: ""  # optional; default: cluster default StorageClass
 
 # RESOURCES
-resources:                # required; always set limits to avoid unbounded resource usage
+resources:                # required; set requests, and a memory limit for apps that can grow unbounded
   requests:
     cpu: 10m
     memory: 64Mi
@@ -130,12 +130,14 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 #     - default.svc.cluster.local
 
 # NETWORK ACCESS CONTROL LIST
-# Creates a CiliumNetworkPolicy that denies all ingress and egress by default.
+# Creates a NetworkPolicy that denies all ingress and egress by default, plus a GKE
+# FQDNNetworkPolicy for egress entries that name a host ("host:port" without "/").
+# Entries are "<namespace>/<app>[:port]".
 # DNS egress (port 53 to kube-dns) is always permitted.
 # Apps with httpRoute.enabled=true automatically allow external ingress on service ports.
 # Requires GKE Dataplane V2 (ADVANCED_DATAPATH) for enforcement.
 nacl:
-  ingress: []   # e.g. ["app/outline-db", "app/outline-cache:8080"]; "*" allows all ingress
+  ingress: []   # e.g. ["apps/outline-db-1:5432", "apps/outline-cache:8080"]; "*" allows all ingress
   egress: []    # e.g. ["monitoring/grafana-alloy:4318", "doris.mazino2d.connect:9030"]; "*" allows all egress
 
 # SERVICE ACCOUNT

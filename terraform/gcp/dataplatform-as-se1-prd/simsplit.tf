@@ -80,11 +80,11 @@ resource "google_bigquery_table" "simsplit_usage_events" {
   ])
 }
 
-# The endpoint's service account, created by the gcp-simsplit-as-se1-prd
-# workspace; until that workspace has applied, the grant is left out.
+# The endpoint's service account, created by the
+# terraform/gcp/simsplit-as-se1-prd stack; until that stack has applied, the
+# grant is left out.
 data "terraform_remote_state" "simsplit" {
   backend = "gcs"
-
 
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"
@@ -123,7 +123,6 @@ resource "google_bigquery_dataset_iam_member" "simsplit_telemetry_writer" {
   role       = google_project_iam_custom_role.simsplit_telemetry_writer.id
   member     = "serviceAccount:${local.simsplit_telemetry.service_account}"
 }
-
 
 # Nothing is deleted, so storage only grows: email the maintainer at 80 % of
 # BigQuery's 10 GiB of free storage, the trigger to aggregate or archive.

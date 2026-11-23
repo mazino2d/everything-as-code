@@ -130,19 +130,19 @@ Tick these off in order:
 
 ## 4. Android sign-in
 
-### 4.1 Pull request
+### 4.1 Fingerprints in code
 
-Fill in the defaults of `android_sha1_hashes` and `android_sha256_hashes` in
-`_variables.tf`, one entry per certificate, in the order app signing key, upload key.
-Terraform wants them in lower case without colons:
+The fingerprints are the defaults of `android_sha1_hashes` and `android_sha256_hashes`
+in `_variables.tf`, one entry per certificate, in the order app signing key, upload key.
+They are not secret. Terraform wants them in lower case without colons:
 
 ```bash
 echo "AB:CD:EF:..." | tr -d ':' | tr 'A-F' 'a-f'
 ```
 
-Fingerprints are not secret. The plan should show one change to
-`google_firebase_android_app.sim_split` (and the Google provider, if section 2.3 is
-done). Merging applies it.
+When a certificate changes (or the app is rebuilt with new keys), update both lists in
+a pull request; the plan shows an in-place change to
+`google_firebase_android_app.sim_split`, and merging applies it.
 
 ### 4.2 Android OAuth clients
 
@@ -178,14 +178,10 @@ score-based reCAPTCHA key for `simsplit-as-se1-dev.web.app`,
 ## 6. GitHub Actions
 
 The github stack reads this stack's outputs from its remote state (section 1) and sets
-these variables on sim-split's `dev` environment (prd's environment has the same names):
-
-| Variable | From |
-|---|---|
-| `FIREBASE_PROJECT` | `firebase.project_id` |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `firebase_deployer.workload_identity_provider` |
-| `GCP_FIREBASE_DEPLOYER` | `firebase_deployer.service_account` (`gha-firebase-deployer`) |
-| `RECAPTCHA_ENTERPRISE_SITE_KEY` | `app_check.recaptcha_site_key` |
+them as variables on sim-split's `dev` environment (prd's environment has the same
+names). The full list, and the output each comes from, is
+`local.sim_split_environment_variables` in
+[`terraform/github/remote_states.tf`](../../../github/remote_states.tf).
 
 Until this stack has applied, the github stack leaves them out; re-run apply on
 `terraform/github` after the first apply here. As in prd, the Workload Identity provider

@@ -25,13 +25,9 @@ CI and `make plan/apply` copy it to `terraform/grafana/stack/ci.auto.tfvars.json
 
 ## 3. Apply Grafana Stack
 
-```bash
-make init STACK=terraform/grafana/stack
-make plan STACK=terraform/grafana/stack
-make apply STACK=terraform/grafana/stack
-```
+Merge to `main`: CI applies `terraform/grafana/stack` (preview locally with `make plan STACK=terraform/grafana/stack`).
 
-This stack now manages Grafana Cloud resources and outputs only. It does not write secrets to Infisical directly.
+The stack manages Grafana Cloud resources and exposes their credentials as outputs; it does not write to Infisical (see §4).
 
 ## 4. Configure Secret Sync In Infisical Stack
 
@@ -52,23 +48,4 @@ tree:
             format: "%s/push"
 ```
 
-3. Apply the infisical stack after grafana:
-
-```bash
-make init STACK=terraform/infisical
-make plan STACK=terraform/infisical
-make apply STACK=terraform/infisical
-```
-
-## 5. Bootstrap K8s Operator Secret (Optional)
-
-After the infisical stack is applied (which creates the `k8s-operator` identity) and the `infra/` K8s directory is deployed (which creates the `infisical-operator` namespace), create the one-time bootstrap secret:
-
-```bash
-kubectl create secret generic infisical-operator-credentials \
-  --namespace infisical-operator \
-  --from-literal=clientId="$(terraform -chdir=terraform/infisical output -raw k8s_operator_client_id)" \
-  --from-literal=clientSecret="$(terraform -chdir=terraform/infisical output -raw k8s_operator_client_secret)"
-```
-
-This secret is never committed to git. It allows the Infisical Kubernetes Operator to authenticate and sync secrets into the cluster.
+3. Merge to `main`: CI applies `terraform/infisical`. It reads `terraform/grafana/stack`'s state, so that stack must have applied first.

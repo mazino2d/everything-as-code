@@ -38,4 +38,4 @@ make secrets-edit STACK=terraform/infisical
 }
 ```
 
-CI and `make plan/apply` copy it to `terraform/infisical/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
+CI and `make plan/apply` copy it to `terraform/infisical/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.

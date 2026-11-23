@@ -81,7 +81,7 @@ State lives in GCS: `gs://mazino2d-as-se1-eac-tfstate/state/<stack path under te
 |-------|---------------|
 | `terraform/github` | GitHub repos/settings/branch protection |
 | `terraform/gcp/mazino2d-as-se1-eac` | Terraform state bucket, GitHub Actions workload identity pool and service account for every stack (billing account `mazino2d`) |
-| `terraform/gcp/mazino2d-as-se1-dev` | GCP networking and GKE cluster provisioning |
+| `terraform/gcp/mazino2d-as-se1-dev` | GKE Autopilot cluster, a VM, the Velero backup bucket and the `k8s-power` workflow identity |
 | `terraform/gcp/simsplit-as-se1-prd` | Firebase backend for sim-split (Auth, Firestore, Hosting), budget and billing kill switch |
 | `terraform/gcp/simsplit-as-se1-dev` | Dev Firebase backend for sim-split (Auth, Firestore, Hosting `simsplit-as-se1-dev.web.app`, Play app `com.mazino2d.simsplit.dev`), budget and billing kill switch |
 | `terraform/gcp/dataplatform-as-se1-prd` | BigQuery warehouse for data-platform, keyless GitHub Actions access, budget and billing kill switch |
@@ -89,7 +89,7 @@ State lives in GCS: `gs://mazino2d-as-se1-eac-tfstate/state/<stack path under te
 | `terraform/cloudflare` | Cloudflare account-owned Workers deploy tokens per app repo (handed to repos via `terraform/github`) |
 | `terraform/infisical` | Infisical projects, identities, folders |
 | `terraform/grafana/stack` | Grafana Cloud stack, access policies, service accounts |
-| `terraform/grafana/dashboard` | Grafana dashboards and folders (reads SA token from `grafana-stack` remote state) |
+| `terraform/grafana/dashboard` | Grafana dashboards and folders (reads SA token from `terraform/grafana/stack` remote state) |
 | `terraform/k8s/mazino2d-as-se1-dev` | GKE cluster resources (ArgoCD, Infisical operator) |
 
 Reusable modules live under each stack's `_modules/`.
@@ -118,7 +118,7 @@ kubernetes/
         │   ├── postgresql.yml # eac-postgresql values
         │   └── redis.yml   # eac-redis values
         ├── infra/          # cluster infrastructure components
-        │   ├── argocd/              # Argo CD GitOps engine
+        │   ├── argocd/              # Argo Rollouts (Argo CD itself: terraform/k8s argocd.tf)
         │   ├── atlas-operator/      # DB schema automation
         │   ├── cert-manager/        # certificates (OpenTelemetry operator webhook)
         │   ├── infisical-operator/  # secrets operator

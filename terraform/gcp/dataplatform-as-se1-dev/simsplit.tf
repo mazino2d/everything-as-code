@@ -82,11 +82,11 @@ resource "google_bigquery_table" "simsplit_usage_events" {
   ])
 }
 
-# The dev endpoint's service account, created by the gcp-simsplit-as-se1-dev
-# workspace; until that workspace has applied its telemetry, the grant is left out.
+# The dev endpoint's service account, created by the
+# terraform/gcp/simsplit-as-se1-dev stack; until that stack has applied its
+# telemetry, the grant is left out.
 data "terraform_remote_state" "simsplit" {
   backend = "gcs"
-
 
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"

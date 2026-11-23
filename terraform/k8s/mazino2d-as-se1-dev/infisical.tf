@@ -1,7 +1,6 @@
 data "terraform_remote_state" "infisical" {
   backend = "gcs"
 
-
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/infisical"

@@ -1,6 +1,6 @@
 # everything-as-code's GitHub Actions (pull request plans and main applies) sign
 # in as this project's terraform service account through the workload identity
-# pool in mazino2d-as-se1-eac (terraform/gcp/mazino2d-as-se1-eac/tfstate.tf).
+# pool in mazino2d-as-se1-eac (terraform/gcp/mazino2d-as-se1-eac/github_actions.tf).
 locals {
   eac_github_pool = "projects/725985974531/locations/global/workloadIdentityPools/github"
 }

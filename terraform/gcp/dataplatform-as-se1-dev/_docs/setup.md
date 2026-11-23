@@ -10,8 +10,8 @@ The data comes from:
 - data-platform's fake source (`dlt/sources/simsplit_fake.py`), which adds synthetic
   rows prefixed `fake-` so dashboards have something to draw.
 
-The stack mirrors prd, with one difference: partitions in `simsplit_raw` expire after two
-years, so there is no storage alert. Like prd, the target cost is zero. A budget emails
+The stack mirrors prd, except that partitions in `simsplit_raw` expire after two years,
+so there is no storage alert (nor the Monitoring API and email channel it needs). Like prd, the target cost is zero. A budget emails
 at 50 % and 100 %, and a kill switch unlinks billing once actual cost reaches the budget.
 
 Some steps have no Terraform or API support and are done by hand, once.
@@ -45,8 +45,5 @@ re-run apply on `terraform/gcp/dataplatform-as-se1-dev`.
 `simsplit.tf` creates `simsplit_raw` with the same tables as prd. When you change a
 table's schema, change both stacks in the same PR and apply dev first.
 
-The dev endpoint's write grant waits for two things:
-
-- the `terraform/gcp/simsplit-as-se1-dev` stack has applied `telemetry.tf`.
-
-Re-run apply on this stack after that.
+The dev endpoint's write grant waits for the `terraform/gcp/simsplit-as-se1-dev`
+stack to apply `telemetry.tf`; re-run apply on this stack after that.

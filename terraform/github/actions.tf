@@ -70,7 +70,7 @@ resource "github_repository_ruleset" "sim_split_release_tags" {
   }
 }
 
-# Each variable is left out until the workspace it comes from has applied.
+# Each variable is left out until the stack it comes from has applied.
 resource "github_actions_environment_variable" "data_platform" {
   for_each = {
     for item in flatten([
@@ -87,7 +87,7 @@ resource "github_actions_environment_variable" "data_platform" {
 }
 
 # The Evidence dashboard (sim-split R-4) deploys to Cloudflare Pages with the
-# Pages-only token minted by the cloudflare workspace; until it has, these are
+# Pages-only token minted by the cloudflare stack; until it has, these are
 # left out. Both environments deploy with the same account and token, so they
 # stay repo-level; each environment's DASHBOARD_PROJECT names its Pages project.
 resource "github_actions_variable" "data_platform_dashboard" {
@@ -148,7 +148,7 @@ resource "github_repository_environment_deployment_policy" "sim_split_prd_tags" 
   tag_pattern = "v*"
 }
 
-# Each variable is left out until the workspace it comes from has applied.
+# Each variable is left out until the stack it comes from has applied.
 resource "github_actions_environment_variable" "sim_split" {
   for_each = {
     for item in flatten([
@@ -182,7 +182,7 @@ resource "github_actions_secret" "a3spy_cloudflare_api_token" {
   value       = local.a3spy_cloudflare_api_token
 }
 
-# Realtime SFU app minted by the cloudflare workspace: the CD workflow
+# Realtime SFU app minted by the cloudflare stack: the CD workflow
 # pushes the token to the Worker, which calls the Realtime API for voice.
 resource "github_actions_variable" "a3spy_realtime_app_id" {
   count         = nonsensitive(local.a3spy_realtime_app != null) ? 1 : 0
@@ -198,8 +198,9 @@ resource "github_actions_secret" "a3spy_realtime_app_token" {
   value       = local.a3spy_realtime_app.token
 }
 
-# Bot token comes from @BotFather, so it is set by hand as a sensitive
-# variable on the github workspace; the CD workflow pushes it to the Worker.
+# Bot token comes from @BotFather, so it is set in secrets/github.tfvars.json
+# (make secrets-edit STACK=terraform/github); the CD workflow pushes it to the
+# Worker.
 resource "github_actions_secret" "a3spy_telegram_bot_token" {
   count       = var.a3spy_telegram_bot_token != null ? 1 : 0
   repository  = module.a3spy.name
@@ -208,7 +209,8 @@ resource "github_actions_secret" "a3spy_telegram_bot_token" {
 }
 
 # Only this Telegram user may send announcements to everyone who used the bot
-# (/announce); set by hand on the github workspace, pushed to the Worker by CD.
+# (/announce); set in secrets/github.tfvars.json (make secrets-edit
+# STACK=terraform/github), pushed to the Worker by CD.
 resource "github_actions_secret" "a3spy_owner_telegram_id" {
   count       = var.a3spy_owner_telegram_id != null ? 1 : 0
   repository  = module.a3spy.name
