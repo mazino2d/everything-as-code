@@ -5,13 +5,7 @@
 {{- $atlasSchemas = list $atlas }}
 {{- end }}
 {{- range $atlasSchema := $atlasSchemas }}
-{{- $passwordSource := dig "auth" "password" "source" "auto" $instance }}
-{{- $autoSecretName := dig "auth" "password" "secretName" (printf "%s-auth" $instance.name) $instance }}
-{{- $existingSecretName := dig "auth" "password" "existingSecret" "" $instance }}
-{{- $passwordSecretName := $autoSecretName }}
-{{- if eq $passwordSource "existingSecret" }}
-{{- $passwordSecretName = required (printf "instances[%s].auth.password.existingSecret is required when source=existingSecret" $instance.name) $existingSecretName }}
-{{- end }}
+{{- $passwordSecretName := include "eac-postgresql.passwordSecretName" $instance }}
 {{- $atlasURL := dig "url" (dig "url" "" $atlas) $atlasSchema }}
 {{- $atlasURLSecretName := dig "urlFrom" "secretKeyRef" "name" (dig "urlFrom" "secretKeyRef" "name" "" $atlas) $atlasSchema }}
 {{- $atlasURLSecretKey := dig "urlFrom" "secretKeyRef" "key" (dig "urlFrom" "secretKeyRef" "key" "" $atlas) $atlasSchema }}

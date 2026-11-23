@@ -10,8 +10,52 @@ Call from any template to surface a clear error on misconfiguration.
 {{- end -}}
 
 {{/*
+Pod template metadata (inside metadata: of the pod template).
+Shared between Deployment, Argo Rollout and StatefulSet templates.
+*/}}
+{{- define "eac-app.podMetadata" -}}
+labels:
+  app: {{ .Values.name }}
+  # Alloy derives the Loki `app` label from this one.
+  app.kubernetes.io/name: {{ .Values.name }}
+  {{- if .Values.podLabels }}
+  {{- toYaml .Values.podLabels | nindent 2 }}
+  {{- end }}
+{{- if or .Values.podAnnotations .Values.instrumentation.enabled }}
+annotations:
+  {{- if .Values.podAnnotations }}
+  {{- toYaml .Values.podAnnotations | nindent 2 }}
+  {{- end }}
+  {{- if .Values.instrumentation.enabled }}
+  instrumentation.opentelemetry.io/inject-python: {{ .Values.name }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Service ports (inside spec.ports: of a Service).
+Shared between the main, preview and headless Services; only the main one
+passes nodePort: true.
+Usage: include "eac-app.servicePorts" (dict "Values" .Values "nodePort" true)
+*/}}
+{{- define "eac-app.servicePorts" -}}
+{{- $withNodePort := .nodePort }}
+{{- range .Values.service.ports }}
+- port: {{ .port }}
+  targetPort: {{ .containerPort }}
+  protocol: TCP
+  {{- if .name }}
+  name: {{ .name }}
+  {{- end }}
+  {{- if and $withNodePort .nodePort }}
+  nodePort: {{ .nodePort }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Pod spec contents (inside spec: of the pod template).
-Shared between Deployment and Argo Rollout templates.
+Shared between Deployment, Argo Rollout and StatefulSet templates.
 */}}
 {{- define "eac-app.podSpec" -}}
 {{- if .Values.serviceAccountName }}
@@ -92,6 +136,11 @@ containers:
           name: {{ . }}
       {{- end }}
       {{- end }}
+    {{- end }}
+    {{- if and (eq .Values.workload "statefulset") .Values.statefulset.storage.enabled }}
+    volumeMounts:
+      - name: data
+        mountPath: {{ .Values.statefulset.storage.mountPath }}
     {{- end }}
     resources:
       {{- toYaml .Values.resources | nindent 6 }}

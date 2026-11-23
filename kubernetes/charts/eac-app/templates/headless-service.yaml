@@ -9,11 +9,5 @@ spec:
   selector:
     app: {{ .Values.name }}
   ports:
-    {{- range .Values.service.ports }}
-    - port: {{ .port }}
-      targetPort: {{ .containerPort }}
-      {{- if .name }}
-      name: {{ .name }}
-      {{- end }}
-    {{- end }}
+    {{- include "eac-app.servicePorts" (dict "Values" .Values) | trim | nindent 4 }}
 {{- end }}

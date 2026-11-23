@@ -1,4 +1,11 @@
-resource "google_storage_bucket" "free_tier" {
+moved {
+  from = google_storage_bucket.free_tier
+  to   = google_storage_bucket.velero_backups
+}
+
+# Velero backups (kubernetes/clusters/mazino2d-as-se1-dev); US-CENTRAL1 for the
+# always-free tier.
+resource "google_storage_bucket" "velero_backups" {
   name                        = "mazino2d-as-se1-dev-velero-backups-usc1"
   project                     = module.project.project_id
   location                    = "US-CENTRAL1"

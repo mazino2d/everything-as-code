@@ -23,7 +23,7 @@ resource "google_apikeys_key" "android" {
   restrictions {
     android_key_restrictions {
       dynamic "allowed_applications" {
-        for_each = var.android_sha1_hashes
+        for_each = local.android_sha1_hashes
         content {
           package_name     = google_firebase_android_app.sim_split.package_name
           sha1_fingerprint = allowed_applications.value

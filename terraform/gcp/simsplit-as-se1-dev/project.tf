@@ -1,6 +1,5 @@
 module "project" {
   source             = "./_modules/gcp-project"
-  name               = "simsplit-as-se1-dev"
   project_id         = local.project_id
   billing_account_id = local.billing_account_id
   services = [

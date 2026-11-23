@@ -114,8 +114,8 @@ kubernetes/
         │   ├── hotrod/     # Jaeger demo application
         │   ├── httpbin/    # HTTP request/response debugging
         │   ├── outline/    # wiki
-        │   ├── postgresql.yml # eac-postgresql values
-        │   └── redis.yml   # eac-redis values
+        │   ├── postgresql/ # eac-postgresql (Outline's database)
+        │   └── redis/      # eac-redis (Outline's cache)
         ├── infra/          # cluster infrastructure components
         │   ├── argocd/              # Argo Rollouts (Argo CD itself: terraform/k8s argocd.tf)
         │   ├── atlas-operator/      # DB schema automation

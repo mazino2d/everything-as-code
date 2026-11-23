@@ -1,4 +1,4 @@
 apiVersion: v2
 name: eac-redis
-version: 0.3.0
+version: 0.4.0
 description: Manages one or more Redis StatefulSets with optional replication

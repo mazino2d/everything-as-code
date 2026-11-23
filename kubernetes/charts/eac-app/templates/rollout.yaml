@@ -12,22 +12,7 @@ spec:
       app: {{ .Values.name }}
   template:
     metadata:
-      labels:
-        app: {{ .Values.name }}
-        # Alloy derives the Loki `app` label from this one.
-        app.kubernetes.io/name: {{ .Values.name }}
-        {{- if .Values.podLabels }}
-        {{- toYaml .Values.podLabels | nindent 8 }}
-        {{- end }}
-      {{- if or .Values.podAnnotations .Values.instrumentation.enabled }}
-      annotations:
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
-        {{- end }}
-        {{- if .Values.instrumentation.enabled }}
-        instrumentation.opentelemetry.io/inject-python: {{ .Values.name }}
-        {{- end }}
-      {{- end }}
+      {{- include "eac-app.podMetadata" . | nindent 6 }}
     spec:
       {{- include "eac-app.podSpec" . | nindent 6 }}
   strategy:

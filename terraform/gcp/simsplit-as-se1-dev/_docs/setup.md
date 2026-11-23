@@ -126,14 +126,14 @@ Tick these off in order:
       Integrity provider (`app_check.tf`) needs this link.
 - [ ] **Copy the signing certificate fingerprints**: **SimSplit Dev → Test and release →
       App integrity → Play app signing**: SHA-1 and SHA-256 of the **app signing key**
-      and of the **upload key**. Put them in the variables (section 4).
+      and of the **upload key**. Put them in `firebase.tf` (section 4).
 
 ## 4. Android sign-in
 
 ### 4.1 Fingerprints in code
 
-The fingerprints are the defaults of `android_sha1_hashes` and `android_sha256_hashes`
-in `_variables.tf`, one entry per certificate, in the order app signing key, upload key.
+The fingerprints are `local.android_sha1_hashes` and `local.android_sha256_hashes`
+in `firebase.tf`, one entry per certificate, in the order app signing key, upload key.
 They are not secret. Terraform wants them in lower case without colons:
 
 ```bash
