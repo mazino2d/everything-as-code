@@ -165,6 +165,25 @@ module "a3spy" {
   }
 }
 
+# Default community health files (SECURITY.md, ...) for every repo without its own.
+module "dot_github" {
+  source       = "./_modules/github-repository"
+  name         = ".github"
+  description  = "Default community health files for mazino2d repositories"
+  visibility   = "public"
+  topics       = ["community-health", "security-policy"]
+  has_wiki     = false
+  has_projects = false
+
+  # Created empty; flip to true once the first commit is pushed.
+  initialized = false
+
+  security = {
+    dependabot_alerts = true
+    secret_scanning   = true
+  }
+}
+
 # ===================================================================
 # Active - Private
 # ===================================================================

@@ -62,7 +62,7 @@ resource "github_repository_pages" "this" {
 }
 
 resource "github_branch_default" "this" {
-  count      = var.archived ? 0 : 1
+  count      = var.archived || !var.initialized ? 0 : 1
   repository = github_repository.this.name
   branch     = var.default_branch
   rename     = var.rename_default_branch
@@ -70,7 +70,7 @@ resource "github_branch_default" "this" {
 
 # Private repos on GitHub Free cannot have branch protection; pass branch_protection = null to skip it.
 resource "github_branch_protection" "this" {
-  count                           = var.archived || var.branch_protection == null ? 0 : 1
+  count                           = var.archived || !var.initialized || var.branch_protection == null ? 0 : 1
   repository_id                   = github_repository.this.node_id
   pattern                         = var.default_branch
   enforce_admins                  = var.branch_protection.enforce_admins
