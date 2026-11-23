@@ -20,7 +20,7 @@ PR → validate → merge to main → Terraform apply + Argo CD sync
 
 Argo CD watches the `main` branch continuously. Every workload, every config, every infra component has a declared desired state in this repo. Drift is corrected automatically. Resources deleted from Git are deleted from the cluster.
 
-Terraform covers everything outside the cluster — GCP project, GKE, IAM, GitHub repository settings, Infisical secret structure, Grafana dashboards. Eleven stacks, state in a versioned GCS bucket, applied keylessly from GitHub Actions. Drift shows up in plan output before anything is applied.
+Terraform covers everything outside the cluster — GCP project, GKE, IAM, GitHub repository settings, Infisical secret structure, Grafana dashboards. Twelve stacks, state in a versioned GCS bucket, applied keylessly from GitHub Actions. Drift shows up in plan output before anything is applied.
 
 ---
 
@@ -28,10 +28,9 @@ Terraform covers everything outside the cluster — GCP project, GKE, IAM, GitHu
 
 | | |
 | --- | --- |
-| **Kubernetes (GKE)** | Spot nodes, scale-to-zero, ADVANCED_DATAPATH |
-| **Terraform** | IaC — eleven stacks, state in GCS |
+| **Kubernetes (GKE)** | Autopilot (Dataplane V2), Spot ComputeClass, FQDN network policy, nightly sleep |
+| **Terraform** | IaC — twelve stacks, state in GCS |
 | **Argo CD + Argo Rollouts** | GitOps engine + blue/green and canary delivery |
 | **Grafana Cloud + Alloy + OTel** | Metrics, logs, traces |
-| **Atlas Operator** | Declarative database schema migrations |
+| **Atlas Operator** | Installed; `eac-postgresql` can declare schema migrations as `AtlasSchema` |
 | **Infisical** | Secret management with in-cluster operator injection |
-| **Istio** | mTLS, traffic management |

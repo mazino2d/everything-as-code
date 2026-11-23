@@ -14,12 +14,10 @@ terraform {
   }
 }
 
-# Reads outputs from the grafana-stack workspace — no manual token copying required.
-# Terraform Cloud evaluates terraform_remote_state (built-in provider) before user-defined
-# providers, so the SA token can be referenced directly in the grafana provider block.
+# URL and SA token come from terraform/grafana/stack's state, so no token is
+# copied by hand; that stack must have applied first.
 data "terraform_remote_state" "grafana_stack" {
   backend = "gcs"
-
 
   config = {
     bucket = "mazino2d-as-se1-eac-tfstate"

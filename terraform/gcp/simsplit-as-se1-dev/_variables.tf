@@ -1,5 +1,6 @@
 # Web OAuth client created by hand (see _docs/setup.md); Google sign-in stays
-# disabled until both are set as TFC variables.
+# disabled until both are set in the stack's secrets tfvars
+# (make secrets-edit STACK=terraform/gcp/simsplit-as-se1-dev).
 variable "google_oauth_client_id" {
   type    = string
   default = null

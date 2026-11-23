@@ -41,7 +41,7 @@ make secrets-edit STACK=terraform/cloudflare
 }
 ```
 
-CI and `make plan/apply` copy it to `terraform/cloudflare/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
+CI and `make plan/apply` copy it to `terraform/cloudflare/ci.auto.tfvars.json` (git-ignored). CI signs in through Workload Identity Federation as `terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com`; locally run `gcloud auth application-default login` first.
 
 The `github` stack reads `workers_deployer_tokens` from this stack's state, so apply it before a `terraform/github` plan that references it.
 

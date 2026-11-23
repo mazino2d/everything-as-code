@@ -42,10 +42,9 @@ resource "google_firebase_app_check_recaptcha_enterprise_config" "web" {
 # No App Check debug tokens on prd: debug builds run against dev
 # (simsplit-as-se1-dev, APP_ENV=dev), which registers its own (sim-split R-8 P1).
 
-# Enforced: requests without a valid token are rejected. No installed Android
-# version talks to Firebase yet (the first is v2.0.0, built with App Check),
-# and the web app sends tokens since sim-split#45. Debug builds need the debug
-# token. Set app_check_enforced = false to fall back to metrics only.
+# Enforced: requests without a valid token are rejected. Every client sends
+# App Check tokens (Android from v2.0.0, the web app since sim-split#45).
+# Set app_check_enforced = false to fall back to metrics only.
 resource "google_firebase_app_check_service_config" "this" {
   for_each         = toset(["firestore.googleapis.com", "identitytoolkit.googleapis.com"])
   provider         = google-beta

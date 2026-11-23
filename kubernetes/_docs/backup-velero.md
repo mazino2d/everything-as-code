@@ -72,8 +72,8 @@ List schedules:
 Describe schedules in cluster:
 
     kubectl get schedules -n velero
-    kubectl describe schedule velero-velero-daily -n velero
-    kubectl describe schedule velero-velero-weekly -n velero
+    kubectl describe schedule velero-daily -n velero
+    kubectl describe schedule velero-weekly -n velero
 
 List recent backups and status:
 
@@ -119,7 +119,7 @@ Credential chain in this repository:
 1. GCP stack creates workload GSA key for infra/velero workload.
 2. Infisical Terraform syncs that key into project everything-as-code.
 3. Infisical operator syncs to Kubernetes secret velero-gcp-credentials.
-4. Velero reads GOOGLE_APPLICATION_CREDENTIALS from /credentials/gcp_service_account_json.
+4. Velero reads GOOGLE_APPLICATION_CREDENTIALS from /credentials/cloud (the secret's gcp_service_account_json key, mounted with subPath).
 
 Key files:
 

@@ -145,7 +145,7 @@ resource "google_service_account_iam_member" "gha_telemetry_deployer_act_as" {
 
 # data-platform's daily dlt load copies groups, members, expenses, settlements,
 # activity and users from this Firestore into the dev warehouse. The service
-# account is created by the gcp-dataplatform-as-se1-dev stack.
+# account is created by the terraform/gcp/dataplatform-as-se1-dev stack.
 resource "google_project_iam_member" "gha_data_platform_firestore" {
   project = module.project.project_id
   role    = "roles/datastore.viewer"

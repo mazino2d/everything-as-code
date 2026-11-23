@@ -38,7 +38,7 @@ output "dev_tempo_password" {
 }
 
 output "grafana_mazino2d_sa_token" {
-  description = "Terraform service account token for the mazino2d stack. Read by the grafana-dashboards workspace via remote state."
+  description = "Terraform service account token for the mazino2d stack. Read by terraform/grafana/dashboard via remote state."
   value       = module.grafana_cloud_dev.grafana_sa_token
   sensitive   = true
 }

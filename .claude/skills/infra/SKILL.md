@@ -63,9 +63,10 @@ work account).
   `gs://mazino2d-as-se1-eac-tfstate/secrets/<stack path>.tfvars.json`
   (`make secrets-edit STACK=…`).
 - GCP auth: no keys. A GCP stack runs as `terraform@<project>` through the
-  `github` pool in `mazino2d-as-se1-eac`; a new project needs the three steps in
+  `github` pool in `mazino2d-as-se1-eac`; a new project needs the four steps in
   `terraform/gcp/_docs/setup.md` § 3 (bucket access, `terraform_wif.tf`, the
-  `gcp-service-accounts` entry in `.github/workflows/terraform.yml`).
+  `gcp-service-accounts` entry and the `workflow_dispatch` choice in
+  `.github/workflows/terraform.yml`).
 - Versions: `required_version = "~> 1.14"`, providers pinned with `~>` to a minor.
   `terraform fmt -recursive terraform` must leave nothing to change.
 - Billing: every GCP project has a budget; projects that can run up a bill also

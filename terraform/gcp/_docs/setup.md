@@ -36,11 +36,12 @@ No service account key is created: CI signs in as this service account through W
 
 ## 3. State bucket access and Workload Identity Federation
 
-State lives in `gs://mazino2d-as-se1-eac-tfstate` under the prefix `state/gcp/<project-id>`, in the project `mazino2d-as-se1-eac` (bucket defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). A new project needs three things:
+State lives in `gs://mazino2d-as-se1-eac-tfstate` under the prefix `state/gcp/<project-id>`, in the project `mazino2d-as-se1-eac` (bucket defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). A new project needs four things:
 
 1. Add `<project-id>` to the project list in `local.terraform_service_accounts` in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`, so `terraform@<project-id>.iam.gserviceaccount.com` gets `roles/storage.objectAdmin` on the bucket.
 2. Add a `terraform_wif.tf` to the new stack like `terraform/gcp/simsplit-as-se1-dev/terraform_wif.tf`. It grants `roles/iam.workloadIdentityUser` on the `terraform` service account to the repo's principalSet in the `github` pool (provider `everything-as-code`, project `mazino2d-as-se1-eac`, number `725985974531`).
 3. Add an entry `"terraform/gcp/<project-id>": "terraform@<project-id>.iam.gserviceaccount.com"` to `gcp-service-accounts` in `.github/workflows/terraform.yml`, so CI impersonates that project's service account for the stack.
+4. Add `terraform/gcp/<project-id>` to the `stack` choices of the manual run (`workflow_dispatch`) in the same file. Plan and apply on push and pull request find stacks on their own (every directory under `terraform/` holding `*.tf`, `_modules` excluded), so only the manual run needs the entry.
 
 ### Variables
 
@@ -56,27 +57,15 @@ Locally, run `gcloud auth application-default login` before `make plan STACK=...
 
 ---
 
-## 4. Import Project into Terraform State
+## 4. Adopt the Project into Terraform State
 
-```bash
-cd terraform/gcp/<project-id>
-terraform init
-terraform import module.project.google_project.this <project-id>
+The project was created by hand in step 1, so add an `import` block to the stack's `_import.tf` (as in `terraform/gcp/simsplit-as-se1-dev/_import.tf`):
+
+```hcl
+import {
+  to = module.project.google_project.this
+  id = local.project_id
+}
 ```
 
-Then run an apply (`make apply STACK=terraform/gcp/<project-id>` or the GitHub Actions workflow) — APIs and project settings will be tracked from that point on.
-
----
-
-## 5. GitHub Actions
-
-`.github/workflows/terraform.yml` finds stacks on its own (every directory under
-`terraform/` holding `*.tf`, `_modules` excluded), so plan and apply pick up the
-new project once the `gcp-service-accounts` entry above exists. Also add it to the `stack` choices of the manual
-run (`workflow_dispatch`):
-
-```yaml
-options:
-  - all
-  - terraform/gcp/<project-id>   # add this line
-```
+The first CI apply after merging adopts it; APIs and project settings are tracked from then on.

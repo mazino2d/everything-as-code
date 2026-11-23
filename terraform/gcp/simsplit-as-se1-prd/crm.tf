@@ -3,8 +3,8 @@
 # sim-split's crm/ folder, baked into the image; sim-split's crm_deploy.yml
 # ships new images. Nothing calls it from the internet: Eventarc (activity
 # entries), Cloud Tasks (batch flush) and Cloud Scheduler (tick) invoke it as
-# the crm service account. The dev copy is simsplit-as-se1-dev/crm.tf. Every limit here is a cost guard: the backend must
-# stay at $0. Plan: sim-split docs/implementations/R-9-notifications-crm.md.
+# the crm service account. The dev copy is simsplit-as-se1-dev/crm.tf. Every
+# limit here is a cost guard: the backend must stay at $0. Plan: sim-split docs/implementations/R-9-notifications-crm.md.
 
 resource "google_artifact_registry_repository" "crm" {
   project       = module.project.project_id
@@ -244,7 +244,7 @@ resource "google_service_account_iam_member" "crm_act_as_self" {
 }
 
 # Schedules and campaigns: one tick every 15 minutes (Cloud Scheduler's free
-# tier is three jobs per billing account; this stack and prd use one each).
+# tier is three jobs per billing account; this stack and dev use one each).
 resource "google_cloud_scheduler_job" "crm_tick" {
   project   = module.project.project_id
   name      = "crm-tick"

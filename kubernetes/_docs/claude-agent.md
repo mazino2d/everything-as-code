@@ -57,4 +57,4 @@ Each new session starts in `/home/agent/workspace/everything-as-code`. File edit
 - **Rotate `GH_TOKEN`**: update it in Infisical. The operator resyncs within 60s. Then run `kubectl -n platform delete pod claude-agent-0`, because the environment is read only at start-up.
 - **Re-login** (after a sign-out or an expired session): repeat step 2.
 - **Nightly sleep**: `k8s-power.yml` scales the StatefulSet to zero at 00:00 ICT. After wake, the server restores the previous sessions if the gap was less than about 4 hours. Otherwise it starts a new one.
-- **Upgrade tools**: bump the `ARG`s in `docker/claude-agent/Dockerfile`, merge, then set `image.tag` in `values.yaml` to the new `sha-<short>` tag.
+- **Upgrade tools**: bump the `ARG`s in `docker/claude-agent/Dockerfile` and merge; `docker.yml` publishes a new `latest`. `values.yaml` runs `image.tag: latest` (pulled on every start), so `kubectl -n platform delete pod claude-agent-0` picks it up.
