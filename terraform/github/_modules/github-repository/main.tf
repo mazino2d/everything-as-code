@@ -1,3 +1,12 @@
+locals {
+  # GitHub Free offers secret scanning on public repos only; archived repos are read-only.
+  security = {
+    dependabot_alerts           = !var.archived && coalesce(var.security.dependabot_alerts, true)
+    dependabot_security_updates = !var.archived && coalesce(var.security.dependabot_security_updates, true)
+    secret_scanning             = !var.archived && coalesce(var.security.secret_scanning, var.visibility == "public")
+  }
+}
+
 resource "github_repository" "this" {
   name                        = var.name
   description                 = var.description
@@ -19,7 +28,7 @@ resource "github_repository" "this" {
   auto_init                   = false
 
   dynamic "security_and_analysis" {
-    for_each = var.security.secret_scanning ? [1] : []
+    for_each = local.security.secret_scanning ? [1] : []
     content {
       secret_scanning {
         status = "enabled"
@@ -32,14 +41,14 @@ resource "github_repository" "this" {
 }
 
 resource "github_repository_vulnerability_alerts" "this" {
-  count      = var.security.dependabot_alerts ? 1 : 0
+  count      = local.security.dependabot_alerts ? 1 : 0
   repository = github_repository.this.name
   enabled    = true
 }
 
 # Security updates open PRs for vulnerable dependencies; they need alerts on.
 resource "github_repository_dependabot_security_updates" "this" {
-  count      = var.security.dependabot_security_updates ? 1 : 0
+  count      = local.security.dependabot_security_updates ? 1 : 0
   repository = github_repository.this.name
   enabled    = true
 
