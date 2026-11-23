@@ -20,6 +20,8 @@ spec:
     metadata:
       labels:
         app: {{ .Values.name }}
+        # Alloy derives the Loki `app` label from this one.
+        app.kubernetes.io/name: {{ .Values.name }}
     spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}

@@ -8,7 +8,7 @@ module "vm-free" {
   spot             = false
   external_ip_type = "ephemeral"
   extra_ports      = ["80"]
-  ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqUrfB0oPmolyXRYtA9kHDWYy5D2GhhaGb9odfQYvAu khoi.do@cake.vn"
+  ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqUrfB0oPmolyXRYtA9kHDWYy5D2GhhaGb9odfQYvAu"
   tags             = ["free"]
   duckdns_domain   = "mazino2d-free"
   duckdns_token    = var.duckdns_token
