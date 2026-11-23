@@ -36,17 +36,19 @@ Print these for the user with the IDs filled in; do not run them.
 2. Per project, `terraform/gcp/_docs/setup.md` § 2: create the project, link
    billing, enable `iam` and `cloudresourcemanager`, create SA `terraform`,
    grant it `roles/owner`. No key.
-3. Grant `terraform@<project>` `roles/billing.user` and
-   `roles/billing.costsManager` on the billing account (budgets and the kill
-   switch need them; done by hand on every account so far).
+3. For a new billing account only: grant `terraform@mazino2d-as-se1-eac`
+   `roles/billing.admin` on it (the one binding Terraform cannot grant itself).
 
 Wait until the user confirms they are done.
 
-## Step 3 — PR 1: state access (`terraform/gcp/mazino2d-as-se1-eac`)
+## Step 3 — PR 1: state and billing access (`terraform/gcp/mazino2d-as-se1-eac`)
 
 Add the new project IDs to `local.terraform_service_accounts` in
-`terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`. Expected plan: only
-`google_storage_bucket_iam_member.tfstate[...]` to add. This stack is
+`terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`, and to
+`local.billing_account_projects` (plus the account in `local.billing_accounts`
+if new) in `billing_iam.tf`. Expected plan: only
+`google_storage_bucket_iam_member.tfstate[...]` and
+`google_billing_account_iam_member.terraform[...]` to add. This stack is
 high blast radius — the PR touches nothing else. It must be merged and applied
 before PR 2 can plan.
 

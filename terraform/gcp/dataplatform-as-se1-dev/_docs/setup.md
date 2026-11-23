@@ -25,9 +25,9 @@ variables. The github stack reads its state from the bucket, so there is no shar
 Before the first apply, run the one-time gcloud steps in prd's section 1 against
 `dataplatform-as-se1-dev`:
 
-- enable `cloudbilling.googleapis.com` and `serviceusage.googleapis.com`;
-- grant `roles/billing.user` and `roles/billing.costsManager` on the billing account to
-  `terraform@dataplatform-as-se1-dev.iam.gserviceaccount.com`.
+- enable `cloudbilling.googleapis.com` and `serviceusage.googleapis.com`.
+
+Its billing roles come from `terraform/gcp/mazino2d-as-se1-eac/billing_iam.tf`.
 
 ## 2. GitHub Actions
 

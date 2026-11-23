@@ -22,16 +22,10 @@ gcloud services enable cloudbilling.googleapis.com serviceusage.googleapis.com \
   --project=simsplit-as-se1-prd
 ```
 
-Then grant the Terraform service account two roles on the billing account. It needs them
-to create the budget and to link billing again after the kill switch has fired:
-
-```bash
-for role in roles/billing.user roles/billing.costsManager; do
-  gcloud billing accounts add-iam-policy-binding 014412-F60C67-E5B80D \
-    --member="serviceAccount:terraform@simsplit-as-se1-prd.iam.gserviceaccount.com" \
-    --role="$role"
-done
-```
+The Terraform service account's billing roles (`roles/billing.user` to link billing
+again after the kill switch has fired, `roles/billing.costsManager` for the budget) are
+granted by `terraform/gcp/mazino2d-as-se1-eac/billing_iam.tf`: add the project there and
+apply that stack before this one's first apply.
 
 ## 2. Google sign-in
 
