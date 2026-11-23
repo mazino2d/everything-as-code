@@ -42,7 +42,7 @@ kubectl config current-context
 
 If the user gave the app, namespace and symptom, go on. Otherwise ask for them
 in one message. Layers and their Argo CD app / main namespace:
-`platform`, `infra`, `monitoring`, `apps` (namespace `apps`: dagster, outline,
+`platform`, `infra`, `monitoring`, `apps` (namespace `apps`: outline,
 hotrod, httpbin, postgresql, redis). Find an app's path with
 `ls kubernetes/clusters/mazino2d-as-se1-dev/*/`.
 
