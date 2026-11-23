@@ -82,6 +82,12 @@ variable "default_branch" {
   default = "main"
 }
 
+variable "initialized" {
+  type        = bool
+  default     = true
+  description = "false while a new repo is still empty: GitHub cannot set the default branch of an empty repo, so default branch and protection wait for the first push"
+}
+
 variable "rename_default_branch" {
   type        = bool
   default     = false
