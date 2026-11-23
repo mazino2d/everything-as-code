@@ -24,6 +24,8 @@ spec:
     metadata:
       labels:
         app: {{ .Values.name }}
+        # Alloy derives the Loki `app` label from this one.
+        app.kubernetes.io/name: {{ .Values.name }}
         {{- if .Values.podLabels }}
         {{- toYaml .Values.podLabels | nindent 8 }}
         {{- end }}
