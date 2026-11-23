@@ -108,7 +108,7 @@ variable "archived" {
 variable "branch_protection" {
   type = object({
     required_approving_review_count = optional(number, 0)
-    require_conversation_resolution = optional(bool, false)
+    require_conversation_resolution = optional(bool, true)
     enforce_admins                  = optional(bool, true)
     dismiss_stale_reviews           = optional(bool, true)
     required_linear_history         = optional(bool, true)
@@ -123,12 +123,12 @@ variable "branch_protection" {
 
 variable "security" {
   type = object({
-    dependabot_alerts           = optional(bool, false)
-    dependabot_security_updates = optional(bool, false)
-    secret_scanning             = optional(bool, false)
+    dependabot_alerts           = optional(bool)
+    dependabot_security_updates = optional(bool)
+    secret_scanning             = optional(bool)
   })
   default     = {}
-  description = "Dependabot alerts and security update PRs, plus secret scanning with push protection (free on public repos)"
+  description = "Dependabot alerts and security update PRs, plus secret scanning with push protection; unset flags default to on (secret scanning only on public repos, everything off when archived)"
 }
 
 variable "deploy_app" {

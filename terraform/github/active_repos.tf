@@ -19,12 +19,6 @@ module "everything_as_code" {
       contexts = ["terraform / gate", "k8s / gate", "blog / gate", "docker / gate"]
     }
   }
-
-  security = {
-    dependabot_alerts           = true
-    dependabot_security_updates = true
-    secret_scanning             = true
-  }
 }
 
 module "mazino2d" {
@@ -79,7 +73,6 @@ module "data_platform" {
   }
 
   branch_protection = {
-    require_conversation_resolution = true
     required_status_checks = {
       contexts = ["lint / gate", "dbt", "docs / gate"]
     }
@@ -100,17 +93,10 @@ module "sim_split" {
   }
 
   branch_protection = {
-    require_conversation_resolution = true
     required_status_checks = {
       strict   = true
       contexts = ["PR Validation"]
     }
-  }
-
-  security = {
-    dependabot_alerts           = true
-    dependabot_security_updates = true
-    secret_scanning             = true
   }
 }
 
@@ -133,12 +119,6 @@ module "github_workflows" {
 
   # release-please opens the release PR with the workflow token.
   actions_can_create_and_approve_pull_requests = true
-
-  security = {
-    dependabot_alerts           = true
-    dependabot_security_updates = true
-    secret_scanning             = true
-  }
 }
 
 module "a3spy" {
@@ -157,12 +137,6 @@ module "a3spy" {
       contexts = ["ci / gate"]
     }
   }
-
-  security = {
-    dependabot_alerts           = true
-    dependabot_security_updates = true
-    secret_scanning             = true
-  }
 }
 
 # Default community health files (SECURITY.md, ...) for every repo without its own.
@@ -174,11 +148,6 @@ module "dot_github" {
   topics       = ["community-health", "security-policy"]
   has_wiki     = false
   has_projects = false
-
-  security = {
-    dependabot_alerts = true
-    secret_scanning   = true
-  }
 }
 
 # ===================================================================
