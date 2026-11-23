@@ -152,3 +152,7 @@ alloy:
       }
 controller:
   priorityClassName: grafana-alloy
+  # eac-app NetworkPolicies select peers by `app:`; the chart only sets
+  # app.kubernetes.io/* labels, so without this OTLP egress to Alloy is dropped.
+  podLabels:
+    app: grafana-alloy
