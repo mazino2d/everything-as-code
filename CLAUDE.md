@@ -111,7 +111,6 @@ kubernetes/
 └── clusters/
     └── mazino2d-as-se1-dev/   # one Argo CD Application per layer (terraform/k8s/.../argocd.tf)
         ├── apps/           # application workloads (namespace apps)
-        │   ├── dagster/    # data orchestration
         │   ├── hotrod/     # Jaeger demo application
         │   ├── httpbin/    # HTTP request/response debugging
         │   ├── outline/    # wiki

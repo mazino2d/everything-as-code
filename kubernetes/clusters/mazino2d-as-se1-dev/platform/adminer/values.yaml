@@ -21,4 +21,3 @@ nacl:
     - ambassador/traffic-manager:8080
   egress:
     - apps/outline-db-1:5432
-    - apps/dagster-db-1:5432
