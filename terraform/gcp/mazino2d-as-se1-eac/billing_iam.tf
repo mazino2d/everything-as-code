@@ -1,6 +1,7 @@
 # Who may use each billing account. A project's terraform service account needs
 # Billing Account User to link its project and Billing Account Costs Manager to
-# manage its budget (budget.tf in each GCP stack). This stack's own service
+# manage its budget (budget.tf in each GCP stack); its terraform-plan service
+# account gets Billing Account Viewer to read them. This stack's own service
 # account holds Billing Account Administrator so it can grant these; that one
 # binding was made by hand once, since nothing else can grant it.
 locals {
@@ -44,4 +45,18 @@ resource "google_billing_account_iam_member" "eac_admin" {
   billing_account_id = each.value
   role               = "roles/billing.admin"
   member             = "serviceAccount:${google_service_account.terraform.email}"
+}
+
+resource "google_billing_account_iam_member" "terraform_plan" {
+  for_each = {
+    for pair in flatten([
+      for account, projects in local.billing_account_projects : [
+        for project in projects : { account = account, project = project }
+      ]
+    ]) : "${pair.account}/${pair.project}" => pair
+  }
+
+  billing_account_id = local.billing_accounts[each.value.account]
+  role               = "roles/billing.viewer"
+  member             = "serviceAccount:terraform-plan@${each.value.project}.iam.gserviceaccount.com"
 }

@@ -1,7 +1,8 @@
-# Keyless auth for everything-as-code's Terraform workflow: pull request plans
-# and main applies sign in as the terraform service account of the project a
-# stack manages. Each of those projects grants the binding in its own
-# terraform_wif.tf; this one is below.
+# Keyless auth for everything-as-code's Terraform workflow: main applies sign in
+# as the terraform service account of the project a stack manages, pull request
+# plans as that project's read-only terraform-plan service account. Each of
+# those projects creates and binds them in its own terraform_wif.tf; this
+# project's are below.
 resource "google_iam_workload_identity_pool" "github" {
   project                   = module.project.project_id
   workload_identity_pool_id = "github"
@@ -26,6 +27,10 @@ resource "google_iam_workload_identity_pool_provider" "everything_as_code" {
   }
 }
 
+locals {
+  eac_repository = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/mazino2d/everything-as-code"
+}
+
 # Runs the stacks outside GCP (github, cloudflare, infisical, grafana) and
 # this one.
 resource "google_service_account" "terraform" {
@@ -43,5 +48,31 @@ resource "google_project_iam_member" "terraform_owner" {
 resource "google_service_account_iam_member" "terraform_wif" {
   service_account_id = google_service_account.terraform.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/mazino2d/everything-as-code"
+  member             = local.eac_repository
+}
+
+# Plans those stacks: reads this project, the state bucket (tfstate.tf) and the
+# billing accounts (billing_iam.tf), but changes nothing.
+resource "google_service_account" "terraform_plan" {
+  project      = module.project.project_id
+  account_id   = "terraform-plan"
+  display_name = "Terraform plan (everything-as-code CI)"
+}
+
+resource "google_project_iam_member" "terraform_plan" {
+  for_each = toset([
+    "roles/viewer",
+    "roles/iam.securityReviewer",
+    "roles/serviceusage.serviceUsageConsumer",
+  ])
+
+  project = module.project.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.terraform_plan.email}"
+}
+
+resource "google_service_account_iam_member" "terraform_plan_wif" {
+  service_account_id = google_service_account.terraform_plan.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = local.eac_repository
 }

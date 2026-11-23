@@ -2,17 +2,19 @@
 #   state/<stack path under terraform/>/default.tfstate  (gcs backend, locked)
 #   secrets/<stack path under terraform/>.tfvars.json    (copied in by CI and make)
 locals {
-  # Every stack's CI identity: the terraform service account of each GCP project.
-  terraform_service_accounts = toset([
-    for project in [
-      "mazino2d-as-se1-eac",
-      "mazino2d-as-se1-dev",
-      "simsplit-as-se1-dev",
-      "simsplit-as-se1-prd",
-      "dataplatform-as-se1-dev",
-      "dataplatform-as-se1-prd",
-    ] : "terraform@${project}.iam.gserviceaccount.com"
-  ])
+  # Projects whose terraform (apply) and terraform-plan service accounts run
+  # the stacks; billing_iam.tf grants them their billing roles too.
+  terraform_projects = [
+    "mazino2d-as-se1-eac",
+    "mazino2d-as-se1-dev",
+    "simsplit-as-se1-dev",
+    "simsplit-as-se1-prd",
+    "dataplatform-as-se1-dev",
+    "dataplatform-as-se1-prd",
+  ]
+
+  terraform_service_accounts      = toset([for project in local.terraform_projects : "terraform@${project}.iam.gserviceaccount.com"])
+  terraform_plan_service_accounts = toset([for project in local.terraform_projects : "terraform-plan@${project}.iam.gserviceaccount.com"])
 }
 
 resource "google_storage_bucket" "tfstate" {
@@ -50,6 +52,16 @@ resource "google_storage_bucket_iam_member" "tfstate" {
 
   bucket = google_storage_bucket.tfstate.name
   role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${each.value}"
+}
+
+# Plans read state and stack variables but never write them (they run without
+# the state lock).
+resource "google_storage_bucket_iam_member" "tfstate_plan" {
+  for_each = local.terraform_plan_service_accounts
+
+  bucket = google_storage_bucket.tfstate.name
+  role   = "roles/storage.objectViewer"
   member = "serviceAccount:${each.value}"
 }
 
