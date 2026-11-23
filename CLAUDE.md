@@ -101,8 +101,7 @@ kubernetes/
 ├── _docs/                   # cluster documentation
 │   ├── setup.md            # kubeconfig setup for local access
 │   ├── access-telepresence.md # private access via Telepresence
-│   ├── backup-velero.md    # Velero backup procedures
-│   └── claude-agent.md     # Claude Code Remote Control agent
+│   └── backup-velero.md    # Velero backup procedures
 ├── charts/                 # reusable Helm charts
 │   ├── eac-app/            # generic application chart template
 │   ├── eac-cronjob/        # CronJob chart
@@ -127,8 +126,7 @@ kubernetes/
         │   ├── grafana-alloy/
         │   └── opentelemetry-operator/
         └── platform/       # platform utilities
-            ├── adminer/    # database admin UI
-            └── claude-agent/ # Claude Code Remote Control agent (read-only kubectl, terraform plan, PRs)
+            └── adminer/    # database admin UI
 ```
 
 Local reusable charts are defined in `kubernetes/charts/`. Cluster components use local charts via Kustomize `helmCharts`, and also consume external Helm charts directly from upstream repositories.
@@ -149,8 +147,6 @@ Each `docker/<name>/Dockerfile` is built by `.github/workflows/docker.yml` into 
 **Networking:**
 - No external ingress (no load balancer). Services are reachable privately with Telepresence (`telepresence connect`, then `http://<service>.<namespace>`; `infra/telepresence`, see `kubernetes/_docs/access-telepresence.md`); otherwise use `kubectl port-forward`, e.g. `kubectl -n argocd port-forward svc/argocd-server 8080:80`.
 
-**Claude agent:**
-- `platform/claude-agent` runs `claude remote-control`, steered from claude.ai/code or the Claude app. It has read-only cluster RBAC (no Secrets), no Terraform credentials (it reads the plan CI posts on its PRs) and a repo-scoped GitHub PAT, so it can only propose changes via PRs. The claude.ai login is a one-off `kubectl exec ... claude auth login`, persisted on its PVC (`kubernetes/_docs/claude-agent.md`).
 
 **Secrets & State:**
 - Infisical manages secret storage and distribution across infrastructure

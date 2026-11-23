@@ -1,6 +1,6 @@
 ---
 name: security-review
-description: Review everything-as-code for security risk — a full scan or a review of one branch / PR — across cloud identity and IAM (GCP projects, the terraform service accounts, workload identity pools and their conditions), Terraform state and the secrets bucket, GitHub (repo settings, branch protection, rulesets, environments, deploy keys and app credentials that terraform/github hands out), CI/CD and the supply chain (workflows, the reusable workflows in mazino2d/github-workflows, actions, images), Kubernetes (RBAC, network policy, pod security, Argo CD, the Infisical operator, the claude-agent), secrets handling (Infisical, Cloudflare and Grafana tokens) and what the public repo exposes. Reports findings ranked by severity with evidence (file:line), an attack path and a fix. Use when the user asks to "review security", "audit infra", "kiểm tra bảo mật", "rủi ro bảo mật", "is this PR safe", "IAM review", before merging a change to identity, state, CI or repo settings, or invokes /security-review. Not for writing the fix (infra) or debugging a live workload (k8s-debug).
+description: Review everything-as-code for security risk — a full scan or a review of one branch / PR — across cloud identity and IAM (GCP projects, the terraform service accounts, workload identity pools and their conditions), Terraform state and the secrets bucket, GitHub (repo settings, branch protection, rulesets, environments, deploy keys and app credentials that terraform/github hands out), CI/CD and the supply chain (workflows, the reusable workflows in mazino2d/github-workflows, actions, images), Kubernetes (RBAC, network policy, pod security, Argo CD, the Infisical operator), secrets handling (Infisical, Cloudflare and Grafana tokens) and what the public repo exposes. Reports findings ranked by severity with evidence (file:line), an attack path and a fix. Use when the user asks to "review security", "audit infra", "kiểm tra bảo mật", "rủi ro bảo mật", "is this PR safe", "IAM review", before merging a change to identity, state, CI or repo settings, or invokes /security-review. Not for writing the fix (infra) or debugging a live workload (k8s-debug).
 argument-hint: "[scan|pr <number>|area <iam|state|github|ci|k8s|secrets|exposure>]"
 ---
 
@@ -42,7 +42,7 @@ The repo lives under the `mazino2d` GitHub account: prefix `gh` with
 | Terraform state and stack secrets | anyone with bucket read | `gs://mazino2d-as-se1-eac-tfstate` IAM (`tfstate.tf`), audit logs, versioning |
 | Credentials handed to other repos (deploy keys, app keys, Cloudflare tokens, GCP WIF) | a compromised app repo | scope of each credential in `terraform/github`, `terraform/cloudflare`, each GCP stack |
 | The maintainer's bill | anyone with a leaked key or an open endpoint | budgets and kill switches, no keys, quotas |
-| The cluster and its data | the internet, a compromised pod, the claude-agent | no ingress, network policy (`nacl`), RBAC, Infisical operator, Argo CD |
+| The cluster and its data | the internet, a compromised pod | no ingress, network policy (`nacl`), RBAC, Infisical operator, Argo CD |
 | Secrets in Infisical | a compromised identity or pod | `terraform/infisical` identities and their scopes, the operator's machine identity |
 
 ## Mode: scan (default)
@@ -103,7 +103,7 @@ findings. Ordered by blast radius.
   `github-workflows` is a moving tag the maintainer controls (who can move it:
   release workflow, rulesets).
 - Images: base images pinned by digest or version, non-root `USER`, no secrets
-  in layers or build args; `claude-agent` image tools and managed settings.
+  in layers or build args.
 - Open Dependabot and code scanning alerts in both repos.
 
 ### 5. Kubernetes — `kubernetes/`, `terraform/k8s/`, live read-only
@@ -111,11 +111,11 @@ findings. Ordered by blast radius.
 - No public exposure: no `LoadBalancer`/`NodePort` Services or Gateways without a
   reason; Telepresence and port-forward as the access path.
 - Network policy for every namespace/workload (`nacl` egress lists; a `"*"`
-  egress needs a reason — the claude-agent has one).
+  egress needs a reason).
 - Pod security: non-root, no privileged, no host paths or host network, read-only
   root FS where possible, resources set.
-- RBAC: cluster-admin bindings, the claude-agent ClusterRole (no Secrets, no
-  exec), Argo CD admin and its repo credential
+- RBAC: cluster-admin bindings, the `terraform-plan` ClusterRole (read-only),
+  Argo CD admin and its repo credential
   (`argocd_private_key_pem`: read-only deploy key?).
 - Secrets: only through the Infisical operator; no plain `Secret` manifests or
   values with secrets in git; the operator's machine identity scope.

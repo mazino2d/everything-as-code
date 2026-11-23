@@ -28,8 +28,6 @@ reports before any application bug does:
   Application, suspend sync, `kubectl apply`, wake the cluster — needs the
   user's explicit yes for that exact command. Prefer the fix as a PR (`infra`
   for the change, `pr-open` for the PR).
-- If you are the in-cluster `claude-agent`, you have read-only RBAC: propose,
-  don't attempt.
 
 ## Step 0 — Connect
 

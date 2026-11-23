@@ -19,6 +19,4 @@ Adding an image needs no workflow change: create `docker/<name>/Dockerfile`.
 Reference it from Kubernetes with an immutable tag, e.g.
 `ghcr.io/mazino2d/<name>:sha-abc1234`.
 
-| Image | Purpose |
-|-------|---------|
-| `claude-agent` | Claude Code Remote Control agent with `gh`, `kubectl`, `terraform` (`kubernetes/_docs/claude-agent.md`) |
+There are no images yet.
