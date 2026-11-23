@@ -19,6 +19,12 @@ module "everything_as_code" {
       contexts = ["terraform / gate", "k8s / gate", "blog / gate", "docker / gate"]
     }
   }
+
+  security = {
+    dependabot_alerts           = true
+    dependabot_security_updates = true
+    secret_scanning             = true
+  }
 }
 
 module "mazino2d" {
@@ -127,6 +133,12 @@ module "github_workflows" {
 
   # release-please opens the release PR with the workflow token.
   actions_can_create_and_approve_pull_requests = true
+
+  security = {
+    dependabot_alerts           = true
+    dependabot_security_updates = true
+    secret_scanning             = true
+  }
 }
 
 module "a3spy" {
