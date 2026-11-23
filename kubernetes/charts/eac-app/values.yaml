@@ -21,25 +21,14 @@ podLabels: {}             # optional; extra labels added to the pod template
 workload: deployment      # required; deployment | statefulset
 
 # DEPLOYMENT MODE
-# autoscaling and rollout only apply when workload is deployment.
+# rollout only applies when workload is deployment.
 deployment:
-  replicaCount: 1         # optional; default: 1 — ignored when autoscaling.enabled is true
-
-  # AUTOSCALING (Horizontal Pod Autoscaler)
-  # When enabled, an HPA is created targeting the active workload (Deployment or Rollout).
-  # replicaCount is ignored when autoscaling is enabled — the HPA has sole authority over replica counts.
-  autoscaling:
-    enabled: false                          # optional; default: false
-    minReplicas: 1                          # optional; default: 1
-    maxReplicas: 3                          # optional; default: 3
-    targetCPUUtilizationPercentage: 80      # optional; omit or leave empty to disable CPU scaling
-    targetMemoryUtilizationPercentage: ""   # optional; omit or leave empty to disable memory scaling
+  replicaCount: 1         # optional; default: 1
 
   # ROLLOUT STRATEGY
-  # BlueGreen | ReplicaCanary | MeshTrafficCanary require Argo Rollouts (infra/argocd).
-  # MeshTrafficCanary also needs a service mesh, which this cluster does not run.
+  # BlueGreen | ReplicaCanary require Argo Rollouts (infra/argocd).
   rollout:
-    strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen | ReplicaCanary | MeshTrafficCanary — default: RollingUpdate
+    strategy: RollingUpdate      # optional; RollingUpdate | Recreate | BlueGreen | ReplicaCanary — default: RollingUpdate
     # RollingUpdate params:
     maxSurge: 1                  # optional; max extra pods during update — default: 1
     maxUnavailable: 0            # optional; max pods unavailable during update — default: 0
@@ -47,7 +36,7 @@ deployment:
     autoPromotionEnabled: false  # optional; default: false — manual promote via: kubectl argo rollouts promote <name>
     previewReplicaCount: 1       # optional; replicas for the inactive (preview) version — default: 1
     scaleDownDelaySeconds: 30    # optional; seconds to keep old version after promotion — default: 30
-    # ReplicaCanary | MeshTrafficCanary params:
+    # ReplicaCanary params:
     steps: []                    # optional; list of canary steps — see example below
     # steps:
     #   - setWeight: 25
@@ -113,13 +102,6 @@ service:
       # name: http        # optional; required by K8s when multiple ports are defined
       # nodePort: null    # optional; only when type=NodePort
 
-# HTTP ROUTE (GKE Gateway API)
-httpRoute:
-  enabled: false          # optional; default: false
-  gatewayName: eac        # optional; name of the Gateway resource
-  gatewayNamespace: apps  # optional; namespace of the Gateway resource
-  host: ""                # required when enabled; e.g. app.example.com
-
 # DNS CONFIGURATION
 dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: None when provided
 # e.g.
@@ -134,7 +116,6 @@ dnsConfig: {}             # optional; custom DNS settings — sets dnsPolicy: No
 # FQDNNetworkPolicy for egress entries that name a host ("host:port" without "/").
 # Entries are "<namespace>/<app>[:port]".
 # DNS egress (port 53 to kube-dns) is always permitted.
-# Apps with httpRoute.enabled=true automatically allow external ingress on service ports.
 # Requires GKE Dataplane V2 (ADVANCED_DATAPATH) for enforcement.
 nacl:
   ingress: []   # e.g. ["apps/outline-db-1:5432", "apps/outline-cache:8080"]; "*" allows all ingress

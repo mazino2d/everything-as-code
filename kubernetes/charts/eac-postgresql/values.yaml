@@ -122,24 +122,3 @@ instances: []
 #         memory: 32Mi
 #       limits:
 #         memory: 64Mi
-#
-# NETWORK POLICY (optional)
-#   networkPolicy:
-#     enabled: false                  default: false
-#     allowFromNamespaces: []         namespaces allowed to reach the instance (e.g. ["apps", "monitoring"])
-#
-# BACKUP CRONJOB (optional)
-#   backup:
-#     enabled: false                  default: false; creates a CronJob running pg_dump
-#     schedule: "0 2 * * *"          default: daily at 02:00 UTC
-#     successfulJobsHistoryLimit: 3
-#     failedJobsHistoryLimit: 3
-#     restartPolicy: OnFailure
-#     storage:
-#       enabled: false                set true to mount a PVC for storing dumps
-#       existingClaim: ""             required when storage.enabled=true; name of the PVC
-#       mountPath: /backup            default: /backup
-#     command:                        optional; override the default pg_dump command
-#       - /bin/sh
-#       - -c
-#       - pg_dump -h "$PGHOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip > /backup/dump.sql.gz

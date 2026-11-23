@@ -59,7 +59,7 @@ Locally, run `gcloud auth application-default login` before `make plan STACK=...
 
 ## 4. Adopt the Project into Terraform State
 
-The project was created by hand in step 1, so add an `import` block to the stack's `_import.tf` (as in `terraform/gcp/simsplit-as-se1-dev/_import.tf`):
+The project was created by hand in step 1, so add an `import` block for it to the stack's `_import.tf`:
 
 ```hcl
 import {
@@ -68,4 +68,4 @@ import {
 }
 ```
 
-The first CI apply after merging adopts it; APIs and project settings are tracked from then on.
+The first CI apply after merging adopts it; APIs and project settings are tracked from then on. Once that apply has run, delete the block (and `_import.tf` if nothing else is in it): an applied import is dead code.

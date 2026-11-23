@@ -1,5 +1,4 @@
 name: adminer
-replicaCount: 1
 image:
   repository: adminer
   tag: 4.8.1-standalone
@@ -10,9 +9,8 @@ resources:
   limits:
     memory: 64Mi
 env:
-  ADMINER_DEFAULT_SERVER: app-db.apps.svc.cluster.local
+  ADMINER_DEFAULT_SERVER: outline-db-1.apps.svc.cluster.local
 service:
-  type: ClusterIP
   ports:
     - port: 8080
       containerPort: 8080

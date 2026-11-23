@@ -61,10 +61,10 @@ and strip what the new product doesn't use:
 | `_providers.tf` | `required_version = "~> 1.14"`, pinned providers, `backend "gcs"` with `prefix = "state/gcp/<project>"`, locals `project_id`, `region`, `billing_account_id`, `google` provider with `user_project_override` |
 | `_variables.tf` | `budget_amount` and any product input; secrets `sensitive = true`, no default |
 | `_outputs.tf` | only what another stack reads (`terraform/github` for repo variables) |
-| `_import.tf` | `import` for `module.project.google_project.this` (and anything else made by hand) |
+| `_import.tf` | `import` for `module.project.google_project.this` (and anything else made by hand); delete the blocks once applied |
 | `project.tf` | `module "project"` from `./_modules/gcp-project` with the services list, each group commented with why |
 | `budget.tf`, `kill_switch.tf`, `_functions/billing_kill_switch/` | copied unchanged; budget on `local.billing_account_id` |
-| `terraform_wif.tf` | `roles/iam.workloadIdentityUser` on `terraform@<project>` for `mazino2d/everything-as-code` in the eac `github` pool, with its `import` |
+| `terraform_wif.tf` | `roles/iam.workloadIdentityUser` on `terraform@<project>` for `mazino2d/everything-as-code` in the eac `github` pool (its `import` goes in `_import.tf` if the binding was made by hand) |
 | `github_actions.tf` | only if the product repo deploys to GCP: its own `github` pool, a provider whose `attribute_condition` pins `assertion.repository == 'mazino2d/<repo>'` (and the ref or environment for prd), a deployer SA with the narrowest roles |
 | `_docs/setup.md` | what is manual for this project and how to relink billing after the kill switch |
 

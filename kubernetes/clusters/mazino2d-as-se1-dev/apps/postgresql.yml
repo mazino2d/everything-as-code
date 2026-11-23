@@ -1,6 +1,5 @@
 instances:
   - name: outline-db-1
-    replicaCount: 1
     image:
       repository: postgres
       tag: "16-alpine"
@@ -26,10 +25,3 @@ instances:
       walLevel: "replica"
     exporter:
       enabled: true
-    backup:
-      enabled: false
-      schedule: "0 2 * * *"
-      storage:
-        enabled: false
-        existingClaim: ""
-        mountPath: /backup

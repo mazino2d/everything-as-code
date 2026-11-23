@@ -1,4 +1,4 @@
 apiVersion: v2
 name: eac-postgresql
-version: 0.2.0
+version: 0.3.0
 description: Manages one or more single-instance PostgreSQL StatefulSets with optional Atlas schema management

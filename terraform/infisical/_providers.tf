@@ -18,6 +18,11 @@ terraform {
   }
 }
 
+locals {
+  # Every stack's state, under state/<stack path under terraform/>.
+  remote_state_bucket = "mazino2d-as-se1-eac-tfstate"
+}
+
 provider "infisical" {
   host          = "https://app.infisical.com"
   client_id     = var.infisical_client_id

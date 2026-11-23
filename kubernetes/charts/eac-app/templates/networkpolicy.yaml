@@ -10,18 +10,8 @@ spec:
   policyTypes:
     - Ingress
     - Egress
-  {{- $hasIngress := or .Values.httpRoute.enabled (gt (len .Values.nacl.ingress) 0) }}
-  {{- if $hasIngress }}
+  {{- if .Values.nacl.ingress }}
   ingress:
-    {{- if .Values.httpRoute.enabled }}
-    - from:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-      ports:
-        {{- range .Values.service.ports }}
-        - port: {{ .containerPort }}
-        {{- end }}
-    {{- end }}
     {{- if has "*" .Values.nacl.ingress }}
     - {}
     {{- end }}

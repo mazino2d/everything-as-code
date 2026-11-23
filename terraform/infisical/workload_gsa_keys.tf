@@ -26,7 +26,7 @@ data "terraform_remote_state" "gcp_workload_gsa" {
   backend = "gcs"
 
   config = {
-    bucket = var.remote_state_bucket
+    bucket = local.remote_state_bucket
     prefix = "state/${each.value.stack}"
   }
 }

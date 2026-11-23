@@ -11,7 +11,7 @@ instances: []
 #     type: ClusterIP     # type of the primary service (ClusterIP | NodePort | LoadBalancer)
 #     port: 6379
 #     nodePort: null      # only used when type: NodePort
-#                         # <name>-ro (ClusterIP) is always created for read scaling
+#                         # <name>-ro (ClusterIP, every pod) is created only when replicaCount > 1
 #   resources:
 #     requests:
 #       cpu: 10m

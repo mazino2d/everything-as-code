@@ -29,10 +29,6 @@ resource "github_repository" "this" {
       }
     }
   }
-
-  lifecycle {
-    prevent_destroy = false
-  }
 }
 
 resource "github_repository_vulnerability_alerts" "this" {
