@@ -29,7 +29,13 @@
       "Bash(helm get *)",
       "Bash(helm status *)",
       "Bash(helm search *)",
-      "Bash(kustomize build *)"
+      "Bash(kustomize build *)",
+      "Bash(terraform fmt -check *)",
+      "Bash(terraform validate *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh run list *)"
     ]
   }
 }

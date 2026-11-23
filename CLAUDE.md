@@ -24,6 +24,7 @@ make validate STACK=terraform/github
 
 Valid `STACK` values:
 - `terraform/github` (default)
+- `terraform/gcp/mazino2d-as-se1-eac`
 - `terraform/gcp/mazino2d-as-se1-dev`
 - `terraform/gcp/simsplit-as-se1-prd`
 - `terraform/gcp/simsplit-as-se1-dev`
@@ -104,29 +105,31 @@ kubernetes/
 │   └── claude-agent.md     # Claude Code Remote Control agent
 ├── charts/                 # reusable Helm charts
 │   ├── eac-app/            # generic application chart template
+│   ├── eac-cronjob/        # CronJob chart
 │   ├── eac-postgresql/     # PostgreSQL deployment chart
 │   └── eac-redis/          # Redis deployment chart
 └── clusters/
-    └── mazino2d-as-se1-dev/
-        ├── apps/           # application workloads
+    └── mazino2d-as-se1-dev/   # one Argo CD Application per layer (terraform/k8s/.../argocd.tf)
+        ├── apps/           # application workloads (namespace apps)
+        │   ├── dagster/    # data orchestration
         │   ├── hotrod/     # Jaeger demo application
         │   ├── httpbin/    # HTTP request/response debugging
-        │   ├── postgresql/ # PostgreSQL database
-        │   └── redis/      # Redis cache
+        │   ├── outline/    # wiki
+        │   ├── postgresql.yml # eac-postgresql values
+        │   └── redis.yml   # eac-redis values
         ├── infra/          # cluster infrastructure components
         │   ├── argocd/              # Argo CD GitOps engine
         │   ├── atlas-operator/      # DB schema automation
         │   ├── cert-manager/        # certificates (OpenTelemetry operator webhook)
         │   ├── infisical-operator/  # secrets operator
-│   ├── telepresence/        # Telepresence traffic-manager (private access)
-        │   ├── kustomization.yaml
+        │   ├── telepresence/        # Telepresence traffic-manager (private access)
         │   └── velero/              # cluster backup solution
         ├── monitoring/     # observability stack
-        │   └── [observability components]
+        │   ├── grafana-alloy/
+        │   └── opentelemetry-operator/
         └── platform/       # platform utilities
             ├── adminer/    # database admin UI
-            ├── claude-agent/ # Claude Code Remote Control agent (read-only kubectl, terraform plan, PRs)
-            └── [other tools]
+            └── claude-agent/ # Claude Code Remote Control agent (read-only kubectl, terraform plan, PRs)
 ```
 
 Local reusable charts are defined in `kubernetes/charts/`. Cluster components use local charts via Kustomize `helmCharts`, and also consume external Helm charts directly from upstream repositories.
@@ -171,6 +174,18 @@ Notes:
 - `GITHUB_TOKEN` is provided automatically by GitHub Actions.
 - Kubernetes deployment is not driven by GitHub Actions in normal operation; Argo CD performs reconciliation in-cluster.
 - Sensitive Terraform inputs (for example `infisical_client_secret`, `grafana_cloud_access_policy_token`) live in the stack's `secrets/<stack path>.tfvars.json` in the state bucket, not in repository-level GitHub secrets. Edit one with `make secrets-edit STACK=terraform/<stack>`.
+
+## Agent Skills
+
+Project skills live in `.claude/skills/`; names are `<object>-<action>`, or just the object when the skill has modes.
+
+| Skill | Use |
+|-------|-----|
+| `infra` | `plan` / `build` / `review` Terraform, Kubernetes, images and CI callers |
+| `project-onboard` | New product or environment: GCP project pair, repo, credentials, in order |
+| `security-review` | Security scan of the repo, one area, or one PR |
+| `k8s-debug` | Root cause of a broken workload or Argo CD app on the cluster |
+| `pr-open` | Branch, commit, validate and open or update the PR |
 
 ## Coding Style
 

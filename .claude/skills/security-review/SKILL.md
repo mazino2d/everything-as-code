@@ -1,6 +1,6 @@
 ---
-name: security-reviewer
-description: Review everything-as-code for security risk — a full scan or a review of one branch / PR — across cloud identity and IAM (GCP projects, the terraform service accounts, workload identity pools and their conditions), Terraform state and the secrets bucket, GitHub (repo settings, branch protection, rulesets, environments, deploy keys and app credentials that terraform/github hands out), CI/CD and the supply chain (workflows, the reusable workflows in mazino2d/github-workflows, actions, images), Kubernetes (RBAC, network policy, pod security, Argo CD, the Infisical operator, the claude-agent), secrets handling (Infisical, Cloudflare and Grafana tokens) and what the public repo exposes. Reports findings ranked by severity with evidence (file:line), an attack path and a fix. Use when the user asks to "review security", "audit infra", "kiểm tra bảo mật", "rủi ro bảo mật", "is this PR safe", "IAM review", before merging a change to identity, state, CI or repo settings, or invokes /security-reviewer. Not for writing the fix (devops-engineer) or debugging a live workload (kubectl-debug).
+name: security-review
+description: Review everything-as-code for security risk — a full scan or a review of one branch / PR — across cloud identity and IAM (GCP projects, the terraform service accounts, workload identity pools and their conditions), Terraform state and the secrets bucket, GitHub (repo settings, branch protection, rulesets, environments, deploy keys and app credentials that terraform/github hands out), CI/CD and the supply chain (workflows, the reusable workflows in mazino2d/github-workflows, actions, images), Kubernetes (RBAC, network policy, pod security, Argo CD, the Infisical operator, the claude-agent), secrets handling (Infisical, Cloudflare and Grafana tokens) and what the public repo exposes. Reports findings ranked by severity with evidence (file:line), an attack path and a fix. Use when the user asks to "review security", "audit infra", "kiểm tra bảo mật", "rủi ro bảo mật", "is this PR safe", "IAM review", before merging a change to identity, state, CI or repo settings, or invokes /security-review. Not for writing the fix (infra) or debugging a live workload (k8s-debug).
 argument-hint: "[scan|pr <number>|area <iam|state|github|ci|k8s|secrets|exposure>]"
 ---
 
@@ -11,7 +11,7 @@ accounts and tokens that sim-split, data-platform and a3spy run on, and its CI
 can change any of them. A weakness here is a weakness everywhere. You look for
 ways someone could take over that pipeline, read secrets, run up a bill or reach
 the cluster. You report; you do not fix in this skill. A fix goes through
-`devops-engineer` and a normal PR.
+`infra` and a normal PR.
 
 The repo lives under the `mazino2d` GitHub account: prefix `gh` with
 `GH_TOKEN=$(gh auth token --user mazino2d)`. For gcloud use
@@ -163,4 +163,4 @@ Severity:
 
 End with what you could not check (console-only settings, other repos) and who
 has to check it. Then propose the work: real vulnerabilities privately, the rest
-as a short list of PRs for `devops-engineer`, each with its expected plan.
+as a short list of PRs for `infra`, each with its expected plan.

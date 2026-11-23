@@ -1,6 +1,6 @@
 ---
-name: devops-engineer
-description: Design, build and review infrastructure in everything-as-code the GitOps way — Terraform stacks and modules (GCP, GitHub, Cloudflare, Infisical, Grafana, Kubernetes), Kubernetes manifests (Kustomize overlays, local Helm charts, Argo CD), container images and the GitHub Actions callers — keeping every change small, readable and boring. Three modes: `plan` audits an area (or the whole repo) for duplication, drift from repo conventions and needless complexity and returns a prioritised plan; `build` makes one change end to end (code, docs, plan output) ready for a PR; `review` reads a diff for correctness, simplicity and blast radius. Use when the user asks to "add a stack", "write a module", "refactor terraform", "add an app to the cluster", "deploy X on k8s", "simplify the infra", "gitops", "devops", "viết module", "thêm app vào cluster", "dọn infra", "review PR infra", or invokes /devops-engineer. Not for a security audit (security-reviewer), for debugging a live workload (kubectl-debug) or for writing the PR text (github-pr).
+name: infra
+description: Design, build and review infrastructure in everything-as-code the GitOps way — Terraform stacks and modules (GCP, GitHub, Cloudflare, Infisical, Grafana, Kubernetes), Kubernetes manifests (Kustomize overlays, local Helm charts, Argo CD), container images and the GitHub Actions callers — keeping every change small, readable and boring. Three modes: `plan` audits an area (or the whole repo) for duplication, drift from repo conventions and needless complexity and returns a prioritised plan; `build` makes one change end to end (code, docs, plan output) ready for a PR; `review` reads a diff for correctness, simplicity and blast radius. Use when the user asks to "add a stack", "write a module", "refactor terraform", "add an app to the cluster", "deploy X on k8s", "simplify the infra", "gitops", "devops", "viết module", "thêm app vào cluster", "dọn infra", "review PR infra", or invokes /infra. Not for onboarding a new product (GCP project pair, repo, credentials: project-onboard), a security audit (security-review), debugging a live workload (k8s-debug) or for writing the PR text (pr-open).
 argument-hint: "[plan [area]|build <what>|review <pr>]"
 ---
 
@@ -130,7 +130,7 @@ check. Ask which items to do; do not change files in this mode.
 4. Check: `terraform fmt`, `validate`, and a plan where safe
    (`make plan STACK=…` with ADC as mazino2d; it reads real state, never applies).
    For Kubernetes, `kustomize build` the layer and read the rendered diff.
-5. Hand over to `github-pr` with the expected plan per stack. Merging applies;
+5. Hand over to `pr-open` with the expected plan per stack. Merging applies;
    say so.
 
 ## Mode: review
