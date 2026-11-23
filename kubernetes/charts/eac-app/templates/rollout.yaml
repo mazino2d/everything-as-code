@@ -1,4 +1,4 @@
-{{- $argoStrategies := list "BlueGreen" "ReplicaCanary" "MeshTrafficCanary" }}
+{{- $argoStrategies := list "BlueGreen" "ReplicaCanary" }}
 {{- if and (eq .Values.workload "deployment") (has .Values.deployment.rollout.strategy $argoStrategies) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -6,9 +6,7 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if not .Values.deployment.autoscaling.enabled }}
   replicas: {{ .Values.deployment.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       app: {{ .Values.name }}
@@ -42,18 +40,6 @@ spec:
       previewReplicaCount: {{ .Values.deployment.rollout.previewReplicaCount }}
     {{- else if eq .Values.deployment.rollout.strategy "ReplicaCanary" }}
     canary:
-      steps:
-        {{- toYaml .Values.deployment.rollout.steps | nindent 8 }}
-    {{- else if eq .Values.deployment.rollout.strategy "MeshTrafficCanary" }}
-    canary:
-      stableService: {{ .Values.name }}
-      canaryService: {{ .Values.name }}-canary
-      trafficRouting:
-        istio:
-          virtualServices:
-            - name: {{ .Values.name }}
-              routes:
-                - primary
       steps:
         {{- toYaml .Values.deployment.rollout.steps | nindent 8 }}
     {{- end }}

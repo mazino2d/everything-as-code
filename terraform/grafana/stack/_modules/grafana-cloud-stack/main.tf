@@ -7,20 +7,13 @@ terraform {
   }
 }
 
-resource "grafana_cloud_stack" "this" {
-  count       = var.create_stack ? 1 : 0
-  name        = var.stack_name
-  slug        = var.stack_slug
-  region_slug = var.stack_region_slug
-}
-
+# The stack itself is made by hand in Grafana Cloud; Terraform only reads it.
 data "grafana_cloud_stack" "this" {
-  count = var.create_stack ? 0 : 1
-  slug  = var.stack_slug
+  slug = var.stack_slug
 }
 
 locals {
-  stack = var.create_stack ? grafana_cloud_stack.this[0] : data.grafana_cloud_stack.this[0]
+  stack = data.grafana_cloud_stack.this
 }
 
 resource "grafana_cloud_access_policy" "metrics_push" {

@@ -31,25 +31,22 @@ output "app_check" {
   description = "Public App Check values for sim-split; the github stack sets the site key as a repo variable."
   value = {
     recaptcha_site_key = google_recaptcha_enterprise_key.web.name
-    enforced           = var.app_check_enforced
   }
 }
 
 output "telemetry" {
   description = "R-4 telemetry endpoint: its URL for the app, its service account for the warehouse grant, and the values for sim-split's deploy workflow."
   value = {
-    url                        = google_cloud_run_v2_service.telemetry.uri
-    service_account            = google_service_account.telemetry.email
-    image_repository           = "${google_artifact_registry_repository.telemetry.location}-docker.pkg.dev/${google_artifact_registry_repository.telemetry.project}/${google_artifact_registry_repository.telemetry.repository_id}"
-    workload_identity_provider = google_iam_workload_identity_pool_provider.sim_split.name
-    deployer_service_account   = google_service_account.gha_telemetry_deployer.email
+    url                      = google_cloud_run_v2_service.telemetry.uri
+    service_account          = google_service_account.telemetry.email
+    image_repository         = "${google_artifact_registry_repository.telemetry.location}-docker.pkg.dev/${google_artifact_registry_repository.telemetry.project}/${google_artifact_registry_repository.telemetry.repository_id}"
+    deployer_service_account = google_service_account.gha_telemetry_deployer.email
   }
 }
 
 output "crm" {
   description = "R-9 notifications service: the values for sim-split's crm_deploy.yml."
   value = {
-    url                      = google_cloud_run_v2_service.crm.uri
     service_account          = google_service_account.crm.email
     image_repository         = "${google_artifact_registry_repository.crm.location}-docker.pkg.dev/${google_artifact_registry_repository.crm.project}/${google_artifact_registry_repository.crm.repository_id}"
     deployer_service_account = google_service_account.gha_crm_deployer.email

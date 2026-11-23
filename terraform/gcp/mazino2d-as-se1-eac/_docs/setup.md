@@ -15,7 +15,9 @@ deleting the project.
 ## Rebuild from scratch
 
 The bucket, pool and service account have to exist before any stack can init or
-sign in, so create them by hand. The first apply adopts them (`_import.tf`).
+sign in, so create them by hand, then add `import` blocks for them (and for the
+service account's `roles/owner` and WIF bindings) to `_import.tf`; the first apply
+adopts them, after which the blocks can go.
 
 ```bash
 P=mazino2d-as-se1-eac

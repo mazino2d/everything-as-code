@@ -1,5 +1,5 @@
 {{- include "eac-app.validateWorkload" . -}}
-{{- $argoStrategies := list "BlueGreen" "ReplicaCanary" "MeshTrafficCanary" }}
+{{- $argoStrategies := list "BlueGreen" "ReplicaCanary" }}
 {{- if and (eq .Values.workload "deployment") (not (has .Values.deployment.rollout.strategy $argoStrategies)) }}
 apiVersion: apps/v1
 kind: Deployment
@@ -7,9 +7,7 @@ metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if not .Values.deployment.autoscaling.enabled }}
   replicas: {{ .Values.deployment.replicaCount }}
-  {{- end }}
   strategy:
     type: {{ .Values.deployment.rollout.strategy | default "RollingUpdate" }}
     {{- if eq (.Values.deployment.rollout.strategy | default "RollingUpdate") "RollingUpdate" }}

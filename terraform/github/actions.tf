@@ -21,7 +21,7 @@ resource "github_repository_environment" "data_platform" {
   can_admins_bypass = true
 
   dynamic "deployment_branch_policy" {
-    for_each = contains(["prd", "crm-prd"], each.key) ? [1] : []
+    for_each = each.key == "prd" ? [1] : []
     content {
       protected_branches     = false
       custom_branch_policies = true

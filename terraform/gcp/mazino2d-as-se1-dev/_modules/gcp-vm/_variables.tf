@@ -55,11 +55,6 @@ variable "external_ip_type" {
   }
 }
 
-variable "deny_egress_internet" {
-  type    = bool
-  default = false
-}
-
 variable "duckdns_domain" {
   type    = string
   default = null
@@ -70,15 +65,3 @@ variable "duckdns_token" {
   sensitive = true
   default   = null
 }
-
-variable "allow_stopping_for_update" {
-  type    = bool
-  default = true
-}
-
-variable "instance_metadata" {
-  type        = map(string)
-  default     = {}
-  description = "Additional instance metadata entries to merge into default metadata"
-}
-

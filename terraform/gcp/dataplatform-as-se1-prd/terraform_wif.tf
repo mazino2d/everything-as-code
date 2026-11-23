@@ -10,8 +10,3 @@ resource "google_service_account_iam_member" "terraform_wif" {
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${local.eac_github_pool}/attribute.repository/mazino2d/everything-as-code"
 }
-
-import {
-  to = google_service_account_iam_member.terraform_wif
-  id = "projects/dataplatform-as-se1-prd/serviceAccounts/terraform@dataplatform-as-se1-prd.iam.gserviceaccount.com roles/iam.workloadIdentityUser principalSet://iam.googleapis.com/projects/725985974531/locations/global/workloadIdentityPools/github/attribute.repository/mazino2d/everything-as-code"
-}

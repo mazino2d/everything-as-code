@@ -44,7 +44,7 @@ resource "google_compute_instance" "this" {
   zone                      = var.zone
   project                   = var.project_id
   tags                      = concat(["${var.name}-ssh"], var.tags)
-  allow_stopping_for_update = var.allow_stopping_for_update
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
@@ -65,17 +65,14 @@ resource "google_compute_instance" "this" {
     }
   }
 
-  metadata = merge(
-    {
-      ssh-keys                = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
-      block-project-ssh-keys  = "true"
-      startup-script          = file("${path.module}/_scripts/wrap_duckdns_startup.sh")
-      user-startup-script-b64 = var.startup_script != null ? base64encode(var.startup_script) : null
-      duckdns-token           = var.duckdns_domain != null ? var.duckdns_token : null
-      duckdns-domain          = var.duckdns_domain
-    },
-    var.instance_metadata,
-  )
+  metadata = {
+    ssh-keys                = var.ssh_public_key != null ? "user:${var.ssh_public_key}" : null
+    block-project-ssh-keys  = "true"
+    startup-script          = file("${path.module}/_scripts/wrap_duckdns_startup.sh")
+    user-startup-script-b64 = var.startup_script != null ? base64encode(var.startup_script) : null
+    duckdns-token           = var.duckdns_domain != null ? var.duckdns_token : null
+    duckdns-domain          = var.duckdns_domain
+  }
 
   scheduling {
     preemptible                 = var.spot
@@ -84,24 +81,4 @@ resource "google_compute_instance" "this" {
     provisioning_model          = var.spot ? "SPOT" : "STANDARD"
     instance_termination_action = var.spot ? "STOP" : null
   }
-
-  lifecycle {
-    prevent_destroy = false
-  }
-}
-
-resource "google_compute_firewall" "deny_egress_internet" {
-  count     = var.deny_egress_internet ? 1 : 0
-  name      = "${var.name}-deny-egress-internet"
-  network   = "default"
-  project   = var.project_id
-  direction = "EGRESS"
-  priority  = 1000
-
-  deny {
-    protocol = "all"
-  }
-
-  destination_ranges = ["0.0.0.0/0"]
-  target_tags        = ["${var.name}-ssh"]
 }

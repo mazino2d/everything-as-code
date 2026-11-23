@@ -20,6 +20,7 @@ spec:
       {{- if $nodePort }}
       nodePort: {{ $nodePort }}
       {{- end }}
+{{- if gt (int (.replicaCount | default 1)) 1 }}
 ---
 apiVersion: v1
 kind: Service
@@ -33,4 +34,5 @@ spec:
     - port: {{ $port }}
       targetPort: {{ $port }}
       appProtocol: tcp
+{{- end }}
 {{- end }}

@@ -1,13 +1,4 @@
-variable "create_stack" {
-  type    = bool
-  default = true
-}
-
 variable "stack_slug" {
-  type = string
-}
-
-variable "stack_name" {
   type = string
 }
 
