@@ -41,9 +41,10 @@ gcloud iam workload-identity-pools providers create-oidc everything-as-code \
   --attribute-condition "assertion.repository == 'mazino2d/everything-as-code'"
 ```
 
-On the `mazino2d` billing account, grant `roles/billing.user` and
-`roles/billing.costsManager` to `terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com`
-(the budget in `budget.tf`).
+On every billing account, grant `roles/billing.admin` to
+`terraform@mazino2d-as-se1-eac.iam.gserviceaccount.com`. Nothing else can grant it; with
+it, `billing_iam.tf` grants each project's terraform service account the billing roles it
+needs (this stack's included) and adopts this binding.
 
 If the project number changes, update it in every `terraform/gcp/*/terraform_wif.tf`
 and in `gcp-workload-identity-provider` in `.github/workflows/terraform.yml`.
