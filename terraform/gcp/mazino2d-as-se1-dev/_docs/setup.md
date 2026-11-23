@@ -26,7 +26,7 @@ needed:
 
 | Consumer | Reads |
 |---|---|
-| `terraform/k8s/mazino2d-as-se1-dev` | `gke_cluster_endpoint`, `gke_cluster_ca_cert`, `k8s_tf_sa_key_json` |
+| `terraform/k8s/mazino2d-as-se1-dev` | `gke_cluster_endpoint`, `gke_cluster_ca_cert` (it signs in as `terraform@mazino2d-as-se1-dev`, no key) |
 | `terraform/infisical` | `workload_gsa` (the Velero SA key, synced to Infisical) |
 
 ## 2. vm-free
@@ -53,13 +53,8 @@ Then set up local cluster access with [kubernetes/_docs/setup.md](../../../../ku
 
 ## 4. GitHub Actions
 
-`.github/workflows/k8s-power.yml` authenticates with values hard-coded from this stack.
-After you rebuild the project, update them from the outputs:
-
-| Workflow input | Output |
-|---|---|
-| `workload_identity_provider` | `github_actions_wif_provider` (contains the project number) |
-| `service_account` | `gha_k8s_power_sa_email` |
-
-The provider only trusts workflows on `main` of `mazino2d/everything-as-code`
-(`github_actions.tf`).
+`.github/workflows/k8s-power.yml` signs in through the `github` pool in
+`mazino2d-as-se1-eac` (the provider Terraform CI uses) as `gha_k8s_power_sa_email`.
+Only workflows on `main` of `mazino2d/everything-as-code` may impersonate it
+(`github_actions.tf`). After you rebuild the project, check the service account in the
+workflow still matches that output.

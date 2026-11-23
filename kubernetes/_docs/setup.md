@@ -28,7 +28,7 @@ Notes:
 
 - Deployments are reconciled by Argo CD from this repository.
 - This repository does not rely on GitHub Actions to deploy Kubernetes manifests during normal operation.
-- The `terraform/k8s` workspace accesses the cluster via remote state (endpoint, CA cert, SA key) — no kubeconfig is required for Terraform operations.
+- The `terraform/k8s` stack reads the cluster endpoint and CA cert from remote state and signs in keylessly (CI as `terraform@mazino2d-as-se1-dev`, locally with your own login) — no kubeconfig or key is needed.
 
 ---
 

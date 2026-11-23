@@ -26,7 +26,7 @@ resource "google_iam_workload_identity_pool_provider" "everything_as_code" {
   }
 }
 
-# Runs the stacks outside GCP (github, cloudflare, infisical, grafana, k8s) and
+# Runs the stacks outside GCP (github, cloudflare, infisical, grafana) and
 # this one.
 resource "google_service_account" "terraform" {
   project      = module.project.project_id

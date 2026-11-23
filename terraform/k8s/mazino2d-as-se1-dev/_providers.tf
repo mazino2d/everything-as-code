@@ -26,9 +26,9 @@ terraform {
   }
 }
 
-provider "google" {
-  credentials = data.terraform_remote_state.gcp.outputs.k8s_tf_sa_key_json
-}
+# Application Default Credentials: in CI the workload identity of
+# terraform@mazino2d-as-se1-dev (.github/workflows/terraform.yml), locally your own login.
+provider "google" {}
 
 data "google_client_config" "this" {}
 

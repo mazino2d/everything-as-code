@@ -4,7 +4,8 @@ name: Terraform
 # applies them; a manual run applies the chosen stack(s). State and each
 # stack's variables live in gs://mazino2d-as-se1-eac-tfstate; jobs sign in
 # keylessly as the terraform service account of the project a stack manages
-# (terraform@mazino2d-as-se1-eac for stacks outside GCP).
+# (terraform@mazino2d-as-se1-eac for stacks outside GCP; the k8s stack runs as
+# terraform@mazino2d-as-se1-dev, which owns the cluster's project).
 on:
   pull_request:
   push:
@@ -58,6 +59,7 @@ jobs:
           "terraform/gcp/simsplit-as-se1-dev": "terraform@simsplit-as-se1-dev.iam.gserviceaccount.com",
           "terraform/gcp/simsplit-as-se1-prd": "terraform@simsplit-as-se1-prd.iam.gserviceaccount.com",
           "terraform/gcp/dataplatform-as-se1-dev": "terraform@dataplatform-as-se1-dev.iam.gserviceaccount.com",
-          "terraform/gcp/dataplatform-as-se1-prd": "terraform@dataplatform-as-se1-prd.iam.gserviceaccount.com"
+          "terraform/gcp/dataplatform-as-se1-prd": "terraform@dataplatform-as-se1-prd.iam.gserviceaccount.com",
+          "terraform/k8s/mazino2d-as-se1-dev": "terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com"
         }
       secrets-uri: gs://mazino2d-as-se1-eac-tfstate/secrets
