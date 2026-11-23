@@ -23,11 +23,12 @@ secrets-edit: secrets
 	python3 -m json.tool $(TFVARS) >/dev/null
 	gcloud storage cp --no-user-output-enabled $(TFVARS) $(SECRETS) && echo "Uploaded $(SECRETS)"
 
+# Waits up to 10 minutes for the state lock (a CI apply or plan may hold it).
 plan: secrets
-	terraform -chdir=$(STACK) plan
+	terraform -chdir=$(STACK) plan -lock-timeout=10m
 
 apply: secrets
-	terraform -chdir=$(STACK) apply -auto-approve
+	terraform -chdir=$(STACK) apply -lock-timeout=10m -auto-approve
 
 fmt:
 	terraform fmt -recursive terraform/
