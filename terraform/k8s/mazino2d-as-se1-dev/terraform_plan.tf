@@ -1,4 +1,4 @@
-# Pull request plans run as terraform-plan@mazino2d-as-se1-dev, whose project
+# Pull request plans run as the read-only terraform-plan@mazino2d-as-se1-dev, whose project
 # roles (terraform/gcp/mazino2d-as-se1-dev/terraform_wif.tf) cannot read
 # Secrets. Plans refresh this stack's Secrets and Helm releases (stored as
 # Secrets), so this read-only role covers every resource, Secrets included.

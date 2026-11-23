@@ -29,6 +29,8 @@ resource "google_iam_workload_identity_pool_provider" "everything_as_code" {
 
 locals {
   eac_repository = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/mazino2d/everything-as-code"
+  # The provider only admits mazino2d/everything-as-code, so this is its main branch.
+  eac_main = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.ref/refs/heads/main"
 }
 
 # Runs the stacks outside GCP (github, cloudflare, infisical, grafana) and
@@ -48,7 +50,7 @@ resource "google_project_iam_member" "terraform_owner" {
 resource "google_service_account_iam_member" "terraform_wif" {
   service_account_id = google_service_account.terraform.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = local.eac_repository
+  member             = local.eac_main
 }
 
 # Plans those stacks: reads this project, the state bucket (tfstate.tf) and the

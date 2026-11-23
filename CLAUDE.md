@@ -75,7 +75,7 @@ Pushes to `main` trigger deployment/apply pipelines:
 
 ### Terraform Structure
 
-State lives in GCS: `gs://mazino2d-as-se1-eac-tfstate/state/<stack path under terraform/>` (gcs backend, with locking; the bucket is versioned and defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). Each stack's secret input variables are one JSON file, `gs://mazino2d-as-se1-eac-tfstate/secrets/<stack path>.tfvars.json`, which CI and `make` copy to `<stack>/ci.auto.tfvars.json` (git-ignored). CI signs in keylessly through the `github` workload identity pool in `mazino2d-as-se1-eac`, as the `terraform@<project>` service account of the project a GCP stack manages (and `terraform@mazino2d-as-se1-dev` for `terraform/k8s/mazino2d-as-se1-dev`), or `terraform@mazino2d-as-se1-eac` for the other stacks (mapping in `.github/workflows/terraform.yml`).
+State lives in GCS: `gs://mazino2d-as-se1-eac-tfstate/state/<stack path under terraform/>` (gcs backend, with locking; the bucket is versioned and defined in `terraform/gcp/mazino2d-as-se1-eac/tfstate.tf`). Each stack's secret input variables are one JSON file, `gs://mazino2d-as-se1-eac-tfstate/secrets/<stack path>.tfvars.json`, which CI and `make` copy to `<stack>/ci.auto.tfvars.json` (git-ignored). CI signs in keylessly through the `github` workload identity pool in `mazino2d-as-se1-eac`, as a service account of the project a GCP stack manages (`mazino2d-as-se1-dev` for `terraform/k8s/mazino2d-as-se1-dev`, `mazino2d-as-se1-eac` for the other stacks; mapping in `.github/workflows/terraform.yml`). Applies run as `terraform@<project>` (Owner), which only `refs/heads/main` may use; pull request plans run as the read-only `terraform-plan@<project>`, without the state lock.
 
 | Stack | Primary scope |
 |-------|---------------|

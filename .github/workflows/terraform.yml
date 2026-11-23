@@ -3,9 +3,11 @@ name: Terraform
 # Pull requests plan every changed stack (sticky PR comment per stack); main
 # applies them; a manual run applies the chosen stack(s). State and each
 # stack's variables live in gs://mazino2d-as-se1-eac-tfstate; jobs sign in
-# keylessly as the terraform service account of the project a stack manages
-# (terraform@mazino2d-as-se1-eac for stacks outside GCP; the k8s stack runs as
-# terraform@mazino2d-as-se1-dev, which owns the cluster's project).
+# keylessly as a service account of the project a stack manages
+# (mazino2d-as-se1-eac for stacks outside GCP; the k8s stack uses
+# mazino2d-as-se1-dev, which owns the cluster's project). Applies run as
+# terraform@, which only main may use; plans run as the read-only
+# terraform-plan@, without the state lock.
 on:
   pull_request:
   push:
@@ -62,4 +64,15 @@ jobs:
           "terraform/gcp/dataplatform-as-se1-prd": "terraform@dataplatform-as-se1-prd.iam.gserviceaccount.com",
           "terraform/k8s/mazino2d-as-se1-dev": "terraform@mazino2d-as-se1-dev.iam.gserviceaccount.com"
         }
+      gcp-plan-service-account: terraform-plan@mazino2d-as-se1-eac.iam.gserviceaccount.com
+      gcp-plan-service-accounts: >-
+        {
+          "terraform/gcp/mazino2d-as-se1-dev": "terraform-plan@mazino2d-as-se1-dev.iam.gserviceaccount.com",
+          "terraform/gcp/simsplit-as-se1-dev": "terraform-plan@simsplit-as-se1-dev.iam.gserviceaccount.com",
+          "terraform/gcp/simsplit-as-se1-prd": "terraform-plan@simsplit-as-se1-prd.iam.gserviceaccount.com",
+          "terraform/gcp/dataplatform-as-se1-dev": "terraform-plan@dataplatform-as-se1-dev.iam.gserviceaccount.com",
+          "terraform/gcp/dataplatform-as-se1-prd": "terraform-plan@dataplatform-as-se1-prd.iam.gserviceaccount.com",
+          "terraform/k8s/mazino2d-as-se1-dev": "terraform-plan@mazino2d-as-se1-dev.iam.gserviceaccount.com"
+        }
+      plan-lock: false
       secrets-uri: gs://mazino2d-as-se1-eac-tfstate/secrets
