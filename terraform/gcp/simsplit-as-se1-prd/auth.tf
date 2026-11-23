@@ -13,6 +13,12 @@ resource "google_identity_platform_config" "this" {
     email {
       enabled = false
     }
+
+    # Identity Platform reports phone sign-in as disabled; without the block
+    # every plan wants to remove it.
+    phone_number {
+      enabled = false
+    }
   }
 
   # Local builds run against dev, so prd doesn't authorize localhost.

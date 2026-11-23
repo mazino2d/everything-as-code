@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    infisical = {
-      source  = "infisical/infisical"
-      version = "~> 0.12"
-    }
-  }
-}
-
 data "infisical_identity_details" "current" {}
 
 resource "infisical_identity" "this" {

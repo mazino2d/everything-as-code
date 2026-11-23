@@ -1,6 +1,6 @@
 resource "google_container_cluster" "this" {
   name     = "mazino2d-as-se1-dev"
-  location = "asia-southeast1"
+  location = local.region
   project  = module.project.project_id
 
   enable_autopilot    = true
@@ -62,7 +62,12 @@ resource "google_service_account" "k8s_tf" {
   project      = module.project.project_id
 }
 
-resource "google_project_iam_member" "k8s_tf_container_developer" {
+moved {
+  from = google_project_iam_member.k8s_tf_container_developer
+  to   = google_project_iam_member.k8s_tf_container_admin
+}
+
+resource "google_project_iam_member" "k8s_tf_container_admin" {
   project = module.project.project_id
   role    = "roles/container.admin"
   member  = "serviceAccount:${google_service_account.k8s_tf.email}"

@@ -20,16 +20,29 @@ resource "google_firestore_database" "default" {
   delete_protection_state           = "DELETE_PROTECTION_ENABLED"
 }
 
+locals {
+  # Signing certificate fingerprints of the Play app com.mazino2d.simsplit.dev,
+  # for Google sign-in on Android: Play Console → SimSplit Dev → Protected with
+  # Play → Play app signing. The upload key is prd's (same keystore).
+  android_sha1_hashes = [
+    "10be3b075201a9ed36d6f4da5a2e7f0629ccb21f", # Play App Signing
+    "d4ba311c4d85f5f084b06839742de9390e237fa5", # upload key
+  ]
+  android_sha256_hashes = [
+    "d152d8bb3d79afd6303ef2eee6147a3ec8ee7186b015b2fd7d14919fc7f7c7b1", # Play App Signing
+    "8ab3bf0adce70fdd609fb0d527eed930b6f829b2f69af45cdcd179b885a89399", # upload key
+  ]
+}
+
 # A separate Play app, so internal-test builds install next to the production
-# app. Its fingerprints are variables until Play Console has created its app
-# signing key (_variables.tf).
+# app.
 resource "google_firebase_android_app" "sim_split" {
   provider        = google-beta
   project         = google_firebase_project.this.project
   display_name    = "SimSplit Dev"
   package_name    = "com.mazino2d.simsplit.dev"
-  sha1_hashes     = var.android_sha1_hashes
-  sha256_hashes   = var.android_sha256_hashes
+  sha1_hashes     = local.android_sha1_hashes
+  sha256_hashes   = local.android_sha256_hashes
   deletion_policy = "DELETE"
 }
 

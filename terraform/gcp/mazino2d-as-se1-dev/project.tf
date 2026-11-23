@@ -1,8 +1,7 @@
 module "project" {
   source             = "./_modules/gcp-project"
-  name               = "mazino2d-as-se1-dev"
-  project_id         = "mazino2d-as-se1-dev"
-  billing_account_id = "0138D2-6EFA6E-34332E"
+  project_id         = local.project_id
+  billing_account_id = local.billing_account_id
   services = [
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",

@@ -55,4 +55,11 @@ resource "cloudflare_pages_project" "a3spy" {
   account_id        = var.cloudflare_account_id
   name              = "a3spy"
   production_branch = "main"
+
+  # deployment_configs comes from a3spy's deploys (above). Without ignoring it,
+  # the provider plans it as changed and every plan shows
+  # `+ build_image_auto_upgrade = (known after apply)`.
+  lifecycle {
+    ignore_changes = [deployment_configs]
+  }
 }

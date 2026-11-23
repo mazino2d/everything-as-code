@@ -1,3 +1,4 @@
 apiVersion: v2
 name: eac-cronjob
-version: 0.1.0
+version: 0.1.1
+description: Runs one scheduled job as a CronJob, with optional config and Infisical secret

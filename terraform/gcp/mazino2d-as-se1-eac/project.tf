@@ -2,7 +2,6 @@
 # Terraform state bucket and the identity GitHub Actions signs in with.
 module "project" {
   source             = "./_modules/gcp-project"
-  name               = "mazino2d-as-se1-eac"
   project_id         = local.project_id
   billing_account_id = local.billing_account_id
   services = [

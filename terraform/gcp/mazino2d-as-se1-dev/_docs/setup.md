@@ -18,7 +18,7 @@ Follow [terraform/gcp/_docs/setup.md](../../_docs/setup.md) with
 |---|---|---|
 | `duckdns_token` | token from [duckdns.org](https://www.duckdns.org) | ✅ |
 
-`module.vm-free` reads `duckdns_token` at plan time and passes it to the VM in its
+`module.vm_free` reads `duckdns_token` at plan time and passes it to the VM in its
 metadata. Without it, the VM boots but can't update its DuckDNS record.
 
 Other stacks read this stack's outputs from its state in the bucket; no sharing step is

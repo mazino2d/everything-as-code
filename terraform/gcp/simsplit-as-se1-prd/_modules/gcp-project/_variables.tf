@@ -1,5 +1,7 @@
 variable "name" {
-  type = string
+  description = "Display name; defaults to project_id."
+  type        = string
+  default     = null
 }
 
 variable "project_id" {

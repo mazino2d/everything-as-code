@@ -1,16 +1,16 @@
 output "vm_free_ip" {
   description = "Ephemeral public IP of the free-tier VM."
-  value       = module.vm-free.ip
+  value       = module.vm_free.ip
 }
 
-output "free_tier_gcs_bucket_name" {
-  description = "Always-free tier GCS bucket name"
-  value       = google_storage_bucket.free_tier.name
+output "velero_bucket_name" {
+  description = "Velero backup bucket name."
+  value       = google_storage_bucket.velero_backups.name
 }
 
-output "free_tier_gcs_bucket_url" {
-  description = "Always-free tier GCS bucket URL"
-  value       = google_storage_bucket.free_tier.url
+output "velero_bucket_url" {
+  description = "Velero backup bucket URL."
+  value       = google_storage_bucket.velero_backups.url
 }
 
 output "gke_connect_cmd" {

@@ -1,21 +1,12 @@
+# Stacks whose workload_gsa output holds service account keys, synced to
+# Infisical under /workload-gsa-keys/<folder>/<workload>. The key is the folder
+# (Velero reads /workload-gsa-keys/gcp-mazino2d-as-se1-dev/velero-velero);
+# stack is the state path under terraform/.
 locals {
-  workload_gsa_sync = {
-    sources = [
-      {
-        # workspace names the Infisical folder; stack is the state path under terraform/.
-        workspace   = "gcp-mazino2d-as-se1-dev"
-        stack       = "gcp/mazino2d-as-se1-dev"
-        environment = "dev"
-      },
-    ]
-  }
-
   workload_gsa_sources = {
-    for source in local.workload_gsa_sync.sources : source.workspace => {
-      workspace      = source.workspace
-      stack          = source.stack
-      environment    = source.environment
-      workspace_slug = replace(lower(source.workspace), "/[^a-z0-9-]+/", "-")
+    "gcp-mazino2d-as-se1-dev" = {
+      stack       = "gcp/mazino2d-as-se1-dev"
+      environment = "dev"
     }
   }
 }
@@ -36,29 +27,22 @@ locals {
     for source in values(local.workload_gsa_sources) : source.environment
   ])
 
-  env_workspace_pairs = {
-    for workspace_name, source in local.workload_gsa_sources : "${source.environment}:${workspace_name}" => {
-      env_slug       = source.environment
-      workspace_name = workspace_name
-      workspace_slug = source.workspace_slug
+  env_folder_pairs = {
+    for folder, source in local.workload_gsa_sources : "${source.environment}:${folder}" => {
+      env_slug = source.environment
+      folder   = folder
     }
-  }
-
-  workload_gsa = {
-    for workspace_name, state in data.terraform_remote_state.gcp_workload_gsa :
-    workspace_name => try(state.outputs.workload_gsa, {})
   }
 
   workload_gsa_with_keys = {
     for item in flatten([
-      for workspace_name, workloads in local.workload_gsa : [
-        for workload_name, workload in workloads : {
-          key            = "${local.workload_gsa_sources[workspace_name].environment}:${workspace_name}:${workload_name}"
-          env_slug       = local.workload_gsa_sources[workspace_name].environment
-          workspace_name = workspace_name
-          workspace_slug = local.workload_gsa_sources[workspace_name].workspace_slug
-          workload_name  = workload_name
-          workload       = workload
+      for folder, state in data.terraform_remote_state.gcp_workload_gsa : [
+        for workload_name, workload in try(state.outputs.workload_gsa, {}) : {
+          key           = "${local.workload_gsa_sources[folder].environment}:${folder}:${workload_name}"
+          env_slug      = local.workload_gsa_sources[folder].environment
+          folder        = folder
+          workload_name = workload_name
+          workload      = workload
         }
       ]
     ]) : item.key => item
@@ -76,10 +60,15 @@ resource "infisical_secret_folder" "workload_gsa_root" {
   force_delete     = true
 }
 
-resource "infisical_secret_folder" "workload_gsa_workspace" {
-  for_each = local.env_workspace_pairs
+moved {
+  from = infisical_secret_folder.workload_gsa_workspace
+  to   = infisical_secret_folder.workload_gsa_folder
+}
 
-  name             = each.value.workspace_slug
+resource "infisical_secret_folder" "workload_gsa_folder" {
+  for_each = local.env_folder_pairs
+
+  name             = each.value.folder
   environment_slug = each.value.env_slug
   project_id       = module.everything_as_code.id
   # Static paths below: referencing a parent's computed path forces replacement whenever the parent is updated in place.
@@ -95,10 +84,10 @@ resource "infisical_secret_folder" "workload_gsa_sub" {
   name             = each.value.workload_name
   environment_slug = each.value.env_slug
   project_id       = module.everything_as_code.id
-  folder_path      = "/workload-gsa-keys/${each.value.workspace_slug}"
+  folder_path      = "/workload-gsa-keys/${each.value.folder}"
   force_delete     = true
 
-  depends_on = [infisical_secret_folder.workload_gsa_workspace]
+  depends_on = [infisical_secret_folder.workload_gsa_folder]
 }
 
 resource "infisical_secret" "workload_gsa_key" {
@@ -109,7 +98,7 @@ resource "infisical_secret" "workload_gsa_key" {
   value_wo_version = 1
   env_slug         = each.value.env_slug
   workspace_id     = module.everything_as_code.id
-  folder_path      = "/workload-gsa-keys/${each.value.workspace_slug}/${each.value.workload_name}"
+  folder_path      = "/workload-gsa-keys/${each.value.folder}/${each.value.workload_name}"
 
   depends_on = [infisical_secret_folder.workload_gsa_sub]
 }

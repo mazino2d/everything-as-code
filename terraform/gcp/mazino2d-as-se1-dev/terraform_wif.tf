@@ -6,7 +6,7 @@ locals {
 }
 
 resource "google_service_account_iam_member" "terraform_wif" {
-  service_account_id = "projects/${module.project.project_id}/serviceAccounts/terraform@${module.project.project_id}.iam.gserviceaccount.com"
+  service_account_id = "projects/${local.project_id}/serviceAccounts/terraform@${local.project_id}.iam.gserviceaccount.com"
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${local.eac_github_pool}/attribute.repository/mazino2d/everything-as-code"
 }

@@ -1,4 +1,9 @@
-module "vm-free" {
+moved {
+  from = module.vm-free
+  to   = module.vm_free
+}
+
+module "vm_free" {
   source           = "./_modules/gcp-vm"
   name             = "vm-free"
   project_id       = module.project.project_id

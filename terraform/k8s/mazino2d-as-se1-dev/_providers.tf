@@ -12,26 +12,17 @@ terraform {
     }
     kubectl = {
       source  = "alekc/kubectl"
-      version = "~> 2.0"
+      version = "~> 2.4"
     }
     google = {
       source  = "hashicorp/google"
-      version = "~> 7.0"
+      version = "~> 7.19"
     }
   }
 
   backend "gcs" {
     bucket = "mazino2d-as-se1-eac-tfstate"
     prefix = "state/k8s/mazino2d-as-se1-dev"
-  }
-}
-
-data "terraform_remote_state" "gcp" {
-  backend = "gcs"
-
-  config = {
-    bucket = "mazino2d-as-se1-eac-tfstate"
-    prefix = "state/gcp/mazino2d-as-se1-dev"
   }
 }
 

@@ -117,7 +117,12 @@ resource "google_project_iam_custom_role" "simsplit_telemetry_writer" {
   ]
 }
 
-resource "google_bigquery_dataset_iam_member" "simsplit_telemetry" {
+moved {
+  from = google_bigquery_dataset_iam_member.simsplit_telemetry
+  to   = google_bigquery_dataset_iam_member.simsplit_telemetry_writer
+}
+
+resource "google_bigquery_dataset_iam_member" "simsplit_telemetry_writer" {
   count = local.simsplit_telemetry != null ? 1 : 0
 
   project    = module.project.project_id

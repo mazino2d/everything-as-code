@@ -1,3 +1,4 @@
 apiVersion: v2
 name: eac-app
-version: 0.7.0
+version: 0.7.1
+description: Runs one app as a Deployment, Argo Rollout or StatefulSet, with its Service, network policy and optional Infisical secret

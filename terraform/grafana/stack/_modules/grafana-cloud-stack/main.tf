@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    grafana = {
-      source  = "grafana/grafana"
-      version = "~> 3.16"
-    }
-  }
-}
-
 # The stack itself is made by hand in Grafana Cloud; Terraform only reads it.
 data "grafana_cloud_stack" "this" {
   slug = var.stack_slug

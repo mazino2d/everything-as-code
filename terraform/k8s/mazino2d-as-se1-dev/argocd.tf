@@ -1,57 +1,34 @@
 locals {
+  argocd_sync_options = [
+    "CreateNamespace=true",
+    "ServerSideApply=true",
+    "ApplyOutOfSyncOnly=true",
+    "PruneLast=true",
+  ]
+
+  # Layers with custom resources add SkipDryRunOnMissingResource, so a sync
+  # doesn't fail while their CRD isn't installed yet.
   argocd_apps = {
     platform = {
-      path      = "kubernetes/clusters/mazino2d-as-se1-dev/platform"
-      sync_wave = 0
-      sync_options = [
-        "CreateNamespace=true",
-        "ServerSideApply=true",
-        "ApplyOutOfSyncOnly=true",
-        "PruneLast=true",
-      ]
+      path         = "kubernetes/clusters/mazino2d-as-se1-dev/platform"
+      sync_wave    = 0
+      sync_options = local.argocd_sync_options
     }
     infra = {
-      path      = "kubernetes/clusters/mazino2d-as-se1-dev/infra"
-      sync_wave = 0
-      sync_options = [
-        "CreateNamespace=true",
-        "ServerSideApply=true",
-        "ApplyOutOfSyncOnly=true",
-        "PruneLast=true",
-        "SkipDryRunOnMissingResource=true",
-      ]
+      path         = "kubernetes/clusters/mazino2d-as-se1-dev/infra"
+      sync_wave    = 0
+      sync_options = concat(local.argocd_sync_options, ["SkipDryRunOnMissingResource=true"])
     }
     monitoring = {
-      path      = "kubernetes/clusters/mazino2d-as-se1-dev/monitoring"
-      sync_wave = 1
-      sync_options = [
-        "CreateNamespace=true",
-        "ServerSideApply=true",
-        "ApplyOutOfSyncOnly=true",
-        "PruneLast=true",
-        "SkipDryRunOnMissingResource=true",
-      ]
+      path         = "kubernetes/clusters/mazino2d-as-se1-dev/monitoring"
+      sync_wave    = 1
+      sync_options = concat(local.argocd_sync_options, ["SkipDryRunOnMissingResource=true"])
     }
     apps = {
-      path      = "kubernetes/clusters/mazino2d-as-se1-dev/apps"
-      sync_wave = 2
-      sync_options = [
-        "CreateNamespace=true",
-        "ServerSideApply=true",
-        "ApplyOutOfSyncOnly=true",
-        "PruneLast=true",
-        "SkipDryRunOnMissingResource=true",
-      ]
+      path         = "kubernetes/clusters/mazino2d-as-se1-dev/apps"
+      sync_wave    = 2
+      sync_options = concat(local.argocd_sync_options, ["SkipDryRunOnMissingResource=true"])
     }
-  }
-}
-
-data "terraform_remote_state" "github" {
-  backend = "gcs"
-
-  config = {
-    bucket = "mazino2d-as-se1-eac-tfstate"
-    prefix = "state/github"
   }
 }
 

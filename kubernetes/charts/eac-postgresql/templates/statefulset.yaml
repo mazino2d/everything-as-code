@@ -1,12 +1,6 @@
 {{- $root := . -}}
 {{- range .Values.instances }}
-{{- $passwordSource := dig "auth" "password" "source" "auto" . }}
-{{- $autoSecretName := dig "auth" "password" "secretName" (printf "%s-auth" .name) . }}
-{{- $existingSecretName := dig "auth" "password" "existingSecret" "" . }}
-{{- $secretName := $autoSecretName }}
-{{- if eq $passwordSource "existingSecret" }}
-{{- $secretName = required (printf "instances[%s].auth.password.existingSecret is required when source=existingSecret" .name) $existingSecretName }}
-{{- end }}
+{{- $secretName := include "eac-postgresql.passwordSecretName" . }}
 {{- $port := dig "service" "port" 5432 . }}
 ---
 apiVersion: apps/v1

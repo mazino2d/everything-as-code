@@ -4,7 +4,7 @@ terraform {
   required_providers {
     infisical = {
       source  = "infisical/infisical"
-      version = "~> 0.12"
+      version = "~> 0.20"
     }
     random = {
       source  = "hashicorp/random"

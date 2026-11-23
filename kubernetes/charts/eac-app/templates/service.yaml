@@ -10,14 +10,4 @@ spec:
   selector:
     app: {{ .Values.name }}
   ports:
-    {{- range .Values.service.ports }}
-    - port: {{ .port }}
-      targetPort: {{ .containerPort }}
-      protocol: TCP
-      {{- if .name }}
-      name: {{ .name }}
-      {{- end }}
-      {{- if .nodePort }}
-      nodePort: {{ .nodePort }}
-      {{- end }}
-    {{- end }}
+    {{- include "eac-app.servicePorts" (dict "Values" .Values "nodePort" true) | trim | nindent 4 }}
