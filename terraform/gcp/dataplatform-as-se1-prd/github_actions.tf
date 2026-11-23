@@ -1,6 +1,6 @@
-# Keyless auth for mazino2d/data-platform's GitHub Actions: CI on same-repo PRs
-# and the scheduled pipeline both run dlt and dbt against BigQuery, so any ref
-# is allowed. Fork PRs get no OIDC token.
+# Keyless auth for mazino2d/data-platform's GitHub Actions. Only main (the
+# scheduled pipeline, dashboard builds) and vYYYY.M.D release tags reach prd;
+# pull requests and other branches run against dataplatform-as-se1-dev.
 resource "google_iam_workload_identity_pool" "github" {
   project                   = module.project.project_id
   workload_identity_pool_id = "github"
@@ -18,7 +18,7 @@ resource "google_iam_workload_identity_pool_provider" "data_platform" {
     "attribute.repository" = "assertion.repository"
     "attribute.ref"        = "assertion.ref"
   }
-  attribute_condition = "assertion.repository == 'mazino2d/data-platform'"
+  attribute_condition = "assertion.repository == 'mazino2d/data-platform' && (assertion.ref == 'refs/heads/main' || assertion.ref.startsWith('refs/tags/v'))"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
