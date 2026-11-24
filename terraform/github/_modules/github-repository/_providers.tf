@@ -5,5 +5,8 @@ terraform {
     github = {
       source = "integrations/github"
     }
+    restful = {
+      source = "magodo/restful"
+    }
   }
 }

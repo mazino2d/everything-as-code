@@ -123,12 +123,14 @@ variable "branch_protection" {
 
 variable "security" {
   type = object({
-    dependabot_alerts           = optional(bool)
-    dependabot_security_updates = optional(bool)
-    secret_scanning             = optional(bool)
+    dependabot_alerts               = optional(bool)
+    dependabot_security_updates     = optional(bool)
+    secret_scanning                 = optional(bool)
+    private_vulnerability_reporting = optional(bool)
+    code_scanning                   = optional(bool, false)
   })
   default     = {}
-  description = "Dependabot alerts and security update PRs, plus secret scanning with push protection; unset flags default to on (secret scanning only on public repos, everything off when archived)"
+  description = "Dependabot alerts and security update PRs, secret scanning with push protection, private vulnerability reporting and CodeQL default setup; unset flags default to on except code_scanning (secret scanning, private vulnerability reporting and code scanning only on public repos, everything off when archived)"
 }
 
 variable "deploy_app" {

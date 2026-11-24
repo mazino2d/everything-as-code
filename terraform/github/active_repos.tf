@@ -15,9 +15,13 @@ module "everything_as_code" {
 
   branch_protection = {
     required_status_checks = {
-      strict   = true
       contexts = ["terraform / gate", "k8s / gate", "blog / gate", "docker / gate"]
     }
+  }
+
+  # CodeQL default setup; replaces the advanced codeql job in .github/workflows/lint.yml.
+  security = {
+    code_scanning = true
   }
 }
 
@@ -94,7 +98,6 @@ module "sim_split" {
 
   branch_protection = {
     required_status_checks = {
-      strict   = true
       contexts = ["PR Validation"]
     }
   }
@@ -133,7 +136,6 @@ module "a3spy" {
 
   branch_protection = {
     required_status_checks = {
-      strict   = true
       contexts = ["ci / gate"]
     }
   }

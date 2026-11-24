@@ -13,9 +13,3 @@ permissions:
 jobs:
   lint:
     uses: mazino2d/github-workflows/.github/workflows/lint.yml@v1
-
-  codeql:
-    uses: mazino2d/github-workflows/.github/workflows/codeql-actions.yml@v1
-    permissions:
-      contents: read
-      security-events: write
