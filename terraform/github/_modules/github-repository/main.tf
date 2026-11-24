@@ -9,13 +9,15 @@ locals {
   }
 }
 
+# GitHub Free has no wiki on private repos (the API silently ignores has_wiki = true),
+# so private repos keep it off instead of showing a diff on every plan.
 resource "github_repository" "this" {
   name                        = var.name
   description                 = var.description
   visibility                  = var.visibility
   topics                      = var.topics
   has_issues                  = var.has_issues
-  has_wiki                    = var.has_wiki
+  has_wiki                    = var.has_wiki && var.visibility == "public"
   has_projects                = var.has_projects
   has_discussions             = var.has_discussions
   allow_merge_commit          = var.allow_merge_commit
