@@ -34,13 +34,11 @@ module "mazino2d" {
 }
 
 module "mazino2d_github_io" {
-  source       = "./_modules/github-repository"
-  name         = "mazino2d.github.io"
-  description  = "My SPACE!"
-  visibility   = "public"
-  topics       = ["personal-website", "blog"]
-  has_wiki     = false
-  has_projects = false
+  source      = "./_modules/github-repository"
+  name        = "mazino2d.github.io"
+  description = "My SPACE!"
+  visibility  = "public"
+  topics      = ["personal-website", "blog"]
 
   pages = {
     build_type = "workflow"
@@ -112,13 +110,11 @@ module "staged_recipes" {
 }
 
 module "github_workflows" {
-  source       = "./_modules/github-repository"
-  name         = "github-workflows"
-  description  = "Centralised reusable GitHub Actions workflows and composite actions"
-  visibility   = "public"
-  topics       = ["github-actions", "ci-cd", "reusable-workflows"]
-  has_wiki     = false
-  has_projects = false
+  source      = "./_modules/github-repository"
+  name        = "github-workflows"
+  description = "Centralised reusable GitHub Actions workflows and composite actions"
+  visibility  = "public"
+  topics      = ["github-actions", "ci-cd", "reusable-workflows"]
 
   # release-please opens the release PR with the workflow token.
   actions_can_create_and_approve_pull_requests = true
@@ -130,8 +126,6 @@ module "a3spy" {
   description           = "Who is Spy game master in the browser: secret words, voting, and a voice call for friends far apart"
   visibility            = "public"
   topics                = ["game", "party-game", "pwa", "webrtc", "typescript", "cloudflare-workers"]
-  has_wiki              = false
-  has_projects          = false
   rename_default_branch = true
 
   branch_protection = {
@@ -143,13 +137,11 @@ module "a3spy" {
 
 # Default community health files (SECURITY.md, ...) for every repo without its own.
 module "dot_github" {
-  source       = "./_modules/github-repository"
-  name         = ".github"
-  description  = "Default community health files for mazino2d repositories"
-  visibility   = "public"
-  topics       = ["community-health", "security-policy"]
-  has_wiki     = false
-  has_projects = false
+  source      = "./_modules/github-repository"
+  name        = ".github"
+  description = "Default community health files for mazino2d repositories"
+  visibility  = "public"
+  topics      = ["community-health", "security-policy"]
 }
 
 # ===================================================================
@@ -163,7 +155,5 @@ module "curriculum_vitae" {
   description       = "LaTeX source of my CV, built to PDF by CI"
   visibility        = "private"
   topics            = ["cv", "latex"]
-  has_wiki          = false
-  has_projects      = false
   branch_protection = null
 }
