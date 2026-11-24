@@ -1,9 +1,11 @@
 locals {
   # GitHub Free offers secret scanning on public repos only; archived repos are read-only.
   security = {
-    dependabot_alerts           = !var.archived && coalesce(var.security.dependabot_alerts, true)
-    dependabot_security_updates = !var.archived && coalesce(var.security.dependabot_security_updates, true)
-    secret_scanning             = !var.archived && coalesce(var.security.secret_scanning, var.visibility == "public")
+    dependabot_alerts               = !var.archived && coalesce(var.security.dependabot_alerts, true)
+    dependabot_security_updates     = !var.archived && coalesce(var.security.dependabot_security_updates, true)
+    secret_scanning                 = !var.archived && coalesce(var.security.secret_scanning, var.visibility == "public")
+    private_vulnerability_reporting = !var.archived && var.visibility == "public" && coalesce(var.security.private_vulnerability_reporting, true)
+    code_scanning                   = !var.archived && var.visibility == "public" && var.security.code_scanning
   }
 }
 
@@ -53,6 +55,32 @@ resource "github_repository_dependabot_security_updates" "this" {
   enabled    = true
 
   depends_on = [github_repository_vulnerability_alerts.this]
+}
+
+# integrations/github has no resource for private vulnerability reporting, so the
+# generic REST provider manages the endpoint; plans read it back, so a manual
+# change on GitHub shows up as drift.
+resource "restful_resource" "private_vulnerability_reporting" {
+  count = local.security.private_vulnerability_reporting ? 1 : 0
+
+  path          = "/repos/${github_repository.this.full_name}/private-vulnerability-reporting"
+  create_method = "PUT"
+  update_method = "PUT"
+  delete_method = "DELETE"
+  body          = { enabled = true }
+}
+
+# CodeQL default setup (GitHub picks the languages). It cannot run alongside an
+# advanced setup workflow that uploads CodeQL results, so leave it off for those repos.
+resource "restful_resource" "code_scanning" {
+  count = local.security.code_scanning ? 1 : 0
+
+  path          = "/repos/${github_repository.this.full_name}/code-scanning/default-setup"
+  create_method = "PATCH"
+  update_method = "PATCH"
+  delete_method = "PATCH"
+  body          = { state = "configured" }
+  delete_body   = { state = "not-configured" }
 }
 
 resource "github_repository_pages" "this" {
